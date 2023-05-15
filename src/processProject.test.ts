@@ -1,13 +1,45 @@
 import { describe, expect, it } from "@jest/globals";
 import { format } from "prettier";
 import { Project } from "ts-morph";
-import { processFile, processProject } from "./go.js";
+import { processProject } from "./processProject.js";
+import { processFile } from "./processFile.js";
 
 function formatTestTypescript(src: string) {
   return format(src, { parser: "typescript", tabWidth: 2, useTabs: false });
 }
 
 const cases = [
+  {
+    name: "works nicely with interfaces",
+    // We cant break foo out in this case cause im too lazy to implement this another way.
+    inputs: new Map([
+      [
+        "foo.tsx",
+        `
+            export namespace Foo {
+                export interface Props { what: number }
+            }
+
+            class Foo extends React.Component<Foo.Props> {
+
+            }
+            `,
+      ],
+    ]),
+    outputs: new Map([
+      [
+        "foo.tsx",
+        `   
+            export interface FooProps { what: number }
+
+
+            class Foo extends React.Component<FooProps> {
+
+            }
+            `,
+      ],
+    ]),
+  },
   {
     name: "dont explode if error",
     // We cant break foo out in this case cause im too lazy to implement this another way.
@@ -120,7 +152,7 @@ const cases = [
   },
 ];
 
-describe("basic", () => {
+describe("processProject", () => {
   it.each(cases)("$name", async ({ inputs, outputs }) => {
     const project = new Project({
       useInMemoryFileSystem: true,

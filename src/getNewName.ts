@@ -1,4 +1,4 @@
-import { NameableNode } from "ts-morph";
+import { InterfaceDeclaration, NameableNode } from "ts-morph";
 import { Node } from "ts-morph";
 import { VariableDeclaration } from "ts-morph";
 
@@ -9,7 +9,7 @@ function namespaceNameToUpperSnakeCase(name: string) {
 }
 
 export function getNewName(
-  nodeOrName: (NameableNode & Node) | VariableDeclaration | string,
+  nodeOrName: (NameableNode & Node) | VariableDeclaration | InterfaceDeclaration | string,
   namespaceName: string
 ): string {
   const name =
@@ -18,5 +18,11 @@ export function getNewName(
   if (constantCase.test(name)) {
     return `${namespaceNameToUpperSnakeCase(namespaceName)}_${name}`
   }
+
+  // Special case a few things
+  if (name.endsWith("Props") || name.endsWith("State")) {
+    return `${namespaceName}${name}`;
+  }
+
   return `${name}Of${namespaceName}`;
 }

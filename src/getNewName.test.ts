@@ -1,7 +1,8 @@
 import { describe, expect, it } from "@jest/globals";
 import { format } from "prettier";
 import { Project } from "ts-morph";
-import { processFile, processProject } from "./go.js";
+import { processProject } from "./processProject.js";
+import { processFile } from "./processFile.js";
 import { getNewName } from "./getNewName.js";
 
 describe("getNewName", () => {
@@ -20,7 +21,22 @@ describe("getNewName", () => {
         name: "FOO",
         packageName: "Pack",
         expectedName: "PACK_FOO"
-    }
+    },
+    {
+        name: "Props",
+        packageName: "FooComponent",
+        expectedName: "FooComponentProps"
+    },
+    {
+        name: "OwnProps",
+        packageName: "FooComponent",
+        expectedName: "FooComponentOwnProps"
+    },
+    {
+        name: "StateProps",
+        packageName: "FooComponent",
+        expectedName: "FooComponentStateProps"
+    },
   ])("$packageName.$name => $expectedName", ({name, packageName, expectedName}) => {
     expect(getNewName(name, packageName)).toEqual(expectedName);
   });

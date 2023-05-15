@@ -3,7 +3,7 @@ import { Node } from "ts-morph";
 import * as Assert from "node:assert";
 import { getNewName } from "./getNewName.js";
 
-export function renameSymbolsInOriginalFile(
+export function renameOriginalSymbols(
   toRename: Set<string>,
   sf: SourceFile,
   namespaceName: string
@@ -20,7 +20,7 @@ export function renameSymbolsInOriginalFile(
 
     const decl = decls[0];
 
-    if (!Node.isVariableDeclaration(decl) && !Node.isNameable(decl)) {
+    if (!Node.isVariableDeclaration(decl) && !Node.isInterfaceDeclaration(decl) && !Node.isNameable(decl)) {
       // console.log(decl.getKindName());
       // console.log(decl.print());
       throw new Error("invariant failure. why is there no name!");

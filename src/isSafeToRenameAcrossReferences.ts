@@ -2,6 +2,7 @@ import { SyntaxKind, ModuleDeclaration } from "ts-morph";
 import { Node } from "ts-morph";
 import * as Assert from "node:assert";
 import { getNewName } from "./getNewName.js";
+import { getValidReferenceParentOrThrow } from "./getValidReferenceParentOrThrow.js";
 
 export function isSafeToRenameAcrossReferences(
   toRename: Set<string>,
@@ -21,9 +22,11 @@ export function isSafeToRenameAcrossReferences(
     for (const r of q.findReferencesAsNodes()) {
       // This is the identifier for the variable but we need to rename
       // both it AND the access to the namespace so lets get there first
-      const parent = r.getParentIfKindOrThrow(
-        SyntaxKind.PropertyAccessExpression
-      );
+      console.log({
+        parent: r.getParent()!.getKindName(),
+        self: r.getKindName(),
+      });
+      const parent = getValidReferenceParentOrThrow(r);
 
       // Too lazy to do deep checks here for finding a safe name. yes or no is good enough
       if (parent.getLocal(newName)) {
@@ -35,3 +38,5 @@ export function isSafeToRenameAcrossReferences(
   }
   return true;
 }
+
+

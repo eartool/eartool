@@ -1,53 +1,16 @@
-import {
-  Project,
-  SourceFile,
-  SyntaxKind,
-} from "ts-morph";
-import * as path from "node:path";
+import { SourceFile, SyntaxKind } from "ts-morph";
 import { Node } from "ts-morph";
 import { isSafeToRenameAcrossReferences } from "./isSafeToRenameAcrossReferences.js";
-import { renameSymbolsInOriginalFile } from "./renameSymbolsInOriginalFile.js";
-import { renameReferencesInOtherFiles } from "./renameReferencesInOtherFiles.js";
+import { renameOriginalSymbols } from "./renameOriginalSymbols.js";
+import { renameReferences } from "./renameReferences.js";
 import { isNamespaceDeclaration } from "./utils/isNamespaceDeclaration.js";
+import * as Assert from "assert";
 
-/*
-    Goal: lets get const / function / class / statement out of namespaces
-
-    Lazy Approach:
-    * 1 namespace per file per run
-    * Extract to `niceName(namespaceName, namedEntity)`
-    * Find all references to old `namedEntity` in package and replace with new name?
-    * Add import to new name
-    * Org imports
-    * If something exports `namespaceName` then it needs to also export `newName`
-    * Delete namespace if empty
-
-*/
-
-function processPackage(packagePath: string) {
-  const project = new Project({
-    tsConfigFilePath: path.join(packagePath, "tsconfig.json"),
-  });
-
-  for (const sf of project.getSourceFiles()) {
-    //
-  }
-}
-
-export async function processProject(project: Project) {
-  for (const sf of project.getSourceFiles()) {
-    processFile(sf);
-  }
-
-  for (const sf of project.getSourceFiles()) {
-    sf.organizeImports();
-  }
-  await project.save();
-}
 
 export function processFile(sf: SourceFile) {
   const namespaceDecl = sf.getFirstDescendant(isNamespaceDeclaration);
-  if (!namespaceDecl) return;
+  if (!namespaceDecl)
+    return;
 
   const namespaceName = namespaceDecl.getName();
   // console.log(
@@ -55,7 +18,6 @@ export function processFile(sf: SourceFile) {
   //   namespaceDecl.hasNamespaceKeyword(),
   //   namespaceDecl.getDeclarationKind()
   // );
-
   const syntaxList = namespaceDecl
     .getLastChildByKindOrThrow(SyntaxKind.ModuleBlock)
     .getLastChildByKindOrThrow(SyntaxKind.SyntaxList);
@@ -65,10 +27,6 @@ export function processFile(sf: SourceFile) {
   const toRename = new Set<string>();
 
   for (const q of syntaxList.getChildren()) {
-    const name = Node.isNameable(q) && q.getName();
-    // console.log("-");
-    // console.log(name);
-
     if (Node.isVariableStatement(q)) {
       for (const varDecl of q.getDeclarations()) {
         if (symbolsInRootScope.has(varDecl.getName())) {
@@ -80,10 +38,14 @@ export function processFile(sf: SourceFile) {
           toRename.add(varDecl.getName());
         }
       }
-    } else if (Node.isFunctionDeclaration(q) || Node.isClassDeclaration(q)) {
+    } else if (Node.isFunctionDeclaration(q) ||
+      Node.isClassDeclaration(q) ||
+      Node.isInterfaceDeclaration(q)) {
       // Can't have unnamed functions in namespace unless its invoked,
       // but that would be an expression statement so we are okay
-      toRename.add(q.getNameOrThrow()); 
+      const name = q.getName();
+      Assert.ok(name != null, "name was expected");
+      toRename.add(name);
     } else if (Node.isInterfaceDeclaration(q)) {
     } else if (Node.isEnumDeclaration(q)) {
     } else {
@@ -99,15 +61,13 @@ export function processFile(sf: SourceFile) {
 
   // if we got here its safe to do our job.
   // find the files that used these old names
-  renameReferencesInOtherFiles(toRename, namespaceDecl);
+  renameReferences(toRename, namespaceDecl);
 
   // Actually break up the namespace
   namespaceDecl.unwrap();
 
   // Finally rename locally
-  renameSymbolsInOriginalFile(toRename, sf, namespaceName);
+  renameOriginalSymbols(toRename, sf, namespaceName);
 
   // console.log(sf.getFullText());
 }
-
-

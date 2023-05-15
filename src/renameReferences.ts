@@ -2,6 +2,7 @@ import { SyntaxKind, ModuleDeclaration } from "ts-morph";
 import { Node } from "ts-morph";
 import * as Assert from "node:assert";
 import { getNewName } from "./getNewName.js";
+import { getValidReferenceParentOrThrow } from "./getValidReferenceParentOrThrow.js";
 
 /**
  * Renames all reference to the names provided from the provided namespace.
@@ -11,7 +12,7 @@ import { getNewName } from "./getNewName.js";
  * @param toRename
  * @param namespaceDecl
  */
-export function renameReferencesInOtherFiles(
+export function renameReferences(
   toRename: Set<string>,
   namespaceDecl: ModuleDeclaration
 ) {
@@ -28,9 +29,7 @@ export function renameReferencesInOtherFiles(
     for (const r of q.findReferencesAsNodes()) {
       // This is the identifier for the variable but we need to rename
       // both it AND the access to the namespace so lets get there first
-      const parent = r.getParentIfKindOrThrow(
-        SyntaxKind.PropertyAccessExpression
-      );
+      const parent = getValidReferenceParentOrThrow(r);
 
       // We need to save this off because `r` is invalid after we replace
       const referencingSf = r.getSourceFile();
@@ -38,12 +37,14 @@ export function renameReferencesInOtherFiles(
       // Too lazy to do deep checks here.
       parent.replaceWithText(newName);
 
-      referencingSf.addImportDeclaration({
-        moduleSpecifier: referencingSf.getRelativePathAsModuleSpecifierTo(
-          namespaceDecl.getSourceFile()
-        ),
-        namedImports: [newName],
-      });
+      if (referencingSf != namespaceDecl.getSourceFile()) {
+        referencingSf.addImportDeclaration({
+          moduleSpecifier: referencingSf.getRelativePathAsModuleSpecifierTo(
+            namespaceDecl.getSourceFile()
+          ),
+          namedImports: [newName],
+        });
+      }
     }
 
     // console.log("Length: " + sym.getDeclarations().length);
