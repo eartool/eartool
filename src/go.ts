@@ -25,7 +25,6 @@ import { format } from "prettier";
     * Delete namespace if empty
 
 */
-processTest();
 
 function processPackage(packagePath: string) {
   const project = new Project({
@@ -37,69 +36,30 @@ function processPackage(packagePath: string) {
   }
 }
 
-function formatTestTypescript(src: string) {
-  return format(src, { parser: "typescript", tabWidth: 2, useTabs: false });
-}
-
-const testInput = new Map([
-  [
-    "foo.ts",
-    formatTestTypescript(`
-    const foo = 5;
-    
-    export namespace Wat {
-        export const aasdf = 3;
-        export const second = 5;
-    
-        export function f() {
-            return 5;
-        }
-        
-        export class C {}
-        
-        export interface I {}
-        
-        export enum E{}
-    }
-    `),
-  ],
-]);
-const expectedTestOutput = new Map([
-  [
-    "foo.ts",
-    formatTestTypescript(`
-    const foo = 5;
-
-    const aasdfOfWat = 3;
-    const secondOfWat = 5;
-    
-    export namespace Wat {
-        export function f() {
-            return 5;
-        }
-        
-        export class C {}
-        
-        export interface I {}
-        
-        export enum E{}
-    }
-    `),
-  ],
-]);
-
-function processTest() {
-  const project = new Project();
-  for (const [name, contents] of testInput) {
-    project.createSourceFile(name, contents);
-  }
-
+export async function processProject(project: Project) {
   for (const sf of project.getSourceFiles()) {
     processFile(sf);
   }
+
+  for (const sf of project.getSourceFiles()) {
+    sf.organizeImports();
+    sf.save
+  }
+  await project.save();
 }
 
-function processFile(sf: SourceFile) {
+// function processTest() {
+//   const project = new Project();
+//   for (const [name, contents] of testInput) {
+//     project.createSourceFile(name, contents);
+//   }
+
+//   for (const sf of project.getSourceFiles()) {
+//     processFile(sf);
+//   }
+// }
+
+export function processFile(sf: SourceFile) {
   const variablesToMove: [VariableStatementStructure, number][] = [];
   const namespaceToDelete: number[] = [];
 
@@ -146,3 +106,5 @@ function processFile(sf: SourceFile) {
     variablesToMove.push([newStructure, decl.getChildIndex() + offset++]);
   }
 }
+
+// processTest();
