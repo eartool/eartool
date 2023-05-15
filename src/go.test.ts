@@ -82,6 +82,9 @@ const cases = [
         
         export namespace Wat {
             export const key = 3;
+            export function f() { return 5; }
+
+            export class Foo {}
         }
         `,
       ],
@@ -89,6 +92,8 @@ const cases = [
         "refWat.ts",
         `import {Wat} from "./wat";
         console.log(Wat.key);
+        console.log(Wat.f());
+        console.log(new Wat.Foo());
         `,
       ],
     ]),
@@ -97,13 +102,18 @@ const cases = [
         "wat.ts",
         `
         export const keyOfWat = 3;
+        export function fOfWat() { return 5; }
+
+        export class FooOfWat {}
         `,
       ],
       [
         "refWat.ts",
-        `import {keyOfWat} from "./wat";
+        `import {FooOfWat, fOfWat, keyOfWat} from "./wat";
         
         console.log(keyOfWat);
+        console.log(fOfWat());
+        console.log(new FooOfWat());
         `,
       ],
     ]),

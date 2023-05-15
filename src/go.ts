@@ -80,9 +80,10 @@ export function processFile(sf: SourceFile) {
           toRename.add(varDecl.getName());
         }
       }
-    } else if (Node.isFunctionDeclaration(q)) {
-      q.findReferences;
-    } else if (Node.isClassDeclaration(q)) {
+    } else if (Node.isFunctionDeclaration(q) || Node.isClassDeclaration(q)) {
+      // Can't have unnamed functions in namespace unless its invoked,
+      // but that would be an expression statement so we are okay
+      toRename.add(q.getNameOrThrow()); 
     } else if (Node.isInterfaceDeclaration(q)) {
     } else if (Node.isEnumDeclaration(q)) {
     } else {
