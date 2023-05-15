@@ -1,13 +1,145 @@
 import { describe, expect, it } from "@jest/globals";
 import { format } from "prettier";
-import { Project } from "ts-morph";
+import { Node, Project, SourceFile } from "ts-morph";
 import { processProject } from "./processProject.js";
+import { pino } from "pino";
+import pinoPretty from "pino-pretty";
 
 function formatTestTypescript(src: string) {
   return format(src, { parser: "typescript", tabWidth: 2, useTabs: false });
 }
 
 const cases = [
+  {
+    name: "redeclare export",
+    inputs: new Map([
+      [
+        "foo.tsx",
+        `
+        export namespace Foo {
+          export function bar() {
+            return 5;
+          }
+
+          export function baz() {
+            return 5;
+          }
+        }
+        `,
+      ],
+      [
+        "index.ts",
+        `
+      export {Foo} from "./foo";
+      `,
+      ],
+    ]),
+    outputs: new Map([
+      [
+        "foo.tsx",
+        `
+          export function barOfFoo() {
+           return 5;
+          }
+
+          export function bazOfFoo() {
+            return 5;
+           }
+      `,
+      ],
+      [
+        "index.ts",
+        `
+    export {barOfFoo, bazOfFoo} from "./foo";
+    `,
+      ],
+    ]),
+  },
+  {
+    name: "function invoke within namespace",
+    inputs: new Map([
+      [
+        "foo.tsx",
+        `
+        export namespace Foo {
+          export function bar() {
+            baz();
+          }
+
+          export function baz() {
+            return 5;
+          }
+        }
+        `,
+      ],
+    ]),
+    outputs: new Map([
+      [
+        "foo.tsx",
+        `
+        
+          export function barOfFoo() {
+            bazOfFoo();
+          }
+
+          export function bazOfFoo() {
+            return 5;
+          }
+        
+      `,
+      ],
+    ]),
+  },
+  {
+    name: "combined types",
+    inputs: new Map([
+      [
+        "foo.tsx",
+        `export namespace AssociatedMapSection {
+        export interface OgreProps {
+          properties: Property<any>[];
+        }
+      
+        export interface ReduxProps {
+          appRealmId: RealmId;
+          mapConfig: GaiaMapConfig;
+        }
+      
+        export interface State {
+          map?: MapSearchResult;
+          user?: IAcmeUser;
+          isLoading: boolean;
+        }
+      
+        export type Props = OverviewObjectMinProps & OgreProps & ReduxProps;
+      }`,
+      ],
+    ]),
+    outputs: new Map([
+      [
+        "foo.tsx",
+        `
+      
+        export interface AssociatedMapSectionOgreProps {
+          properties: Property<any>[];
+        }
+      
+        export interface AssociatedMapSectionReduxProps {
+          appRealmId: RealmId;
+          mapConfig: GaiaMapConfig;
+        }
+      
+        export interface AssociatedMapSectionState {
+          map?: MapSearchResult;
+          user?: IAcmeUser;
+          isLoading: boolean;
+        }
+      
+        export type AssociatedMapSectionProps = OverviewObjectMinProps & AssociatedMapSectionOgreProps & AssociatedMapSectionReduxProps;
+      `,
+      ],
+    ]),
+  },
   {
     name: "works nicely with interfaces",
     // We cant break foo out in this case cause im too lazy to implement this another way.
@@ -161,7 +293,31 @@ describe("processProject", () => {
       project.createSourceFile(name, contents);
     }
 
-    await processProject(project);
+    const logger = pino(
+      {
+        level: "trace",
+        serializers: {
+          ...pino.stdSerializers,
+          foo: (n: Node) =>
+            `${n.getSourceFile().getFilePath()}:${n.getStartLineNumber()}`,
+        },
+        hooks: {
+          logMethod: function logMethod([msg, ...args], method, foo) {
+            args = args.map((a: any) => maybeConvertNodeToFileAndLineNum(a));
+            // console.log([msg, ...args]);
+            method.apply(this, [msg, ...args]);
+          },
+        },
+      },
+      pinoPretty.default({
+        colorize: true,
+        sync: true,
+      })
+    );
+
+    await processProject(project, {
+      logger,
+    });
 
     const fs = project.getFileSystem();
 
@@ -172,3 +328,10 @@ describe("processProject", () => {
     }
   });
 });
+function maybeConvertNodeToFileAndLineNum(a: any): any {
+  if (a instanceof Node) {
+    return `${a.getSourceFile().getFilePath()}:${a.getStartLineNumber()}`;
+  }
+
+  return a;
+}

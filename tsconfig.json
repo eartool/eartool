@@ -6,6 +6,7 @@
     "declarationMap": true,
     "outDir": "lib",
     "rootDir": "src",
+    "sourceMap": true,
 
     "module": "Node16",
     "moduleResolution": "Node16",
