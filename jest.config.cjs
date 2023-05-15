@@ -3,6 +3,7 @@ module.exports = {
   preset: "ts-jest/presets/default-esm",
 
   testPathIgnorePatterns: ["node_modules", "lib"],
+  watchPathIgnorePatterns: ["lib"],
 
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",

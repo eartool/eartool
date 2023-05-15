@@ -2,15 +2,13 @@ import {
   Project,
   SourceFile,
   SyntaxKind,
-  ModuleDeclaration,
-  VariableStatementStructure,
-  ts,
 } from "ts-morph";
 import * as path from "node:path";
 import { Node } from "ts-morph";
-import { VariableDeclaration } from "ts-morph";
-import { VariableStatement } from "ts-morph";
-import { format } from "prettier";
+import { isSafeToRenameAcrossReferences } from "./isSafeToRenameAcrossReferences.js";
+import { renameSymbolsInOriginalFile } from "./renameSymbolsInOriginalFile.js";
+import { renameReferencesInOtherFiles } from "./renameReferencesInOtherFiles.js";
+import { isNamespaceDeclaration } from "./utils/isNamespaceDeclaration.js";
 
 /*
     Goal: lets get const / function / class / statement out of namespaces
@@ -43,68 +41,72 @@ export async function processProject(project: Project) {
 
   for (const sf of project.getSourceFiles()) {
     sf.organizeImports();
-    sf.save
   }
   await project.save();
 }
 
-// function processTest() {
-//   const project = new Project();
-//   for (const [name, contents] of testInput) {
-//     project.createSourceFile(name, contents);
-//   }
-
-//   for (const sf of project.getSourceFiles()) {
-//     processFile(sf);
-//   }
-// }
-
 export function processFile(sf: SourceFile) {
-  const variablesToMove: [VariableStatementStructure, number][] = [];
-  const namespaceToDelete: number[] = [];
+  const namespaceDecl = sf.getFirstDescendant(isNamespaceDeclaration);
+  if (!namespaceDecl) return;
 
-  let offset = 0;
-  for (const decl of sf.getDescendantsOfKind(SyntaxKind.ModuleDeclaration)) {
-    if (decl.isExported()) {
-      console.log(
-        decl.getName(),
-        decl.hasNamespaceKeyword(),
-        decl.getDeclarationKind()
-      );
+  const namespaceName = namespaceDecl.getName();
+  // console.log(
+  //   namespaceDecl.getName(),
+  //   namespaceDecl.hasNamespaceKeyword(),
+  //   namespaceDecl.getDeclarationKind()
+  // );
 
-      const syntaxList = decl
-        .getLastChildByKindOrThrow(SyntaxKind.ModuleBlock)
-        .getLastChildByKindOrThrow(SyntaxKind.SyntaxList);
+  const syntaxList = namespaceDecl
+    .getLastChildByKindOrThrow(SyntaxKind.ModuleBlock)
+    .getLastChildByKindOrThrow(SyntaxKind.SyntaxList);
 
-      for (const q of syntaxList.getChildren()) {
-        console.log(q.getKindName());
+  const symbolsInRootScope = new Set(sf.getLocals().map((a) => a.getName()));
 
-        if (Node.isVariableStatement(q)) {
-          newFunction(q, decl);
-        } else if (Node.isFunctionDeclaration(q)) {
-        } else if (Node.isClassDeclaration(q)) {
-        } else if (Node.isInterfaceDeclaration(q)) {
-        } else if (Node.isEnumDeclaration(q)) {
+  const toRename = new Set<string>();
+
+  for (const q of syntaxList.getChildren()) {
+    const name = Node.isNameable(q) && q.getName();
+    // console.log("-");
+    // console.log(name);
+
+    if (Node.isVariableStatement(q)) {
+      for (const varDecl of q.getDeclarations()) {
+        if (symbolsInRootScope.has(varDecl.getName())) {
+          // unwrap is going to make this really hard to deal with cause we
+          // have figure out which was the old and which is the new so we
+          // just bail on this file
+          return;
         } else {
-          console.log(`Unknown kind: ${q.getKindName()}`);
+          toRename.add(varDecl.getName());
         }
       }
-      decl.remove();
-
-      for (const [varStructure, idx] of variablesToMove) {
-        const n = sf.insertVariableStatement(idx, varStructure);
-      }
+    } else if (Node.isFunctionDeclaration(q)) {
+      q.findReferences;
+    } else if (Node.isClassDeclaration(q)) {
+    } else if (Node.isInterfaceDeclaration(q)) {
+    } else if (Node.isEnumDeclaration(q)) {
+    } else {
+      console.log(`Unknown kind: ${q.getKindName()}`);
     }
-    console.log(sf.getFullText());
   }
 
-  function newFunction(q: VariableStatement, decl: ModuleDeclaration) {
-    const newStructure = q.getStructure();
-    for (const d of newStructure.declarations) {
-      d.name = `${d.name}Of${decl.getName()}`;
-    }
-    variablesToMove.push([newStructure, decl.getChildIndex() + offset++]);
+  // if we got here, its safe to know we can rename in file but we don't
+  // know what we can do across the rest of the package. lets sanity check
+  if (!isSafeToRenameAcrossReferences(toRename, namespaceDecl)) {
+    return;
   }
+
+  // if we got here its safe to do our job.
+  // find the files that used these old names
+  renameReferencesInOtherFiles(toRename, namespaceDecl);
+
+  // Actually break up the namespace
+  namespaceDecl.unwrap();
+
+  // Finally rename locally
+  renameSymbolsInOriginalFile(toRename, sf, namespaceName);
+
+  // console.log(sf.getFullText());
 }
 
-// processTest();
+
