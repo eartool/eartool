@@ -1,6 +1,4 @@
-import { InterfaceDeclaration, NameableNode } from "ts-morph";
-import { Node } from "ts-morph";
-import { VariableDeclaration } from "ts-morph";
+import { InterfaceDeclaration, NameableNode, Node, VariableDeclaration } from "ts-morph";
 
 const constantCase = /^([A-Z_0-9])+$/;
 

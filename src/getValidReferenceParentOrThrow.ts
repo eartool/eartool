@@ -1,7 +1,7 @@
-import { Node } from "ts-morph";
 import * as Assert from "node:assert";
+import { Node, PropertyAccessExpression, QualifiedName } from "ts-morph";
 
-export function getValidReferenceParentOrThrow(r: Node) {
+export function getValidReferenceParentOrThrow(r: Node): PropertyAccessExpression | QualifiedName {
   const parent = r.getParent();
   Assert.ok(
     parent &&

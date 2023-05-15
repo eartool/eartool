@@ -1,10 +1,9 @@
-import { SourceFile, SyntaxKind } from "ts-morph";
-import { Node } from "ts-morph";
+import * as Assert from "assert";
+import { Node, SourceFile, SyntaxKind } from "ts-morph";
 import { isSafeToRenameAcrossReferences } from "./isSafeToRenameAcrossReferences.js";
 import { renameOriginalSymbols } from "./renameOriginalSymbols.js";
 import { renameReferences } from "./renameReferences.js";
 import { isNamespaceDeclaration } from "./utils/isNamespaceDeclaration.js";
-import * as Assert from "assert";
 
 
 export function processFile(sf: SourceFile) {

@@ -1,6 +1,5 @@
-import { SyntaxKind, ModuleDeclaration } from "ts-morph";
-import { Node } from "ts-morph";
 import * as Assert from "node:assert";
+import { ModuleDeclaration, Node } from "ts-morph";
 import { getNewName } from "./getNewName.js";
 import { getValidReferenceParentOrThrow } from "./getValidReferenceParentOrThrow.js";
 

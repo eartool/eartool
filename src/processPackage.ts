@@ -1,5 +1,6 @@
-import { Project } from "ts-morph";
 import * as path from "node:path";
+import { Project } from "ts-morph";
+import { processProject } from "./processProject.js";
 
 /*
     Goal: lets get const / function / class / statement out of namespaces
@@ -14,12 +15,10 @@ import * as path from "node:path";
     * Delete namespace if empty
 
 */
-function processPackage(packagePath: string) {
+export async function processPackage(packagePath: string) {
   const project = new Project({
     tsConfigFilePath: path.join(packagePath, "tsconfig.json"),
   });
 
-  for (const sf of project.getSourceFiles()) {
-    //
-  }
+  return await processProject(project);
 }

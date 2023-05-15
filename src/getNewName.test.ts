@@ -1,8 +1,4 @@
 import { describe, expect, it } from "@jest/globals";
-import { format } from "prettier";
-import { Project } from "ts-morph";
-import { processProject } from "./processProject.js";
-import { processFile } from "./processFile.js";
 import { getNewName } from "./getNewName.js";
 
 describe("getNewName", () => {

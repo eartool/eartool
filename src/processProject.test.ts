@@ -2,7 +2,6 @@ import { describe, expect, it } from "@jest/globals";
 import { format } from "prettier";
 import { Project } from "ts-morph";
 import { processProject } from "./processProject.js";
-import { processFile } from "./processFile.js";
 
 function formatTestTypescript(src: string) {
   return format(src, { parser: "typescript", tabWidth: 2, useTabs: false });
