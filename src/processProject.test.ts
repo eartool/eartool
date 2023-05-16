@@ -77,22 +77,6 @@ const cases = [
         `,
       ],
     ]),
-    outputs: new Map([
-      [
-        "foo.tsx",
-        `
-        
-          export function barOfFoo() {
-            bazOfFoo();
-          }
-
-          export function bazOfFoo() {
-            return 5;
-          }
-        
-      `,
-      ],
-    ]),
   },
   {
     name: "combined types",
@@ -119,30 +103,6 @@ const cases = [
       }`,
       ],
     ]),
-    outputs: new Map([
-      [
-        "foo.tsx",
-        `
-      
-        export interface AssociatedMapSectionOgreProps {
-          properties: Property<any>[];
-        }
-      
-        export interface AssociatedMapSectionReduxProps {
-          appRealmId: RealmId;
-          mapConfig: GaiaMapConfig;
-        }
-      
-        export interface AssociatedMapSectionState {
-          map?: MapSearchResult;
-          user?: IAcmeUser;
-          isLoading: boolean;
-        }
-      
-        export type AssociatedMapSectionProps = OverviewObjectMinProps & AssociatedMapSectionOgreProps & AssociatedMapSectionReduxProps;
-      `,
-      ],
-    ]),
   },
   {
     name: "works nicely with interfaces",
@@ -161,36 +121,11 @@ const cases = [
             `,
       ],
     ]),
-    outputs: new Map([
-      [
-        "foo.tsx",
-        `   
-            export interface FooProps { what: number }
-
-
-            class Foo extends React.Component<FooProps> {
-
-            }
-            `,
-      ],
-    ]),
   },
   {
     name: "dont explode if error",
     // We cant break foo out in this case cause im too lazy to implement this another way.
     inputs: new Map([
-      [
-        "foo.ts",
-        `
-            const foo = 5;
-            
-            export namespace Wat {
-                export const foo = 6;
-            }
-            `,
-      ],
-    ]),
-    outputs: new Map([
       [
         "foo.ts",
         `
@@ -223,22 +158,6 @@ const cases = [
         `,
       ],
     ]),
-    outputs: new Map([
-      [
-        "foo.ts",
-        `
-        const foo = 5;
-    
-        export const aasdfOfWat = 3;
-        export const secondOfWat = 5;
-
-        export const thirdSpacedOfWat = 56;
-
-        // Foo
-        export const fourthWithCommentOfWat = 555;
-        `,
-      ],
-    ]),
   },
   {
     name: "rename in other file",
@@ -264,31 +183,6 @@ const cases = [
         console.log(Wat.f());
         console.log(new Wat.Foo());
         const f: Wat.Baz = "hi";
-        `,
-      ],
-    ]),
-    outputs: new Map([
-      [
-        "wat.ts",
-        `
-        export const keyOfWat = 3;
-        export function fOfWat() { return 5; }
-
-        export class FooOfWat {}
-
-        export type BazOfWat = string;
-        `,
-      ],
-      [
-        "refWat.ts",
-        `import {BazOfWat,FooOfWat, fOfWat, keyOfWat} from "./wat";
-        
-        console.log(keyOfWat);
-        console.log(fOfWat());
-        console.log(new FooOfWat());
-        const f: BazOfWat = "hi";
-
-        
         `,
       ],
     ]),
@@ -332,11 +226,24 @@ describe("processProject", () => {
 
     const fs = project.getFileSystem();
 
-    for (const [name, expectedContents] of outputs) {
-      // TODO: Can we get this thing to just prettier
-      const writtenContents = formatTestTypescript(fs.readFileSync(name));
-      expect(writtenContents).toBe(formatTestTypescript(expectedContents));
-    }
+    const output = project
+      .getSourceFiles()
+      .map((sf) => {
+        const filePath = sf.getFilePath();
+        return formatTestTypescript(
+          `
+        //
+
+        //
+        // PATH: '${filePath}'
+        //
+        ${fs.readFileSync(filePath)}
+        `
+        );
+      })
+      .join();
+
+    expect(output).toMatchSnapshot();
   });
 });
 function maybeConvertNodeToFileAndLineNum(a: any): any {

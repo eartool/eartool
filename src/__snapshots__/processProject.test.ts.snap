@@ -1,0 +1,149 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`processProject combined types 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+export interface AssociatedMapSectionOgreProps {
+  properties: Property<any>[];
+}
+
+export interface AssociatedMapSectionReduxProps {
+  appRealmId: RealmId;
+  mapConfig: GaiaMapConfig;
+}
+
+export interface AssociatedMapSectionState {
+  map?: MapSearchResult;
+  user?: IAcmeUser;
+  isLoading: boolean;
+}
+
+export type AssociatedMapSectionProps = OverviewObjectMinProps &
+  AssociatedMapSectionOgreProps &
+  AssociatedMapSectionReduxProps;
+"
+`;
+
+exports[`processProject dont explode if error 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+
+const foo = 5;
+
+export namespace Wat {
+  export const foo = 6;
+}
+"
+`;
+
+exports[`processProject function invoke within namespace 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export function barOfFoo() {
+  bazOfFoo();
+}
+
+export function bazOfFoo() {
+  return 5;
+}
+"
+`;
+
+exports[`processProject redeclare export 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export function barOfFoo() {
+  return 5;
+}
+
+export function bazOfFoo() {
+  return 5;
+}
+
+export type ThingOfFoo = string;
+,//
+
+//
+// PATH: '/index.ts'
+//
+
+export { barOfFoo, bazOfFoo, type ThingOfFoo } from "./foo";
+"
+`;
+
+exports[`processProject rename in other file 1`] = `
+"//
+
+//
+// PATH: '/refWat.ts'
+//
+import { BazOfWat, FooOfWat, fOfWat, keyOfWat } from "./wat";
+
+console.log(keyOfWat);
+console.log(fOfWat());
+console.log(new FooOfWat());
+const f: BazOfWat = "hi";
+,//
+
+//
+// PATH: '/wat.ts'
+//
+
+export const keyOfWat = 3;
+export function fOfWat() {
+  return 5;
+}
+
+export class FooOfWat {}
+
+export type BazOfWat = string;
+"
+`;
+
+exports[`processProject simple 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+
+const foo = 5;
+
+export const aasdfOfWat = 3;
+export const secondOfWat = 5;
+
+export const thirdSpacedOfWat = 56;
+
+// Foo
+export const fourthWithCommentOfWat = 555;
+"
+`;
+
+exports[`processProject works nicely with interfaces 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export interface FooProps {
+  what: number;
+}
+
+class Foo extends React.Component<FooProps> {}
+"
+`;
