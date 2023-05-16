@@ -33,6 +33,24 @@ const cases = [
     },
   },
   {
+    name: "redeclare export w funky names",
+    inputs: {
+      "foo.tsx": `
+          export namespace FooBar {
+            export type ThingBar = string;
+
+            export const doFoo = () => 5;
+
+            export const VAR_BAR = 5;
+          }
+        `,
+
+      "index.ts": `
+          export {FooBar} from "./foo";
+      `,
+    },
+  },
+  {
     name: "function invoke within namespace",
     inputs: {
       "foo.tsx": `
@@ -77,14 +95,17 @@ const cases = [
     // We cant break foo out in this case cause im too lazy to implement this another way.
     inputs: {
       "foo.tsx": `
-        export namespace Foo {
-            export interface Props { what: number }
-        }
+          export namespace Foo {
+              export interface Props { what: number }
+          }
 
-        class Foo extends React.Component<Foo.Props> {
+          class Foo extends React.Component<Foo.Props> {
 
-        }
-            `,
+          }
+      `,
+      "index.ts": `
+          export {Foo} from "./foo";
+      `
     },
   },
   {

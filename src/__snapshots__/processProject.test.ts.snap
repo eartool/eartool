@@ -112,6 +112,28 @@ export { barOfFoo, bazOfFoo, type ThingOfFoo } from "./foo";
 "
 `;
 
+exports[`processProject redeclare export w funky names 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export type ThingFooBar = string;
+
+export const doFooOfFooBar = () => 5;
+
+export const VAR_FOO_BAR = 5;
+,//
+
+//
+// PATH: '/index.ts'
+//
+
+export { VAR_FOO_BAR, doFooOfFooBar, type ThingFooBar } from "./foo";
+"
+`;
+
 exports[`processProject rename in other file 1`] = `
 "//
 
@@ -173,5 +195,12 @@ export interface Props {
 }
 
 class Foo extends React.Component<Props> {}
+,//
+
+//
+// PATH: '/index.ts'
+//
+
+export { type Props as FooProps } from "./foo";
 "
 `;
