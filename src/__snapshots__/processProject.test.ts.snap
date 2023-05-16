@@ -6,6 +6,7 @@ exports[`processProject combined types 1`] = `
 //
 // PATH: '/foo.tsx'
 //
+
 export interface AssociatedMapSectionOgreProps {
   properties: Property<any>[];
 }
@@ -91,6 +92,7 @@ exports[`processProject rename in other file 1`] = `
 //
 // PATH: '/refWat.ts'
 //
+
 import { BazOfWat, FooOfWat, fOfWat, keyOfWat } from "./wat";
 
 console.log(keyOfWat);
