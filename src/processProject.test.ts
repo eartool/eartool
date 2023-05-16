@@ -24,6 +24,8 @@ const cases = [
           export function baz() {
             return 5;
           }
+
+          export type Thing = string;
         }
         `,
       ],
@@ -45,12 +47,14 @@ const cases = [
           export function bazOfFoo() {
             return 5;
            }
+           
+           export type ThingOfFoo = string;
       `,
       ],
       [
         "index.ts",
         `
-    export {barOfFoo, bazOfFoo} from "./foo";
+    export {barOfFoo, bazOfFoo, type ThingOfFoo} from "./foo";
     `,
       ],
     ]),
@@ -248,6 +252,8 @@ const cases = [
             export function f() { return 5; }
 
             export class Foo {}
+
+            export type Baz = string;
         }
         `,
       ],
@@ -257,6 +263,7 @@ const cases = [
         console.log(Wat.key);
         console.log(Wat.f());
         console.log(new Wat.Foo());
+        const f: Wat.Baz = "hi";
         `,
       ],
     ]),
@@ -268,15 +275,20 @@ const cases = [
         export function fOfWat() { return 5; }
 
         export class FooOfWat {}
+
+        export type BazOfWat = string;
         `,
       ],
       [
         "refWat.ts",
-        `import {FooOfWat, fOfWat, keyOfWat} from "./wat";
+        `import {BazOfWat,FooOfWat, fOfWat, keyOfWat} from "./wat";
         
         console.log(keyOfWat);
         console.log(fOfWat());
         console.log(new FooOfWat());
+        const f: BazOfWat = "hi";
+
+        
         `,
       ],
     ]),

@@ -1,5 +1,5 @@
 import * as Assert from "node:assert";
-import { Logger } from "pino";
+import { type Logger } from "pino";
 import { Node, PropertyAccessExpression, QualifiedName, TypeReferenceNode } from "ts-morph";
 
 export function getValidReferenceParentOrThrow(

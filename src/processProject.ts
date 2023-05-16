@@ -1,6 +1,6 @@
 import { Project } from "ts-morph";
 import { processFile } from "./processFile.js";
-import { Logger } from "pino";
+import { type Logger } from "pino";
 
 export async function processProject(
   project: Project,

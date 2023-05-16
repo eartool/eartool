@@ -1,11 +1,13 @@
 import * as Assert from "assert";
 import { Node, SourceFile, SyntaxKind } from "ts-morph";
-import { isSafeToRenameAcrossReferences } from "./isSafeToRenameAcrossReferences.js";
+import { isSafeToRenameAllAcrossReferences } from "./isSafeToRenameAllAcrossReferences.js";
 import { renameOriginalSymbols } from "./renameOriginalSymbols.js";
-import { renameReferences } from "./renameReferences.js";
+import { renameAllReferences } from "./renameAllReferences.js";
 import { isNamespaceDeclaration } from "./utils/isNamespaceDeclaration.js";
-import { Logger } from "pino";
+import { type Logger } from "pino";
 import * as path from "node:path";
+import { type Context } from "./Context.js";
+import { renameExports } from "./renameExports.js";
 
 export function processFile(sf: SourceFile, logger: Logger) {
   const filePath = path.relative(process.cwd(), sf.getFilePath());
@@ -27,7 +29,15 @@ export function processFile(sf: SourceFile, logger: Logger) {
 
   const symbolsInRootScope = new Set(sf.getLocals().map((a) => a.getName()));
 
-  const toRename = new Set<string>();
+  const context: Context = {
+    concreteRenames: new Set<string>(),
+    typeRenames: new Set<string>(),
+    logger,
+    namespaceDecl,
+    namespaceName,
+    targetSourceFile: sf,
+    // namespaceHasConcretePair:
+  };
 
   for (const q of syntaxList.getChildren()) {
     if (Node.isVariableStatement(q)) {
@@ -38,43 +48,50 @@ export function processFile(sf: SourceFile, logger: Logger) {
           // just bail on this file
           return;
         } else {
-          toRename.add(varDecl.getName());
+          context.concreteRenames.add(varDecl.getName());
         }
       }
-    } else if (
-      Node.isFunctionDeclaration(q) ||
-      Node.isClassDeclaration(q) ||
-      Node.isInterfaceDeclaration(q) ||
-      Node.isTypeAliasDeclaration(q)
-    ) {
+    } else if (Node.isInterfaceDeclaration(q) || Node.isTypeAliasDeclaration(q)) {
       // Can't have unnamed functions in namespace unless its invoked,
       // but that would be an expression statement so we are okay
       const name = q.getName();
       Assert.ok(name != null, "name was expected");
-      toRename.add(name);
+      context.typeRenames.add(name);
+    } else if (Node.isFunctionDeclaration(q) || Node.isClassDeclaration(q)) {
+      // Can't have unnamed functions in namespace unless its invoked,
+      // but that would be an expression statement so we are okay
+      const name = q.getName();
+      Assert.ok(name != null, "name was expected");
+      context.concreteRenames.add(name);
     } else if (Node.isEnumDeclaration(q)) {
+      throw new Error("Not implemented"); // FIXME
     } else {
       logger.warn("Unknown kind %s", q.getKindName());
     }
   }
-  logger.trace("To rename: %s", Array.from(toRename).join(", "));
+
+  logger.trace("Type rename: %s", Array.from(context.typeRenames).join(", "));
+  logger.trace("Concrete rename: %s", Array.from(context.concreteRenames).join(", "));
 
   // if we got here, its safe to know we can rename in file but we don't
   // know what we can do across the rest of the package. lets sanity check
-  if (!isSafeToRenameAcrossReferences(toRename, namespaceDecl, logger)) {
+  if (!isSafeToRenameAllAcrossReferences(context)) {
     logger.warn("Aborting");
     return;
   }
 
   // if we got here its safe to do our job.
   // find the files that used these old names
-  renameReferences(toRename, namespaceDecl, logger);
+  renameAllReferences(context);
+
+  // re exports wont be able to reference the inner bit, just the namespace so we can fix that now
+  renameExports(context);
 
   // Actually break up the namespace
   namespaceDecl.unwrap();
 
   // Finally rename locally
-  renameOriginalSymbols(toRename, sf, namespaceName, logger);
+  renameOriginalSymbols(context);
 
   // logger.trace(sf.getFullText());
 }
