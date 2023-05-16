@@ -26,6 +26,19 @@ export function getNewName(
   const oldName = typeof nodeOrName === "string" ? nodeOrName : nodeOrName.getName()!;
 
   if (constantCase.test(oldName)) {
+
+    let ret;
+  
+    if (ret = findSuffixMatch(oldName, namespaceName, true)) {
+      return ret;
+    }
+  
+    if (namespaceName.at(-1) === "s") {
+      if ((ret = findSuffixMatch(oldName, namespaceName.slice(0, -1), true))) {
+        return ret;
+      }
+    }
+
     const newName = `${namespaceNameToUpperSnakeCase(namespaceName)}_${oldName}`;
     return { localName: newName, importName: newName };
   }
@@ -35,8 +48,27 @@ export function getNewName(
     return { localName: `${oldName}`, importName: `${namespaceName}${oldName}` };
   }
 
-  const splitOldName = splitWords(oldName);
-  const splitNamespace = splitWords(namespaceName);
+  let ret;
+  
+  if (ret = findSuffixMatch(oldName, namespaceName, false)) {
+    return ret;
+  }
+
+  if (namespaceName.at(-1) === "s") {
+    if ((ret = findSuffixMatch(oldName, namespaceName.slice(0, -1), false))) {
+      return ret;
+    }
+  }
+
+  const newName = `${oldName}Of${namespaceName}`;
+  return { localName: newName, importName: newName };
+}
+
+function findSuffixMatch(oldName: string, namespaceName: string, snakeCase: boolean) {
+  const splitOldName = snakeCase ? oldName.split("_") : splitWords(oldName);
+  const splitNamespace = splitWords(namespaceName).map(
+    snakeCase ? (a) => a.toUpperCase() : (a) => a
+  );
 
   for (let i = 0; i > -Math.min(splitNamespace.length, splitOldName.length); i--) {
     if (splitNamespace.at(i - 1) === splitOldName.at(i - 1)) {
@@ -45,10 +77,7 @@ export function getNewName(
 
     if (i === 0) break;
 
-    const newName = splitOldName.slice(0, i).join("") + namespaceName;
+    const newName = [...splitOldName.slice(0, i), ...splitNamespace].join(snakeCase ? "_" : "");
     return { localName: newName, importName: newName };
   }
-
-  const newName = `${oldName}Of${namespaceName}`;
-  return { localName: newName, importName: newName };
 }

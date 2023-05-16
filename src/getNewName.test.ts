@@ -49,6 +49,14 @@ describe("getNewName", () => {
         importName: "isV2RawAuthBumpRequirements",
       },
     },
+    {
+      name: "TEAM_KEY",
+      namespaceName: "SecurityPrincipalKeys",
+      expected: {
+        localName: "TEAM_SECURITY_PRINCIPAL_KEY",
+        importName: "TEAM_SECURITY_PRINCIPAL_KEY",
+      },
+    },
   ])("$namespaceName . $name => $expected", ({ name, namespaceName, expected }) => {
     expect(getNewName(name, namespaceName)).toEqual(expected);
   });
