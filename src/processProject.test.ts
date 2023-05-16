@@ -52,7 +52,6 @@ const cases = [
   },
   {
     name: "doesnt clobber component exports",
-    // We cant break foo out in this case cause im too lazy to implement this another way.
     inputs: {
       "foo.tsx": `
           export namespace Foo {
