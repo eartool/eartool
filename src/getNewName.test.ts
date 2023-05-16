@@ -5,35 +5,51 @@ describe("getNewName", () => {
   it.each([
     {
       name: "Bar",
-      packageName: "Foo",
+      namespaceName: "Foo",
       expected: { localName: "BarOfFoo", importName: "BarOfFoo" },
     },
     {
       name: "bar",
-      packageName: "Foo",
+      namespaceName: "Foo",
       expected: { localName: "barOfFoo", importName: "barOfFoo" },
     },
     {
       name: "FOO",
-      packageName: "Pack",
+      namespaceName: "Pack",
       expected: { localName: "PACK_FOO", importName: "PACK_FOO" },
     },
     {
       name: "Props",
-      packageName: "FooComponent",
+      namespaceName: "FooComponent",
       expected: { localName: "Props", importName: "FooComponentProps" },
     },
     {
       name: "OwnProps",
-      packageName: "FooComponent",
+      namespaceName: "FooComponent",
       expected: { localName: "OwnProps", importName: "FooComponentOwnProps" },
     },
     {
       name: "State",
-      packageName: "FooComponent",
+      namespaceName: "FooComponent",
       expected: { localName: "State", importName: "FooComponentState" },
     },
-  ])("$packageName . $name => $expected", ({ name, packageName, expected }) => {
-    expect(getNewName(name, packageName)).toEqual(expected);
+    {
+      name: "legacyRequirements",
+      namespaceName: "RawAuthBumpRequirements",
+      expected: {
+        localName: "legacyRawAuthBumpRequirements",
+        importName: "legacyRawAuthBumpRequirements",
+      },
+    },
+    {
+      name: "isV2Requirements",
+      namespaceName: "RawAuthBumpRequirements",
+      expected: {
+        localName: "isV2RawAuthBumpRequirements",
+        importName: "isV2RawAuthBumpRequirements",
+      },
+    },
+  ])("$namespaceName . $name => $expected", ({ name, namespaceName, expected }) => {
+    expect(getNewName(name, namespaceName)).toEqual(expected);
   });
 });

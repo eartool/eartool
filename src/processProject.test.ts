@@ -144,20 +144,20 @@ const cases = [
   {
     name: "Conflicting imports work",
     inputs: {
-      'foo.ts': `
+      "foo.ts": `
           export namespace Foo { export type Props = { hi: "mom" }}
       `,
-      'bar.ts': `
+      "bar.ts": `
           export namespace Bar { export type Props = { hi: "mom" }}
       `,
-      'baz.ts':`
+      "baz.ts": `
           import {Foo} from "./foo";
           import {Bar} from "./bar";
           export type Props = Foo.Props & Bar.Props;
 
-      `
-    }
-  }
+      `,
+    },
+  },
 ];
 
 describe("processProject", () => {

@@ -25,7 +25,9 @@ function renameOriginalSymbol(
 ) {
   const { localName, importName } = getNewName(originalName, namespaceName);
 
-  logger.trace(`Tring to rename symbol ${namespaceName}.${originalName} => ${localName}/${importName}`);
+  logger.trace(
+    `Tring to rename symbol ${namespaceName}.${originalName} => ${localName}/${importName}`
+  );
   const sym = targetSourceFile.getLocalOrThrow(originalName);
 
   const decls = sym.getDeclarations();
