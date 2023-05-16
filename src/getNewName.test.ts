@@ -6,34 +6,34 @@ describe("getNewName", () => {
     {
       name: "Bar",
       packageName: "Foo",
-      expectedName: "BarOfFoo",
+      expected: { localName: "BarOfFoo", importName: "BarOfFoo" },
     },
     {
       name: "bar",
       packageName: "Foo",
-      expectedName: "barOfFoo",
+      expected: { localName: "barOfFoo", importName: "barOfFoo" },
     },
     {
       name: "FOO",
       packageName: "Pack",
-      expectedName: "PACK_FOO",
+      expected: { localName: "PACK_FOO", importName: "PACK_FOO" },
     },
     {
       name: "Props",
       packageName: "FooComponent",
-      expectedName: "FooComponentProps",
+      expected: { localName: "Props", importName: "FooComponentProps" },
     },
     {
       name: "OwnProps",
       packageName: "FooComponent",
-      expectedName: "FooComponentOwnProps",
+      expected: { localName: "OwnProps", importName: "FooComponentOwnProps" },
     },
     {
-      name: "StateProps",
+      name: "State",
       packageName: "FooComponent",
-      expectedName: "FooComponentStateProps",
+      expected: { localName: "State", importName: "FooComponentState" },
     },
-  ])("$packageName.$name => $expectedName", ({ name, packageName, expectedName }) => {
-    expect(getNewName(name, packageName)).toEqual(expectedName);
+  ])("$packageName . $name => $expected", ({ name, packageName, expected }) => {
+    expect(getNewName(name, packageName)).toEqual(expected);
   });
 });

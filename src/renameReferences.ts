@@ -1,6 +1,5 @@
 import * as Assert from "node:assert";
 import { Node } from "ts-morph";
-
 import { getNewName } from "./getNewName.js";
 import { getValidReferenceParentOrThrow } from "./getValidReferenceParentOrThrow.js";
 import { isInSameNamespace } from "./isInSameNamespace.js";
@@ -9,7 +8,7 @@ import type { Context } from "./Context.js";
 export function renameReferences(oldName: string, context: Context) {
   const { namespaceDecl } = context;
   const logger = context.logger.child({ oldName });
-  const newName = getNewName(oldName, namespaceDecl.getName());
+  const { localName, importName } = getNewName(oldName, namespaceDecl.getName());
   const sym = namespaceDecl.getLocalOrThrow(oldName);
   // should ony be one
   const [q] = sym.getDeclarations();
@@ -30,14 +29,21 @@ export function renameReferences(oldName: string, context: Context) {
     logger.trace("Found parent %s", parent.print());
 
     // Too lazy to do deep checks here.
-    parent.replaceWithText(newName);
+    if (isInSameFile) {
+      parent.replaceWithText(localName);
+    } else {
+      parent.replaceWithText(importName);
 
-    if (!isInSameFile) {
       referencingSf.addImportDeclaration({
         moduleSpecifier: referencingSf.getRelativePathAsModuleSpecifierTo(
           namespaceDecl.getSourceFile()
         ),
-        namedImports: [newName],
+        namedImports: [
+          {
+            name: localName,
+            alias: importName,
+          },
+        ],
       });
     }
   }

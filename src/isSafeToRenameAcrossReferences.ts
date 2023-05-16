@@ -10,7 +10,7 @@ export function isSafeToRenameAcrossReferences(
 ) {
   const node = getReferenceFindableLocalDeclarationOrThrow(namespaceDecl, oldName);
 
-  const newName = getNewName(oldName, namespaceDecl.getName());
+  const { localName, importName } = getNewName(oldName, namespaceDecl.getName());
   for (const refNode of node.findReferencesAsNodes()) {
     if (isInSameNamespace(refNode, namespaceDecl)) continue;
     // This is the identifier for the variable but we need to rename
@@ -18,15 +18,16 @@ export function isSafeToRenameAcrossReferences(
     const parent = getValidReferenceParentOrThrow(refNode, logger);
 
     // Too lazy to do deep checks here for finding a safe name. yes or no is good enough
-    if (parent.getLocal(newName)) {
+    if (parent.getLocal(importName)) {
       // already have something in scope with this name abort
       logger.warn(
         "Not safe to rename `%s.%s` to `%s` because it collides in %s",
         namespaceDecl.getName(),
         oldName,
-        newName,
+        importName,
         parent.getSourceFile().getFilePath()
       );
+      throw new Error();
       return false;
     }
   }

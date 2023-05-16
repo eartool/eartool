@@ -1,5 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`processProject Conflicting imports work 1`] = `
+"//
+
+//
+// PATH: '/bar.ts'
+//
+
+export type Props = { hi: "mom" };
+,//
+
+//
+// PATH: '/baz.ts'
+//
+
+import { Props as BarProps } from "./bar";
+import { Props as FooProps } from "./foo";
+
+export type Props = FooProps & BarProps;
+,//
+
+//
+// PATH: '/foo.ts'
+//
+
+export type Props = { hi: "mom" };
+"
+`;
+
 exports[`processProject combined types 1`] = `
 "//
 
@@ -7,24 +35,22 @@ exports[`processProject combined types 1`] = `
 // PATH: '/foo.tsx'
 //
 
-export interface AssociatedMapSectionOgreProps {
+export interface OgreProps {
   properties: Property<any>[];
 }
 
-export interface AssociatedMapSectionReduxProps {
+export interface ReduxProps {
   appRealmId: RealmId;
   mapConfig: GaiaMapConfig;
 }
 
-export interface AssociatedMapSectionState {
+export interface State {
   map?: MapSearchResult;
   user?: IAcmeUser;
   isLoading: boolean;
 }
 
-export type AssociatedMapSectionProps = OverviewObjectMinProps &
-  AssociatedMapSectionOgreProps &
-  AssociatedMapSectionReduxProps;
+export type Props = OverviewObjectMinProps & OgreProps & ReduxProps;
 "
 `;
 
@@ -142,10 +168,10 @@ exports[`processProject works nicely with interfaces 1`] = `
 // PATH: '/foo.tsx'
 //
 
-export interface FooProps {
+export interface Props {
   what: number;
 }
 
-class Foo extends React.Component<FooProps> {}
+class Foo extends React.Component<Props> {}
 "
 `;

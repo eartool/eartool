@@ -23,9 +23,9 @@ function renameOriginalSymbol(
   { logger, targetSourceFile, namespaceName }: Context,
   originalName: string
 ) {
-  const newName = getNewName(originalName, namespaceName);
+  const { localName, importName } = getNewName(originalName, namespaceName);
 
-  logger.trace(`Tring to rename symbol ${namespaceName}.${originalName} => ${newName}`);
+  logger.trace(`Tring to rename symbol ${namespaceName}.${originalName} => ${localName}/${importName}`);
   const sym = targetSourceFile.getLocalOrThrow(originalName);
 
   const decls = sym.getDeclarations();
@@ -44,6 +44,5 @@ function renameOriginalSymbol(
     throw new Error("invariant failure. why is there no name!");
   }
 
-  
-  decl.rename(newName);
+  decl.rename(localName);
 }

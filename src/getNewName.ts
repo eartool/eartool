@@ -20,17 +20,19 @@ export function getNewName(
     | TypeAliasDeclaration
     | string,
   namespaceName: string
-): string {
-  const name = typeof nodeOrName === "string" ? nodeOrName : nodeOrName.getName()!;
+): { localName: string; importName: string } {
+  const oldName = typeof nodeOrName === "string" ? nodeOrName : nodeOrName.getName()!;
 
-  if (constantCase.test(name)) {
-    return `${namespaceNameToUpperSnakeCase(namespaceName)}_${name}`;
+  if (constantCase.test(oldName)) {
+    const newName = `${namespaceNameToUpperSnakeCase(namespaceName)}_${oldName}`;
+    return { localName: newName, importName: newName };
   }
 
   // Special case a few things
-  if (name.endsWith("Props") || name.endsWith("State")) {
-    return `${namespaceName}${name}`;
+  if (oldName.endsWith("Props") || oldName.endsWith("State")) {
+    return { localName: `${oldName}`, importName: `${namespaceName}${oldName}` };
   }
 
-  return `${name}Of${namespaceName}`;
+  const newName = `${oldName}Of${namespaceName}`;
+  return { localName: newName, importName: newName };
 }
