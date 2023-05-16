@@ -1,9 +1,10 @@
-import { describe, expect, it } from "@jest/globals";
+import { beforeEach, describe, expect, it } from "@jest/globals";
 import { format } from "prettier";
 import { Node, Project, SourceFile } from "ts-morph";
 import { processProject } from "./processProject.js";
 import { pino } from "pino";
 import pinoPretty from "pino-pretty";
+import { Writable } from "stream";
 
 function formatTestTypescript(src: string) {
   return format(src, { parser: "typescript", tabWidth: 2, useTabs: false });
@@ -64,7 +65,7 @@ const cases = [
       `,
       "index.ts": `
           export {Foo} from "./foo";
-      `
+      `,
     },
   },
   {
@@ -122,7 +123,7 @@ const cases = [
       `,
       "index.ts": `
           export {Foo} from "./foo";
-      `
+      `,
     },
   },
   {
@@ -199,48 +200,29 @@ const cases = [
 ];
 
 describe("processProject", () => {
-  it.each(cases)("$name", async ({ inputs }) => {
-    const project = new Project({
-      useInMemoryFileSystem: true,
-      skipAddingFilesFromTsConfig: true,
-    });
-    for (const [name, contents] of Object.entries(inputs)) {
-      project.createSourceFile(name, contents);
-    }
+  it.each(cases)("$name", async ({ inputs, name }) => {
+    const logger = createTestLogger(name);
+    try {
+      const project = new Project({
+        useInMemoryFileSystem: true,
+        skipAddingFilesFromTsConfig: true,
+      });
+      for (const [name, contents] of Object.entries(inputs)) {
+        project.createSourceFile(name, contents);
+      }
 
-    const logger = pino(
-      {
-        level: "trace",
-        serializers: {
-          ...pino.stdSerializers,
-          foo: (n: Node) => `${n.getSourceFile().getFilePath()}:${n.getStartLineNumber()}`,
-        },
-        hooks: {
-          logMethod: function logMethod([msg, ...args], method, foo) {
-            args = args.map((a: any) => maybeConvertNodeToFileAndLineNum(a));
-            // console.log([msg, ...args]);
-            method.apply(this, [msg, ...args]);
-          },
-        },
-      },
-      pinoPretty.default({
-        colorize: true,
-        sync: true,
-      })
-    );
+      await processProject(project, {
+        logger,
+      });
 
-    await processProject(project, {
-      logger,
-    });
+      const fs = project.getFileSystem();
 
-    const fs = project.getFileSystem();
-
-    const output = project
-      .getSourceFiles()
-      .map((sf) => {
-        const filePath = sf.getFilePath();
-        return formatTestTypescript(
-          `
+      const output = project
+        .getSourceFiles()
+        .map((sf) => {
+          const filePath = sf.getFilePath();
+          return formatTestTypescript(
+            `
         //
 
         //
@@ -248,13 +230,59 @@ describe("processProject", () => {
         //
         ${fs.readFileSync(filePath)}
         `
-        );
-      })
-      .join();
+          );
+        })
+        .join();
 
-    expect(output).toMatchSnapshot();
+      expect(output).toMatchSnapshot();
+    } finally {
+      logger.flush();
+    }
   });
 });
+
+function createTestLogger(name: string) {
+  return pino(
+    {
+      level: "trace",
+      serializers: {
+        ...pino.stdSerializers,
+        foo: (n: Node) => `${n.getSourceFile().getFilePath()}:${n.getStartLineNumber()}`,
+      },
+      hooks: {
+        logMethod: function logMethod([msg, ...args], method, foo) {
+          args = args.map((a: any) => maybeConvertNodeToFileAndLineNum(a));
+          // console.log([msg, ...args]);
+          method.apply(this, [msg, ...args]);
+        },
+      },
+    },
+    pino.multistream([
+      {
+        level: "trace",
+        stream: pino.destination({
+          sync: true,
+          mkdir: true,
+          dest: `logs/processProject/${name}.log.json`,
+        }),
+      },
+      {
+        level: "trace",
+        stream: pinoPretty.default({
+          colorize: false,
+          sync: true,
+          singleLine: false,
+          destination: pino.destination({
+            sync: true,
+            mkdir: true,
+            dest: `logs/processProject/${name}.log.txt`,
+          }),
+        }),
+      },
+    ])
+  );
+}
+
 function maybeConvertNodeToFileAndLineNum(a: any): any {
   if (a instanceof Node) {
     return `${a.getSourceFile().getFilePath()}:${a.getStartLineNumber()}`;
