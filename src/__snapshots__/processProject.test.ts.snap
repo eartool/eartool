@@ -54,6 +54,28 @@ export type Props = OverviewObjectMinProps & OgreProps & ReduxProps;
 "
 `;
 
+exports[`processProject doesnt clobber component exports 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export interface Props {
+  what: number;
+}
+
+export class Foo extends React.Component<Props> {}
+,//
+
+//
+// PATH: '/index.ts'
+//
+
+export { Foo, type Props as FooProps } from "./foo";
+"
+`;
+
 exports[`processProject dont explode if error 1`] = `
 "//
 

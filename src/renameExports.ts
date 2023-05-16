@@ -9,11 +9,16 @@ export function renameExports({
   logger,
   namespaceName,
 }: Context) {
-  logger.trace("renameExports(%s) for %d references", namespaceName, namespaceDecl.findReferencesAsNodes().length);
+  logger.trace(
+    "renameExports(%s) for %d references",
+    namespaceName,
+    namespaceDecl.findReferencesAsNodes().length
+  );
+
+  const hasMultipleDeclarations = namespaceDecl.getSymbol()?.getDeclarations().length != 1;
 
   for (const refNode of namespaceDecl.findReferencesAsNodes()) {
     const exportDecl = refNode.getFirstAncestorByKind(SyntaxKind.ExportDeclaration);
-    logger.trace(refNode.getParent()?.getKindName());
 
     if (exportDecl) {
       logger.trace("Found %s in %s", exportDecl.print(), exportDecl);
@@ -22,10 +27,12 @@ export function renameExports({
       exportDecl.addNamedExports(makeExportSpecifiers(concreteRenames, namespaceName, false));
 
       // FIXME can only drop if its the only one
-      exportDecl
-        .getNamedExports()
-        .find((a) => a.getName() === namespaceDecl.getName())
-        ?.remove();
+      if (!hasMultipleDeclarations) {
+        exportDecl
+          .getNamedExports()
+          .find((a) => a.getName() === namespaceDecl.getName())
+          ?.remove();
+      }
     } else {
       logger.warn("WTF");
     }
