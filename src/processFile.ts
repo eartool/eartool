@@ -19,7 +19,7 @@ export function processFile(sf: SourceFile, logger: Logger) {
   }
 
   const namespaceName = namespaceDecl.getName();
-  logger = logger.child({namespace: namespaceName});
+  logger = logger.child({ namespace: namespaceName });
   logger.trace(`Found namespace %s`, namespaceName);
   const syntaxList = namespaceDecl
     .getLastChildByKindOrThrow(SyntaxKind.ModuleBlock)
@@ -57,12 +57,12 @@ export function processFile(sf: SourceFile, logger: Logger) {
       logger.warn("Unknown kind %s", q.getKindName());
     }
   }
-  logger.trace("To rename: %s", Array.from(toRename).join(", "))
+  logger.trace("To rename: %s", Array.from(toRename).join(", "));
 
   // if we got here, its safe to know we can rename in file but we don't
   // know what we can do across the rest of the package. lets sanity check
   if (!isSafeToRenameAcrossReferences(toRename, namespaceDecl, logger)) {
-    logger.warn("Aborting")
+    logger.warn("Aborting");
     return;
   }
 

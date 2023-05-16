@@ -9,31 +9,31 @@ describe("getNewName", () => {
       expectedName: "BarOfFoo",
     },
     {
-        name: "bar",
-        packageName: "Foo",
-        expectedName: "barOfFoo",
-      },
-    {
-        name: "FOO",
-        packageName: "Pack",
-        expectedName: "PACK_FOO"
+      name: "bar",
+      packageName: "Foo",
+      expectedName: "barOfFoo",
     },
     {
-        name: "Props",
-        packageName: "FooComponent",
-        expectedName: "FooComponentProps"
+      name: "FOO",
+      packageName: "Pack",
+      expectedName: "PACK_FOO",
     },
     {
-        name: "OwnProps",
-        packageName: "FooComponent",
-        expectedName: "FooComponentOwnProps"
+      name: "Props",
+      packageName: "FooComponent",
+      expectedName: "FooComponentProps",
     },
     {
-        name: "StateProps",
-        packageName: "FooComponent",
-        expectedName: "FooComponentStateProps"
+      name: "OwnProps",
+      packageName: "FooComponent",
+      expectedName: "FooComponentOwnProps",
     },
-  ])("$packageName.$name => $expectedName", ({name, packageName, expectedName}) => {
+    {
+      name: "StateProps",
+      packageName: "FooComponent",
+      expectedName: "FooComponentStateProps",
+    },
+  ])("$packageName.$name => $expectedName", ({ name, packageName, expectedName }) => {
     expect(getNewName(name, packageName)).toEqual(expectedName);
   });
 });

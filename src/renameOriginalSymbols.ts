@@ -15,11 +15,7 @@ export function renameOriginalSymbols(
     const sym = sf.getLocalOrThrow(originalName);
 
     const decls = sym.getDeclarations();
-    Assert.strictEqual(
-      decls.length,
-      1,
-      "invariant failure. how are there multiple"
-    );
+    Assert.strictEqual(decls.length, 1, "invariant failure. how are there multiple");
 
     const decl = decls[0];
 
@@ -29,11 +25,7 @@ export function renameOriginalSymbols(
       !Node.isTypeAliasDeclaration(decl) &&
       !Node.isNameable(decl)
     ) {
-      logger.error(
-        "Expected a name for %s in statement `%s`",
-        decl.getKindName(),
-        decl.print()
-      );
+      logger.error("Expected a name for %s in statement `%s`", decl.getKindName(), decl.print());
 
       throw new Error("invariant failure. why is there no name!");
     }

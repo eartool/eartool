@@ -6,7 +6,6 @@ export async function processProject(
   project: Project,
   { dryRun = false, logger }: { dryRun?: boolean; logger: Logger }
 ) {
-
   for (const sf of project.getSourceFiles()) {
     if (sf.getFilePath().endsWith(".d.ts")) {
       project.removeSourceFile(sf);

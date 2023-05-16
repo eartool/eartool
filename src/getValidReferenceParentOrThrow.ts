@@ -1,11 +1,6 @@
 import * as Assert from "node:assert";
 import { Logger } from "pino";
-import {
-  Node,
-  PropertyAccessExpression,
-  QualifiedName,
-  TypeReferenceNode,
-} from "ts-morph";
+import { Node, PropertyAccessExpression, QualifiedName, TypeReferenceNode } from "ts-morph";
 
 export function getValidReferenceParentOrThrow(
   r: Node,
@@ -24,7 +19,7 @@ export function getValidReferenceParentOrThrow(
   Assert.ok(
     Node.isPropertyAccessExpression(parent) ||
       Node.isQualifiedName(parent) ||
-      Node.isTypeReference(parent) ,
+      Node.isTypeReference(parent),
     `Unexpected parent kind '${parent?.getKindName()}': ${parent
       ?.getSourceFile()
       .getFilePath()}:${parent?.getStartLineNumber()}`

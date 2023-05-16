@@ -9,9 +9,7 @@ import {
 const constantCase = /^([A-Z_0-9])+$/;
 
 function namespaceNameToUpperSnakeCase(name: string) {
-  return name
-    .replace(/[A-Z]/g, (letter, idx) => `${idx == 0 ? "" : "_"}${letter}`)
-    .toUpperCase();
+  return name.replace(/[A-Z]/g, (letter, idx) => `${idx == 0 ? "" : "_"}${letter}`).toUpperCase();
 }
 
 export function getNewName(
@@ -23,8 +21,7 @@ export function getNewName(
     | string,
   namespaceName: string
 ): string {
-  const name =
-    typeof nodeOrName === "string" ? nodeOrName : nodeOrName.getName()!;
+  const name = typeof nodeOrName === "string" ? nodeOrName : nodeOrName.getName()!;
 
   if (constantCase.test(name)) {
     return `${namespaceNameToUpperSnakeCase(namespaceName)}_${name}`;

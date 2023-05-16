@@ -298,8 +298,7 @@ describe("processProject", () => {
         level: "trace",
         serializers: {
           ...pino.stdSerializers,
-          foo: (n: Node) =>
-            `${n.getSourceFile().getFilePath()}:${n.getStartLineNumber()}`,
+          foo: (n: Node) => `${n.getSourceFile().getFilePath()}:${n.getStartLineNumber()}`,
         },
         hooks: {
           logMethod: function logMethod([msg, ...args], method, foo) {

@@ -30,16 +30,15 @@ process.chdir(argv.package);
 const logger = pino(
   {
     level: argv.logLevel,
-    
   },
   pinoPretty.default({
     colorize: true,
-    sync: true
+    sync: true,
   })
 );
 
 try {
-    processPackage(process.cwd(), { logger, dryRun: argv.dryRun });
+  processPackage(process.cwd(), { logger, dryRun: argv.dryRun });
 } finally {
-    logger.flush();
+  logger.flush();
 }

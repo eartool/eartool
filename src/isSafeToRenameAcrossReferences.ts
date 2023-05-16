@@ -15,10 +15,7 @@ export function isSafeToRenameAcrossReferences(
     // should ony be one
     // FIXME I think this fails if there is a type by the same name?
     const [q] = originalSymbol.getDeclarations();
-    Assert.ok(
-      Node.isReferenceFindable(q),
-      "Invariant failed. How is this not findable?"
-    );
+    Assert.ok(Node.isReferenceFindable(q), "Invariant failed. How is this not findable?");
 
     const newName = getNewName(name, namespaceDecl.getName());
     for (const r of q.findReferencesAsNodes()) {

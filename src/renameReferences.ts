@@ -1,10 +1,5 @@
 import * as Assert from "node:assert";
-import {
-  InterfaceDeclaration,
-  ModuleDeclaration,
-  Node,
-  SyntaxKind,
-} from "ts-morph";
+import { InterfaceDeclaration, ModuleDeclaration, Node, SyntaxKind } from "ts-morph";
 import { getNewName } from "./getNewName.js";
 import { getValidReferenceParentOrThrow } from "./getValidReferenceParentOrThrow.js";
 import { Logger } from "pino";
@@ -30,10 +25,7 @@ export function renameReferences(
     const sym = namespaceDecl.getLocalOrThrow(oldName);
     // should ony be one
     const [q] = sym.getDeclarations();
-    Assert.ok(
-      Node.isReferenceFindable(q),
-      "Invariant failed. How is this not findable?"
-    );
+    Assert.ok(Node.isReferenceFindable(q), "Invariant failed. How is this not findable?");
 
     for (const r of q.findReferencesAsNodes()) {
       logger.trace("Found %s", r.print());
