@@ -24,8 +24,7 @@ export function getRelevantNodeFromRefOrThrow(
 
   if (
     Node.isPropertyAccessExpression(parent) ||
-    Node.isQualifiedName(parent) ||
-    Node.isTypeReference(parent)
+    Node.isQualifiedName(parent) 
   ) {
     return parent;
   } else {

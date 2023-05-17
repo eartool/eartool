@@ -202,6 +202,35 @@ const cases = [
       `,
     },
   },
+  {
+    name: "Generics work",
+    inputs: {
+      "foo.ts": `
+          export namespace MapElementViewerProperties {
+            export interface OwnProps<T extends MapElement> {
+              mapElement: T;
+              locked: boolean;
+              section: RightMapPanelType;
+            }
+          
+            export interface StoreProps {
+              mapDataState: MapDataState;
+            }
+          
+            export interface NectarProps {
+              dispatch: Dispatch;
+            }
+          
+            export type Props<T extends MapElement> = OwnProps<T> & StoreProps & NectarProps;
+          }
+      `,
+      "bar.ts": `
+          import {MapElementViewerProperties} from "./foo";
+
+          export type Foo<T extends MapElement> = MapElementViewerProperties.OwnProps<T>;
+      `
+    }
+  }
 ];
 
 describe("processProject", () => {

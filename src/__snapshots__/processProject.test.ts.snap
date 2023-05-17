@@ -26,6 +26,41 @@ export type Props = { hi: "mom" };
 "
 `;
 
+exports[`processProject Generics work 1`] = `
+"//
+
+//
+// PATH: '/bar.ts'
+//
+import { OwnProps as MapElementViewerPropertiesOwnProps } from "./foo";
+
+export type Foo<T extends MapElement> = MapElementViewerPropertiesOwnProps<T>;
+,//
+
+//
+// PATH: '/foo.ts'
+//
+
+export interface OwnProps<T extends MapElement> {
+  mapElement: T;
+  locked: boolean;
+  section: RightMapPanelType;
+}
+
+export interface StoreProps {
+  mapDataState: MapDataState;
+}
+
+export interface NectarProps {
+  dispatch: Dispatch;
+}
+
+export type Props<T extends MapElement> = OwnProps<T> &
+  StoreProps &
+  NectarProps;
+"
+`;
+
 exports[`processProject combined types 1`] = `
 "//
 

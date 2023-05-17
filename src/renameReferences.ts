@@ -42,7 +42,7 @@ export function renameReferences(oldName: string, context: NamespaceContext) {
     // This is the identifier for the variable but we need to rename
     // both it AND the access to the namespace so lets get there first
     const nodeToRename = getRelevantNodeFromRefOrThrow(r, logger);
-    logger.trace("Found parent: %s", nodeToRename.print());
+    logger.trace("Found node to replace: %s", nodeToRename.print());
 
     logger.trace("r: {%s, %d, %d}", r.getText(), r.getStart(), r.getEnd());
     logger.trace(
