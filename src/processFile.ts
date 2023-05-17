@@ -1,44 +1,39 @@
 import * as Assert from "assert";
-import { Node, SourceFile, SyntaxKind } from "ts-morph";
+import { ModuleDeclaration, Node, SourceFile, SyntaxKind } from "ts-morph";
 import { isSafeToRenameAllAcrossReferences } from "./isSafeToRenameAllAcrossReferences.js";
 import { renameOriginalSymbols } from "./renameOriginalSymbols.js";
 import { renameAllReferences } from "./renameAllReferences.js";
 import { isNamespaceDeclaration } from "./utils/isNamespaceDeclaration.js";
 import { type Logger } from "pino";
 import * as path from "node:path";
-import { type Context } from "./Context.js";
+import { ProjectContext } from "./Context.js";
 import { renameExports } from "./renameExports.js";
+import { getNewName } from "./getNewName.js";
 
-export function processFile(sf: SourceFile, logger: Logger) {
+export function processFile(sf: SourceFile, projectContext: ProjectContext) {
   const filePath = path.relative(process.cwd(), sf.getFilePath());
-  logger.flush();
-  logger = logger.child({ filePath });
-  logger.debug(`Processing file %s`, filePath);
+  projectContext.logger.debug(`Processing file %s`, filePath);
+
+  // logger = logger.child({ filePath });
+  // logger.debug(`Processing file %s`, filePath);
+
   const namespaceDecl = sf.getFirstDescendant(isNamespaceDeclaration);
   if (!namespaceDecl) {
-    logger.trace("Couldn't find a namespace");
+    projectContext.logger.trace("Couldn't find a namespace");
     return;
   }
 
+  const context = projectContext.createNamespaceContext(namespaceDecl);
+
   const namespaceName = namespaceDecl.getName();
-  logger = logger.child({ namespace: namespaceName });
-  logger.trace(`Found namespace %s`, namespaceName);
+  context.logger.trace(`Found namespace %s`, namespaceName);
+
   const syntaxList = namespaceDecl
     .getLastChildByKindOrThrow(SyntaxKind.ModuleBlock)
     .getLastChildByKindOrThrow(SyntaxKind.SyntaxList);
-
   const symbolsInRootScope = new Set(sf.getLocals().map((a) => a.getName()));
 
-  const context: Context = {
-    concreteRenames: new Set<string>(),
-    typeRenames: new Set<string>(),
-    logger,
-    namespaceDecl,
-    namespaceName,
-    targetSourceFile: sf,
-    // namespaceHasConcretePair:
-  };
-
+  Assert.ok(namespaceDecl.getChildSyntaxList() == syntaxList);
   for (const q of syntaxList.getChildren()) {
     if (Node.isVariableStatement(q)) {
       for (const varDecl of q.getDeclarations()) {
@@ -66,17 +61,17 @@ export function processFile(sf: SourceFile, logger: Logger) {
     } else if (Node.isEnumDeclaration(q)) {
       throw new Error("Not implemented"); // FIXME
     } else {
-      logger.warn("Unknown kind %s", q.getKindName());
+      context.logger.warn("Unknown kind %s", q.getKindName());
     }
   }
 
-  logger.trace("Type rename: %s", Array.from(context.typeRenames).join(", "));
-  logger.trace("Concrete rename: %s", Array.from(context.concreteRenames).join(", "));
+  context.logger.trace("Type rename: %s", Array.from(context.typeRenames).join(", "));
+  context.logger.trace("Concrete rename: %s", Array.from(context.concreteRenames).join(", "));
 
   // if we got here, its safe to know we can rename in file but we don't
   // know what we can do across the rest of the package. lets sanity check
   if (!isSafeToRenameAllAcrossReferences(context)) {
-    logger.warn("Aborting");
+    context.logger.warn("Aborting");
     return;
   }
 
@@ -87,11 +82,17 @@ export function processFile(sf: SourceFile, logger: Logger) {
   // re exports wont be able to reference the inner bit, just the namespace so we can fix that now
   renameExports(context);
 
-  // Actually break up the namespace
-  namespaceDecl.unwrap();
+  context.addReplacement({
+    start: namespaceDecl.getStart(),
+    end: namespaceDecl.getFirstDescendantByKindOrThrow(SyntaxKind.OpenBraceToken).getEnd(),
+    filePath: namespaceDecl.getSourceFile().getFilePath(),
+    newValue: "",
+  });
 
-  // Finally rename locally
-  renameOriginalSymbols(context);
-
-  // logger.trace(sf.getFullText());
+  context.addReplacement({
+    start: namespaceDecl.getDescendantsOfKind(SyntaxKind.CloseBraceToken).at(-1)!.getStart(),
+    end: namespaceDecl.getEnd(),
+    filePath: namespaceDecl.getSourceFile().getFilePath(),
+    newValue: "",
+  });
 }

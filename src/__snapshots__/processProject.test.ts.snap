@@ -13,10 +13,8 @@ export type Props = { hi: "mom" };
 //
 // PATH: '/baz.ts'
 //
-
 import { Props as BarProps } from "./bar";
 import { Props as FooProps } from "./foo";
-
 export type Props = FooProps & BarProps;
 ,//
 
@@ -71,7 +69,6 @@ export class Foo extends React.Component<Props> {}
 //
 // PATH: '/index.ts'
 //
-
 export { Foo, type Props as FooProps } from "./foo";
 "
 `;
@@ -82,7 +79,6 @@ exports[`processProject dont explode if error 1`] = `
 //
 // PATH: '/foo.ts'
 //
-
 const foo = 5;
 
 export namespace Wat {
@@ -129,7 +125,6 @@ export type ThingOfFoo = string;
 //
 // PATH: '/index.ts'
 //
-
 export { barOfFoo, bazOfFoo, type ThingOfFoo } from "./foo";
 "
 `;
@@ -151,7 +146,6 @@ export const VAR_FOO_BAR = 5;
 //
 // PATH: '/index.ts'
 //
-
 export { VAR_FOO_BAR, doFooOfFooBar, type ThingFooBar } from "./foo";
 "
 `;
@@ -162,7 +156,6 @@ exports[`processProject rename in other file 1`] = `
 //
 // PATH: '/refWat.ts'
 //
-
 import { BazOfWat, FooOfWat, fOfWat, keyOfWat } from "./wat";
 
 console.log(keyOfWat);
@@ -192,7 +185,6 @@ exports[`processProject simple 1`] = `
 //
 // PATH: '/foo.ts'
 //
-
 const foo = 5;
 
 export const aasdfOfWat = 3;
@@ -222,7 +214,6 @@ class Foo extends React.Component<Props> {}
 //
 // PATH: '/index.ts'
 //
-
 export { type Props as FooProps } from "./foo";
 "
 `;

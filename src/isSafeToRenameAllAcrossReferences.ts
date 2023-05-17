@@ -1,7 +1,7 @@
 import { isSafeToRenameAcrossReferences } from "./isSafeToRenameAcrossReferences.js";
-import { type Context } from "./Context.js";
+import { NamespaceContext } from "./Context.js";
 
-export function isSafeToRenameAllAcrossReferences(context: Context) {
+export function isSafeToRenameAllAcrossReferences(context: NamespaceContext) {
   for (const oldName of context.typeRenames) {
     isSafeToRenameAcrossReferences(oldName, context);
   }

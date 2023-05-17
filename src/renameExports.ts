@@ -1,14 +1,9 @@
 import { SyntaxKind, type OptionalKind, type ExportSpecifierStructure } from "ts-morph";
-import type { Context } from "./Context.js";
+import type { NamespaceContext } from "./Context.js";
 import { getNewName } from "./getNewName.js";
 
-export function renameExports({
-  namespaceDecl,
-  typeRenames,
-  concreteRenames,
-  logger,
-  namespaceName,
-}: Context) {
+export function renameExports(context: NamespaceContext) {
+  const { namespaceDecl, typeRenames, concreteRenames, logger, namespaceName } = context;
   logger.trace(
     "renameExports(%s) for %d references",
     namespaceName,
@@ -23,29 +18,42 @@ export function renameExports({
     if (exportDecl) {
       logger.trace("Found %s in %s", exportDecl.print(), exportDecl);
 
-      exportDecl.addNamedExports(makeExportSpecifiers(typeRenames, namespaceName, true));
-      exportDecl.addNamedExports(makeExportSpecifiers(concreteRenames, namespaceName, false));
+      const filePath = exportDecl.getSourceFile().getFilePath();
+      for (const oldName of typeRenames) {
+        const { localName, importName } = getNewName(oldName, namespaceName);
 
-      // FIXME can only drop if its the only one
+        const n = () => (localName === importName ? localName : `${localName} as ${importName}`);
+
+        context.addReplacement({
+          start: 0,
+          end: 0,
+          filePath,
+          newValue: `export { type ${n()} } from ${exportDecl.getModuleSpecifier()?.getText()};`,
+        });
+      }
+
+      for (const oldName of concreteRenames) {
+        const { localName, importName } = getNewName(oldName, namespaceName);
+        const n = () => (localName === importName ? localName : `${localName} as ${importName}`);
+        context.addReplacement({
+          start: 0,
+          end: 0,
+          filePath,
+          newValue: `export { ${n()} } from ${exportDecl.getModuleSpecifier()?.getText()};`,
+        });
+      }
+
       if (!hasMultipleDeclarations) {
-        exportDecl
-          .getNamedExports()
-          .find((a) => a.getName() === namespaceDecl.getName())
-          ?.remove();
+        exportDecl;
+        context.addReplacement({
+          start: refNode.getStart(),
+          end: refNode.getEnd(),
+          filePath,
+          newValue: "",
+        });
       }
     } else {
       logger.warn("WTF");
     }
   }
-}
-
-function makeExportSpecifiers(names: Set<string>, namespaceName: string, isTypeOnly: boolean) {
-  return Array.from(names).map<OptionalKind<ExportSpecifierStructure>>((name) => {
-    const newName = getNewName(name, namespaceName);
-    return {
-      name: newName.localName,
-      alias: newName.importName !== newName.localName ? newName.importName : undefined,
-      isTypeOnly,
-    };
-  });
 }

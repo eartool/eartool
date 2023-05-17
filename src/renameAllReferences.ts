@@ -1,4 +1,4 @@
-import type { Context } from "./Context.js";
+import type { NamespaceContext } from "./Context.js";
 import { renameReferences } from "./renameReferences.js";
 
 /**
@@ -10,7 +10,7 @@ import { renameReferences } from "./renameReferences.js";
  * @param namespaceDecl
  */
 
-export function renameAllReferences(context: Context) {
+export function renameAllReferences(context: NamespaceContext) {
   context.logger.trace("Renaming references");
   for (const oldName of context.typeRenames) {
     renameReferences(oldName, context);

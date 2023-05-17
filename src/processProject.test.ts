@@ -173,6 +173,7 @@ const cases = [
 
       "refWat.ts": `
           import {Wat} from "./wat";
+          
           console.log(Wat.key);
           console.log(Wat.f());
           console.log(new Wat.Foo());
@@ -208,8 +209,9 @@ describe("processProject", () => {
         skipAddingFilesFromTsConfig: true,
       });
       for (const [name, contents] of Object.entries(inputs)) {
-        project.createSourceFile(name, contents);
+        project.createSourceFile(name, formatTestTypescript(contents));
       }
+      project.saveSync();
 
       await processProject(project, {
         logger,
@@ -275,6 +277,7 @@ function createTestLogger(name: string) {
           destination: pino.destination({
             sync: true,
             mkdir: true,
+            append: false,
             dest: `logs/processProject/${name}.log.txt`,
           }),
         }),

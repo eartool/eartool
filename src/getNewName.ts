@@ -26,13 +26,12 @@ export function getNewName(
   const oldName = typeof nodeOrName === "string" ? nodeOrName : nodeOrName.getName()!;
 
   if (constantCase.test(oldName)) {
-
     let ret;
-  
-    if (ret = findSuffixMatch(oldName, namespaceName, true)) {
+
+    if ((ret = findSuffixMatch(oldName, namespaceName, true))) {
       return ret;
     }
-  
+
     if (namespaceName.at(-1) === "s") {
       if ((ret = findSuffixMatch(oldName, namespaceName.slice(0, -1), true))) {
         return ret;
@@ -49,8 +48,8 @@ export function getNewName(
   }
 
   let ret;
-  
-  if (ret = findSuffixMatch(oldName, namespaceName, false)) {
+
+  if ((ret = findSuffixMatch(oldName, namespaceName, false))) {
     return ret;
   }
 

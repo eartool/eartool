@@ -1,34 +1,25 @@
 import * as Assert from "node:assert";
 import { Node } from "ts-morph";
 import { getNewName } from "./getNewName.js";
-import type { Context } from "./Context.js";
+import type { NamespaceContext } from "./Context.js";
 
-export function renameOriginalSymbols(context: Context) {
+export function renameOriginalSymbols(context: NamespaceContext) {
   for (const originalName of context.typeRenames) {
-    renameOriginalSymbol(
-      { ...context, logger: context.logger.child({ toRename: originalName }) },
-      originalName
-    );
+    renameOriginalSymbol(context, originalName);
   }
 
   for (const originalName of context.concreteRenames) {
-    renameOriginalSymbol(
-      { ...context, logger: context.logger.child({ toRename: originalName }) },
-      originalName
-    );
+    renameOriginalSymbol(context, originalName);
   }
 }
 
-function renameOriginalSymbol(
-  { logger, targetSourceFile, namespaceName }: Context,
-  originalName: string
-) {
-  const { localName, importName } = getNewName(originalName, namespaceName);
+function renameOriginalSymbol(context: NamespaceContext, originalName: string) {
+  const { localName, importName } = getNewName(originalName, context.namespaceName);
 
-  logger.trace(
-    `Tring to rename symbol ${namespaceName}.${originalName} => ${localName}/${importName}`
+  context.logger.trace(
+    `Tring to rename symbol ${context.namespaceName}.${originalName} => ${localName}/${importName}`
   );
-  const sym = targetSourceFile.getLocalOrThrow(originalName);
+  const sym = context.targetSourceFile.getLocalOrThrow(originalName);
 
   const decls = sym.getDeclarations();
   Assert.strictEqual(decls.length, 1, "invariant failure. how are there multiple");
@@ -41,10 +32,15 @@ function renameOriginalSymbol(
     !Node.isTypeAliasDeclaration(decl) &&
     !Node.isNameable(decl)
   ) {
-    logger.error("Expected a name for %s in statement `%s`", decl.getKindName(), decl.print());
+    context.logger.error(
+      "Expected a name for %s in statement `%s`",
+      decl.getKindName(),
+      decl.print()
+    );
 
     throw new Error("invariant failure. why is there no name!");
   }
 
-  decl.rename(localName);
+  context.logger.trace(context.targetSourceFile.getText());
+  context.addReplacementForNode(decl, localName);
 }
