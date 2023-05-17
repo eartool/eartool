@@ -10,7 +10,7 @@ import { splitWords } from "./splitWords.js";
 const constantCase = /^([A-Z_0-9])+$/;
 const qq = /^([A-Z]?[a-z0-9]+)+$/;
 
-export const NamesForSimplePrepend = new Set(["get", "save", "create", "store"]);
+export const NamesForSimplePrepend = new Set(["get", "save", "create", "store", "wrap"]);
 export const MergeWord = "For";
 
 function namespaceNameToUpperSnakeCase(name: string) {
