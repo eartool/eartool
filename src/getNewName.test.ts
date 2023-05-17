@@ -6,12 +6,12 @@ describe("getNewName", () => {
     {
       name: "Bar",
       namespaceName: "Foo",
-      expected: { localName: "BarOfFoo", importName: "BarOfFoo" },
+      expected: { localName: "BarForFoo", importName: "BarForFoo" },
     },
     {
       name: "bar",
       namespaceName: "Foo",
-      expected: { localName: "barOfFoo", importName: "barOfFoo" },
+      expected: { localName: "barForFoo", importName: "barForFoo" },
     },
     {
       name: "FOO",
@@ -55,6 +55,38 @@ describe("getNewName", () => {
       expected: {
         localName: "TEAM_SECURITY_PRINCIPAL_KEY",
         importName: "TEAM_SECURITY_PRINCIPAL_KEY",
+      },
+    },
+    {
+      name: "get",
+      namespaceName: "Foo",
+      expected: {
+        localName: "getFoo",
+        importName: "getFoo",
+      },
+    },
+    {
+      name: "of",
+      namespaceName: "Foo",
+      expected: {
+        localName: "newFoo",
+        importName: "newFoo",
+      },
+    },
+    {
+      name: "Args",
+      namespaceName: "useFoo",
+      expected: {
+        localName: "Args",
+        importName: "UseFooArgs",
+      },
+    },
+    {
+      name: "Return",
+      namespaceName: "useFoo",
+      expected: {
+        localName: "Args",
+        importName: "UseFooArgs",
       },
     },
   ])("$namespaceName . $name => $expected", ({ name, namespaceName, expected }) => {

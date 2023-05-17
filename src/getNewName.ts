@@ -10,6 +10,9 @@ import { splitWords } from "./splitWords.js";
 const constantCase = /^([A-Z_0-9])+$/;
 const qq = /^([A-Z]?[a-z0-9]+)+$/;
 
+export const NamesForSimplePrepend = new Set(["get", "save", "create", "store"]);
+export const MergeWord = "For";
+
 function namespaceNameToUpperSnakeCase(name: string) {
   return name.replace(/[A-Z]/g, (letter, idx) => `${idx == 0 ? "" : "_"}${letter}`).toUpperCase();
 }
@@ -23,6 +26,9 @@ export function getNewName(
     | string,
   namespaceName: string
 ): { localName: string; importName: string } {
+  if (namespaceName[0] >= "a" && namespaceName[0] <= "z") {
+    namespaceName = namespaceName[0].toUpperCase() + namespaceName.slice(1);
+  }
   const oldName = typeof nodeOrName === "string" ? nodeOrName : nodeOrName.getName()!;
 
   if (constantCase.test(oldName)) {
@@ -43,8 +49,23 @@ export function getNewName(
   }
 
   // Special case a few things
-  if (oldName.endsWith("Props") || oldName.endsWith("State")) {
+  if (
+    oldName.endsWith("Props") ||
+    oldName.endsWith("State") ||
+    oldName.endsWith("Args") ||
+    oldName.endsWith("Return")
+  ) {
     return { localName: `${oldName}`, importName: `${namespaceName}${oldName}` };
+  }
+
+  if (oldName === "of") {
+    const newName = `new${namespaceName}`;
+    return { localName: newName, importName: newName };
+  }
+
+  if (NamesForSimplePrepend.has(oldName)) {
+    const newName = `${oldName}${namespaceName}`;
+    return { localName: newName, importName: newName };
   }
 
   let ret;
@@ -59,7 +80,7 @@ export function getNewName(
     }
   }
 
-  const newName = `${oldName}Of${namespaceName}`;
+  const newName = `${oldName}${MergeWord}${namespaceName}`;
   return { localName: newName, importName: newName };
 }
 

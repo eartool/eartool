@@ -25,6 +25,10 @@ const cases = [
             }
 
             export type Thing = string;
+
+            export interface Props {
+              what: Thing;
+            }
           }
         `,
 
@@ -173,7 +177,7 @@ const cases = [
 
       "refWat.ts": `
           import {Wat} from "./wat";
-          
+
           console.log(Wat.key);
           console.log(Wat.f());
           console.log(new Wat.Foo());
