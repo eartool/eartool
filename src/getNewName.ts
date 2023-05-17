@@ -53,7 +53,8 @@ export function getNewName(
     oldName.endsWith("Props") ||
     oldName.endsWith("State") ||
     oldName.endsWith("Args") ||
-    oldName.endsWith("Return")
+    oldName.endsWith("Return") ||
+    oldName.endsWith("Config")
   ) {
     return { localName: `${oldName}`, importName: `${namespaceName}${oldName}` };
   }

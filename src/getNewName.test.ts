@@ -85,8 +85,16 @@ describe("getNewName", () => {
       name: "Return",
       namespaceName: "useFoo",
       expected: {
-        localName: "Args",
-        importName: "UseFooArgs",
+        localName: "Return",
+        importName: "UseFooReturn",
+      },
+    },
+    {
+      name: "Config",
+      namespaceName: "useFoo",
+      expected: {
+        localName: "Config",
+        importName: "UseFooConfig",
       },
     },
   ])("$namespaceName . $name => $expected", ({ name, namespaceName, expected }) => {
