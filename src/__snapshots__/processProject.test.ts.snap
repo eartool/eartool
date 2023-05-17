@@ -120,12 +120,21 @@ export function bazForFoo() {
 }
 
 export type ThingForFoo = string;
+
+export interface Props {
+  what: ThingForFoo;
+}
 ,//
 
 //
 // PATH: '/index.ts'
 //
-export { barForFoo, bazForFoo, type ThingForFoo } from "./foo";
+export {
+  barForFoo,
+  bazForFoo,
+  type Props as FooProps,
+  type ThingForFoo,
+} from "./foo";
 "
 `;
 
