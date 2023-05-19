@@ -1,6 +1,6 @@
 import * as path from "node:path";
 import { Project } from "ts-morph";
-import { processProject } from "./processProject.js";
+import { processProject, type ProcessProjectOpts } from "./processProject.js";
 import { type Logger } from "pino";
 
 /*
@@ -16,10 +16,7 @@ import { type Logger } from "pino";
     * Delete namespace if empty
 
 */
-export async function processPackage(
-  packagePath: string,
-  opts: { dryRun: boolean; logger: Logger }
-) {
+export async function processPackage(packagePath: string, opts: ProcessProjectOpts) {
   const project = new Project({
     tsConfigFilePath: path.join(packagePath, "tsconfig.json"),
     skipLoadingLibFiles: true,

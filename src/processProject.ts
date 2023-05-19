@@ -3,9 +3,15 @@ import { processFile } from "./processFile.js";
 import { type Logger } from "pino";
 import { ProjectContext } from "./Context.js";
 
+export interface ProcessProjectOpts {
+  dryRun?: boolean;
+  logger: Logger;
+  updateState?: (data: { totalFiles: number; processedFiles: number }) => void;
+}
+
 export async function processProject(
   project: Project,
-  { dryRun = false, logger }: { dryRun?: boolean; logger: Logger }
+  { dryRun = false, logger, updateState }: ProcessProjectOpts
 ) {
   const context = new ProjectContext(project, logger);
 
@@ -15,8 +21,18 @@ export async function processProject(
     }
   }
 
+  const totalFiles = project.getSourceFiles().length;
+
+  if (updateState) {
+    updateState({ totalFiles, processedFiles: 0 });
+  }
+
+  let count = 0;
   for (const sf of project.getSourceFiles()) {
     processFile(sf, context);
+    if (updateState) {
+      updateState({ totalFiles, processedFiles: ++count });
+    }
   }
 
   for (let [filePath, replacements] of context.getReplacements()) {

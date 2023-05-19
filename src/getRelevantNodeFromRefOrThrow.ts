@@ -22,10 +22,7 @@ export function getRelevantNodeFromRefOrThrow(
   );
   logger.flush();
 
-  if (
-    Node.isPropertyAccessExpression(parent) ||
-    Node.isQualifiedName(parent) 
-  ) {
+  if (Node.isPropertyAccessExpression(parent) || Node.isQualifiedName(parent)) {
     return parent;
   } else {
     return r;

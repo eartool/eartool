@@ -228,9 +228,9 @@ const cases = [
           import {MapElementViewerProperties} from "./foo";
 
           export type Foo<T extends MapElement> = MapElementViewerProperties.OwnProps<T>;
-      `
-    }
-  }
+      `,
+    },
+  },
 ];
 
 describe("processProject", () => {

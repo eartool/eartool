@@ -3,42 +3,59 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { processPackage } from "./processPackage.js";
-import { pino } from "pino";
-import pinoPretty from "pino-pretty";
+import { createConsoleLogger } from "./createConsoleLogger.js";
+import { batchRun } from "./cli/batch/mainProcess/batchRun.js";
 
 const argv = await yargs(hideBin(process.argv))
-  .options({
-    package: {
-      type: "string",
-      demandOption: false,
-      defaultDescription: "cwd",
-      default: process.cwd(),
+  .command(
+    "foo",
+    "describe",
+    (yargs) => {
+      return yargs.options({
+        workspaceDir: {
+          type: "string",
+          demandOption: true,
+        },
+        startPackageName: {
+          type: "string",
+        },
+      });
     },
-    changesDir: { type: "string" },
-    dryRun: { type: "boolean", default: false },
-    logLevel: {
-      type: "string",
-      choices: ["fatal", "error", "warn", "info", "debug", "trace", "silent"],
-      default: "info",
+    async (argv) => {
+      await batchRun(argv.workspaceDir, argv.startPackageName);
+    }
+  )
+  .command(
+    "singlePackageRun",
+    "run against a single package no extras",
+    (yargs) => {
+      return yargs.options({
+        packagePath: {
+          type: "string",
+          demandOption: false,
+          defaultDescription: "cwd",
+          default: process.cwd(),
+          alias: "package",
+        },
+        changesDir: { type: "string" },
+        dryRun: { type: "boolean", default: false },
+        logLevel: {
+          choices: ["fatal", "error", "warn", "info", "debug", "trace", "silent"],
+          default: "info",
+        },
+      } as const);
     },
-  })
+    ({ packagePath, logLevel, dryRun }) => {
+      process.chdir(packagePath);
+
+      const logger = createConsoleLogger(logLevel);
+
+      try {
+        processPackage(process.cwd(), { logger, dryRun });
+      } finally {
+        logger.flush();
+      }
+    }
+  )
   .strict()
   .showHelpOnFail(true).argv;
-
-process.chdir(argv.package);
-
-const logger = pino(
-  {
-    level: argv.logLevel,
-  },
-  pinoPretty.default({
-    colorize: true,
-    sync: true,
-  })
-);
-
-try {
-  processPackage(process.cwd(), { logger, dryRun: argv.dryRun });
-} finally {
-  logger.flush();
-}
