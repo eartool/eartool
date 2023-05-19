@@ -5,7 +5,10 @@
   "type": "module",
   "bin": "./bin/fix-namespace.js",
   "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "fixFormatting": "prettier --write .",
+    "fixLint": "eslint --fix src",
+    "fixAll": "pnpm fixFormatting && pnpm fixLint"
   },
   "keywords": [],
   "author": "",
