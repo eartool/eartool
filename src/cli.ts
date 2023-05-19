@@ -6,7 +6,7 @@ import { processPackage } from "./processPackage.js";
 import { createConsoleLogger } from "./createConsoleLogger.js";
 import { batchRun } from "./cli/batch/mainProcess/batchRun.js";
 
-const argv = await yargs(hideBin(process.argv))
+await yargs(hideBin(process.argv))
   .command(
     "foo",
     "describe",

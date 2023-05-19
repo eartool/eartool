@@ -1,6 +1,6 @@
-import { Project } from "ts-morph";
+import type { Project } from "ts-morph";
 import { processFile } from "./processFile.js";
-import { type Logger } from "pino";
+import type { Logger } from "pino";
 import { ProjectContext } from "./Context.js";
 
 export interface ProcessProjectOpts {

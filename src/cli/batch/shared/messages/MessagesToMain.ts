@@ -1,4 +1,3 @@
-import { type Message } from "./Message.js";
 import { withSenderId } from "./withSenderId.js";
 import { createAction } from "@reduxjs/toolkit";
 

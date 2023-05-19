@@ -1,11 +1,9 @@
-import * as Assert from "node:assert";
-import { type Logger } from "pino";
+import type { Logger } from "pino";
 import {
-  type Identifier,
   Node,
-  PropertyAccessExpression,
-  QualifiedName,
-  TypeReferenceNode,
+  type PropertyAccessExpression,
+  type QualifiedName,
+  type TypeReferenceNode,
 } from "ts-morph";
 
 export function getRelevantNodeFromRefOrThrow(

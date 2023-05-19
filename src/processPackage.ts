@@ -1,7 +1,6 @@
 import * as path from "node:path";
 import { Project } from "ts-morph";
 import { processProject, type ProcessProjectOpts } from "./processProject.js";
-import { type Logger } from "pino";
 
 /*
     Goal: lets get const / function / class / statement out of namespaces

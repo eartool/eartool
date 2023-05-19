@@ -2,7 +2,7 @@ import { getNewName } from "./getNewName.js";
 import { getRelevantNodeFromRefOrThrow } from "./getRelevantNodeFromRefOrThrow.js";
 import { isInSameNamespace } from "./isInSameNamespace.js";
 import { getReferenceFindableLocalDeclarationOrThrow } from "./utils/getReferenceFindableLocalDeclarationOrThrow.js";
-import { type NamespaceContext } from "./Context.js";
+import type { NamespaceContext } from "./Context.js";
 
 export function isSafeToRenameAcrossReferences(
   oldName: string,

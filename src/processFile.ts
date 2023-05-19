@@ -1,14 +1,11 @@
 import * as Assert from "assert";
-import { ModuleDeclaration, Node, SourceFile, SyntaxKind } from "ts-morph";
+import { Node, type SourceFile, SyntaxKind } from "ts-morph";
 import { isSafeToRenameAllAcrossReferences } from "./isSafeToRenameAllAcrossReferences.js";
-import { renameOriginalSymbols } from "./renameOriginalSymbols.js";
 import { renameAllReferences } from "./renameAllReferences.js";
 import { isNamespaceDeclaration } from "./utils/isNamespaceDeclaration.js";
-import { type Logger } from "pino";
 import * as path from "node:path";
-import { ProjectContext } from "./Context.js";
+import type { ProjectContext } from "./Context.js";
 import { renameExports } from "./renameExports.js";
-import { getNewName } from "./getNewName.js";
 
 export function processFile(sf: SourceFile, projectContext: ProjectContext) {
   const filePath = path.relative(process.cwd(), sf.getFilePath());

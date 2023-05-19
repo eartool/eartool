@@ -1,5 +1,5 @@
 import * as Assert from "node:assert";
-import { Node, ReferenceFindableNode } from "ts-morph";
+import { Node, type ReferenceFindableNode } from "ts-morph";
 
 export function getReferenceFindableLocalDeclarationOrThrow(
   node: Node,

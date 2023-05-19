@@ -1,5 +1,5 @@
-import { ModuleDeclaration, Node, Project, SourceFile, SyntaxKind } from "ts-morph";
-import { type Logger } from "pino";
+import { type ModuleDeclaration, Node, type Project, type SourceFile, SyntaxKind } from "ts-morph";
+import type { Logger } from "pino";
 
 interface Replacement {
   start: number;

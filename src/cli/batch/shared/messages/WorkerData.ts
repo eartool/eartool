@@ -1,4 +1,4 @@
-import { type SenderId } from "./withSenderId.js";
+import type { SenderId } from "./withSenderId.js";
 
 export interface WorkerData {
   senderId: SenderId;

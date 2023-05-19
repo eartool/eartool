@@ -1,7 +1,7 @@
 import { filterPkgsBySelectorObjects, type PackageGraph } from "@pnpm/filter-workspace-packages";
 import { SetMultimap } from "@teppeis/multimaps";
 import PQueue from "p-queue";
-import { type PackageNode } from "@pnpm/workspace.pkgs-graph";
+import type { PackageNode } from "@pnpm/workspace.pkgs-graph";
 import {
   findWorkspacePackagesNoCheck,
   type Project as PnpmProject,

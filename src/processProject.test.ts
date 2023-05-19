@@ -1,10 +1,9 @@
-import { beforeEach, describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import { format } from "prettier";
-import { Node, Project, SourceFile } from "ts-morph";
+import { Node, Project } from "ts-morph";
 import { processProject } from "./processProject.js";
 import { pino } from "pino";
 import pinoPretty from "pino-pretty";
-import { Writable } from "stream";
 
 function formatTestTypescript(src: string) {
   return format(src, { parser: "typescript", tabWidth: 2, useTabs: false });

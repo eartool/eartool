@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction, type Reducer } from "@reduxjs/toolkit";
-import { type SenderId } from "../shared/messages/withSenderId.js";
-import { type WorkerData } from "../shared/messages/WorkerData.js";
+import type { SenderId } from "../shared/messages/withSenderId.js";
+import type { WorkerData } from "../shared/messages/WorkerData.js";
 
 interface SliceState {
   senderIdToPackagePath: Record<SenderId, string>;
@@ -30,7 +30,7 @@ export const selectPackagePathFromSenderId = (state: SliceState, senderId: Sende
   return state.senderIdToPackagePath[senderId];
 };
 
-const { actions, reducer } = slice;
+export const { startWorker } = slice.actions;
 
-export const { startWorker } = actions;
-export default reducer;
+// it needs to be declared for the reducer export
+export default slice.reducer as Reducer<SliceState>;
