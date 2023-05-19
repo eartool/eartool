@@ -1,4 +1,4 @@
-import { SyntaxKind, type OptionalKind, type ExportSpecifierStructure } from "ts-morph";
+import { SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "./Context.js";
 import { getNewName } from "./getNewName.js";
 

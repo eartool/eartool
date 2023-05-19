@@ -285,8 +285,8 @@ function createTestLogger(name: string) {
         foo: (n: Node) => `${n.getSourceFile().getFilePath()}:${n.getStartLineNumber()}`,
       },
       hooks: {
-        logMethod: function logMethod([msg, ...args], method, foo) {
-          args = args.map((a: any) => maybeConvertNodeToFileAndLineNum(a));
+        logMethod: function logMethod([msg, ...args], method, _foo) {
+          args = args.map((a) => maybeConvertNodeToFileAndLineNum(a));
           // console.log([msg, ...args]);
           method.apply(this, [msg, ...args]);
         },

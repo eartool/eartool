@@ -1,11 +1,9 @@
-import { MessageChannel, MessagePort, parentPort, workerData } from "node:worker_threads";
+import { MessagePort, parentPort, workerData } from "node:worker_threads";
 
 import { ok } from "assert";
 import { MessagesToMain, type WorkerData } from "../shared/messages/index.js";
 import { processPackage } from "../../../processPackage.js";
 import { createConsoleLogger } from "../../../createConsoleLogger.js";
-
-const channel = new MessageChannel();
 
 parentPort?.once("message", (value: { port: MessagePort }) => {
   ok(value != null);

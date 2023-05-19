@@ -35,6 +35,7 @@ export async function processProject(
     }
   }
 
+  // eslint-disable-next-line prefer-const
   for (let [filePath, replacements] of context.getReplacements()) {
     replacements = [...replacements].sort((a, b) => a.start - b.start);
 

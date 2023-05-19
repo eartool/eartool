@@ -1,6 +1,5 @@
 import * as yargs from "yargs";
 import { MultiBar, Presets, SingleBar } from "cli-progress";
-import { setTimeout as setTimeoutPromise } from "node:timers/promises";
 import { createWorkspaceInfo } from "../WorkspaceInfo.js";
 import { Worker, MessageChannel } from "node:worker_threads";
 import { MessagesToMain } from "../shared/messages/index.js";
@@ -10,7 +9,8 @@ import { createStore } from "./createStore.js";
 import type { WorkerData } from "../shared/messages/WorkerData.js";
 import { createHasSenderId } from "../shared/messages/withSenderId.js";
 
-export default function registerCommand(yargs: yargs.Argv<{}>) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function registerCommand(yargs: yargs.Argv<NonNullable<unknown>>) {
   // yargs.command()
 }
 
@@ -58,7 +58,7 @@ function registerListeners(
       });
 
       api.fork(
-        async (forkApi) => {
+        async (_forkApi) => {
           const [{ payload }] = await api.take(
             isAllOf(MessagesToMain.UpdateStatus.match, hasSenderId)
           );
