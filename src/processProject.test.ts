@@ -4,6 +4,7 @@ import { Node, Project } from "ts-morph";
 import { processProject } from "./processProject.js";
 import { pino } from "pino";
 import pinoPretty from "pino-pretty";
+import * as Assert from "node:assert";
 
 function formatTestTypescript(src: string) {
   return format(src, { parser: "typescript", tabWidth: 2, useTabs: false });
@@ -251,17 +252,10 @@ const cases = [
 ];
 
 describe("processProject", () => {
-  it.each(cases)("$name", async ({ inputs, name }) => {
-    const logger = createTestLogger(name);
+  it.each(cases)("$name", async ({ inputs }) => {
+    const logger = createTestLogger();
     try {
-      const project = new Project({
-        useInMemoryFileSystem: true,
-        skipAddingFilesFromTsConfig: true,
-      });
-      for (const [name, contents] of Object.entries(inputs)) {
-        project.createSourceFile(name, formatTestTypescript(contents));
-      }
-      project.saveSync();
+      const project = createProjectForTest(inputs);
 
       await processProject(project, {
         logger,
@@ -291,9 +285,46 @@ describe("processProject", () => {
       logger.flush();
     }
   });
+
+  it("records renames from root", async () => {
+    const logger = createTestLogger();
+
+    const project = createProjectForTest({
+      "foo.ts": `
+          export namespace Foo {
+            export type Props = {};
+          }
+      `,
+      "index.ts": `
+          export {Foo} from "./foo";
+      `,
+    });
+
+    const result = await processProject(project, { logger });
+    expect(result.exportedRenames).toHaveLength(1);
+    expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Props"], to: ["FooProps"] });
+  });
 });
 
-function createTestLogger(name: string) {
+function createProjectForTest(inputs: Record<string, string | undefined>) {
+  const project = new Project({
+    useInMemoryFileSystem: true,
+    skipAddingFilesFromTsConfig: true,
+  });
+  for (const [name, contents] of Object.entries(inputs)) {
+    // silly check for typescript happiness
+    if (name && contents) {
+      project.createSourceFile(name, formatTestTypescript(contents));
+    }
+  }
+  project.saveSync();
+  return project;
+}
+
+function createTestLogger() {
+  const { currentTestName } = expect.getState();
+  Assert.ok(currentTestName != null);
+
   return pino(
     {
       level: "trace",
@@ -315,7 +346,7 @@ function createTestLogger(name: string) {
         stream: pino.destination({
           sync: true,
           mkdir: true,
-          dest: `logs/processProject/${name}.log.json`,
+          dest: `logs/processProject/${currentTestName}.log.json`,
         }),
       },
       {
@@ -328,7 +359,7 @@ function createTestLogger(name: string) {
             sync: true,
             mkdir: true,
             append: false,
-            dest: `logs/processProject/${name}.log.txt`,
+            dest: `logs/processProject/${currentTestName}.log.txt`,
           }),
         }),
       },

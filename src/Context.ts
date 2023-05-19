@@ -10,6 +10,7 @@ interface Replacement {
 
 export class ProjectContext {
   #replacements = new Map<string, Replacement[]>();
+  #recordedRenames: { from: string[]; to: string[] }[] = [];
 
   constructor(project: Project, public logger: Logger) {
     //
@@ -41,8 +42,16 @@ export class ProjectContext {
     return this.#replacements;
   };
 
+  getRecordedRenames = () => {
+    return this.#recordedRenames;
+  };
+
   createNamespaceContext = (namespaceDecl: ModuleDeclaration) => {
     return new NamespaceContext(this, namespaceDecl);
+  };
+
+  recordRename = (from: string[], to: string[]) => {
+    this.#recordedRenames.push({ from, to });
   };
 
   #getReplacementsArray(filePath: string) {
@@ -65,6 +74,8 @@ export class NamespaceContext implements Omit<ProjectContext, "createNamespaceCo
   addReplacement: ProjectContext["addReplacement"];
   addReplacementForNode: ProjectContext["addReplacementForNode"];
   getReplacements: ProjectContext["getReplacements"];
+  recordRename: ProjectContext["recordRename"];
+  getRecordedRenames: ProjectContext["getRecordedRenames"];
 
   constructor(projectContext: ProjectContext, decl: ModuleDeclaration) {
     this.#projectContext = projectContext;
@@ -78,5 +89,7 @@ export class NamespaceContext implements Omit<ProjectContext, "createNamespaceCo
     this.addReplacement = this.#projectContext.addReplacement;
     this.addReplacementForNode = this.#projectContext.addReplacementForNode;
     this.getReplacements = this.#projectContext.getReplacements;
+    this.recordRename = this.#projectContext.recordRename;
+    this.getRecordedRenames = this.#projectContext.getRecordedRenames;
   }
 }

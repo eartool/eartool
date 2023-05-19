@@ -66,4 +66,8 @@ export async function processProject(
     logger.info("Saving");
     await project.save();
   }
+
+  return {
+    exportedRenames: context.getRecordedRenames(),
+  };
 }

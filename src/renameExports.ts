@@ -3,6 +3,7 @@ import { SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "./Context.js";
 import { getNewName } from "./getNewName.js";
 import * as Assert from "node:assert";
+import { isRootExport } from "./utils/isRootExport.js";
 
 export function renameExports(context: NamespaceContext) {
   const { namespaceDecl, logger, namespaceName } = context;
@@ -39,11 +40,11 @@ function processSingleExport(
 
   const filePath = exportDecl.getSourceFile().getFilePath();
   for (const oldName of typeRenames) {
-    processVariable(oldName, true);
+    processTypeOrVariable(oldName, true);
   }
 
   for (const oldName of concreteRenames) {
-    processVariable(oldName, false);
+    processTypeOrVariable(oldName, false);
   }
 
   if (!hasMultipleDeclarations) {
@@ -55,9 +56,13 @@ function processSingleExport(
     });
   }
 
-  function processVariable(oldName: string, isType: boolean) {
+  function processTypeOrVariable(oldName: string, isType: boolean) {
     const { localName, importName } = getNewName(oldName, namespaceName);
     const n = () => (localName === importName ? localName : `${localName} as ${importName}`);
+
+    if (isRootExport(exportDecl.getSourceFile())) {
+      context.recordRename([context.namespaceName, oldName], [importName]);
+    }
 
     context.addReplacement({
       start: startOfExport,
