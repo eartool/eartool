@@ -1,12 +1,6 @@
 import { type ModuleDeclaration, Node, type Project, type SourceFile, SyntaxKind } from "ts-morph";
 import type { Logger } from "pino";
-
-interface Replacement {
-  start: number;
-  end: number;
-  newValue: string;
-  filePath: string;
-}
+import type { Replacement } from "./replacements/Replacement.js";
 
 export class ProjectContext {
   #replacements = new Map<string, Replacement[]>();
