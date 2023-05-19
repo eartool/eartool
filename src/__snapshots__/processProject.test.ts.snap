@@ -61,6 +61,54 @@ export type Props<T extends MapElement> = OwnProps<T> &
 "
 `;
 
+exports[`processProject Generics work with additional 1`] = `
+"//
+
+//
+// PATH: '/bar.ts'
+//
+import { Moo } from "somelib";
+import { OwnProps as MapElementViewerPropertiesOwnProps } from "./foo";
+
+export type Foo<T extends MapElement & Moo.Cow> =
+  MapElementViewerPropertiesOwnProps<T>;
+,//
+
+//
+// PATH: '/foo.ts'
+//
+
+export interface OwnProps<T extends MapElement> {
+  mapElement: T;
+  locked: boolean;
+  section: RightMapPanelType;
+}
+
+export interface StoreProps {
+  mapDataState: MapDataState;
+}
+
+export interface NectarProps {
+  dispatch: Dispatch;
+}
+
+export type Props<T extends MapElement> = OwnProps<T> &
+  StoreProps &
+  NectarProps;
+"
+`;
+
+exports[`processProject Simple additional renames work 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+import { FooProps } from "lib";
+export type MyProps = FooProps;
+"
+`;
+
 exports[`processProject combined types 1`] = `
 "//
 

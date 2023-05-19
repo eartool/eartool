@@ -1,10 +1,11 @@
 import { type ModuleDeclaration, Node, type Project, type SourceFile, SyntaxKind } from "ts-morph";
 import type { Logger } from "pino";
 import type { Replacement } from "./replacements/Replacement.js";
+import type { PackageExportRename } from "./PackageExportRename.js";
 
 export class ProjectContext {
   #replacements = new Map<string, Replacement[]>();
-  #recordedRenames: { from: string[]; to: string[] }[] = [];
+  #recordedRenames: PackageExportRename[] = [];
 
   constructor(project: Project, public logger: Logger) {
     //

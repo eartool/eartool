@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import { format } from "prettier";
 import { Node, Project } from "ts-morph";
-import { processProject } from "./processProject.js";
+import { processProject, type ProcessProjectOpts } from "./processProject.js";
 import { pino } from "pino";
 import pinoPretty from "pino-pretty";
 import * as Assert from "node:assert";
@@ -10,7 +10,11 @@ function formatTestTypescript(src: string) {
   return format(src, { parser: "typescript", tabWidth: 2, useTabs: false });
 }
 
-const cases = [
+const cases: {
+  name: string;
+  inputs: Record<string, string>;
+  additionalRenames?: ProcessProjectOpts["additionalRenames"];
+}[] = [
   {
     name: "redeclare export",
     inputs: {
@@ -221,6 +225,18 @@ const cases = [
     },
   },
   {
+    name: "Simple additional renames work",
+    inputs: {
+      "foo.ts": `
+          import {Foo} from "lib";
+          export type MyProps = Foo.Props;
+      `,
+    },
+    additionalRenames: {
+      lib: [{ from: ["Foo", "Props"], to: ["FooProps"] }],
+    },
+  },
+  {
     name: "Generics work",
     inputs: {
       "foo.ts": `
@@ -249,16 +265,50 @@ const cases = [
       `,
     },
   },
+  {
+    name: "Generics work with additional",
+    inputs: {
+      "foo.ts": `
+          export namespace MapElementViewerProperties {
+            export interface OwnProps<T extends MapElement> {
+              mapElement: T;
+              locked: boolean;
+              section: RightMapPanelType;
+            }
+          
+            export interface StoreProps {
+              mapDataState: MapDataState;
+            }
+          
+            export interface NectarProps {
+              dispatch: Dispatch;
+            }
+          
+            export type Props<T extends MapElement> = OwnProps<T> & StoreProps & NectarProps;
+          }
+      `,
+      "bar.ts": `
+          import {MapElementViewerProperties} from "./foo";
+          import {Bleh} from "somelib"
+
+          export type Foo<T extends MapElement & Bleh.Bar.Other> = MapElementViewerProperties.OwnProps<T>;
+      `,
+    },
+    additionalRenames: {
+      somelib: [{ from: ["Bleh", "Bar", "Other"], to: ["Moo", "Cow"] }],
+    },
+  },
 ];
 
 describe("processProject", () => {
-  it.each(cases)("$name", async ({ inputs }) => {
+  it.each(cases)("$name", async ({ inputs, additionalRenames }) => {
     const logger = createTestLogger();
     try {
       const project = createProjectForTest(inputs);
 
       await processProject(project, {
         logger,
+        additionalRenames,
       });
 
       const fs = project.getFileSystem();
@@ -306,16 +356,13 @@ describe("processProject", () => {
   });
 });
 
-function createProjectForTest(inputs: Record<string, string | undefined>) {
+function createProjectForTest(inputs: Record<string, string>) {
   const project = new Project({
     useInMemoryFileSystem: true,
     skipAddingFilesFromTsConfig: true,
   });
   for (const [name, contents] of Object.entries(inputs)) {
-    // silly check for typescript happiness
-    if (name && contents) {
-      project.createSourceFile(name, formatTestTypescript(contents));
-    }
+    project.createSourceFile(name, formatTestTypescript(contents));
   }
   project.saveSync();
   return project;

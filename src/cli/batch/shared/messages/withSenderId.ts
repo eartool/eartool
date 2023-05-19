@@ -1,5 +1,5 @@
 import { isMainThread, workerData } from "node:worker_threads";
-import type { Flavored } from "./Flavored.js";
+import type { Flavored } from "../../../../utils/Flavored.js";
 
 export type SenderId = Flavored<string, "SenderId">;
 export const senderId: SenderId = isMainThread ? "main" : workerData.senderId;
