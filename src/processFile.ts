@@ -11,9 +11,6 @@ export function processFile(sf: SourceFile, projectContext: ProjectContext) {
   const filePath = path.relative(process.cwd(), sf.getFilePath());
   projectContext.logger.debug(`Processing file %s`, filePath);
 
-  // logger = logger.child({ filePath });
-  // logger.debug(`Processing file %s`, filePath);
-
   const namespaceDecl = sf.getFirstDescendant(isNamespaceDeclaration);
   if (!namespaceDecl) {
     projectContext.logger.trace("Couldn't find a namespace");
