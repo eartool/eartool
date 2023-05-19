@@ -55,6 +55,24 @@ const cases = [
     },
   },
   {
+    name: "redeclare export with ordering",
+    inputs: {
+      "foo.tsx": `
+          export namespace Foo {
+            export interface Props {
+              what: Thing;
+            }
+          }
+        `,
+
+      "index.ts": `
+      export const before = 5;
+          export {Foo} from "./foo";
+          export const after = 5;
+      `,
+    },
+  },
+  {
     name: "doesnt clobber component exports",
     inputs: {
       "foo.tsx": `

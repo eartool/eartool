@@ -194,6 +194,27 @@ export { VAR_FOO_BAR, doFooForFooBar, type ThingFooBar } from "./foo";
 "
 `;
 
+exports[`processProject redeclare export with ordering 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export interface Props {
+  what: Thing;
+}
+,//
+
+//
+// PATH: '/index.ts'
+//
+export const before = 5;
+export { type Props as FooProps } from "./foo";
+export const after = 5;
+"
+`;
+
 exports[`processProject rename in other file 1`] = `
 "//
 

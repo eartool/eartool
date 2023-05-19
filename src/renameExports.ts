@@ -16,7 +16,7 @@ export function renameExports(context: NamespaceContext) {
     const exportDecl = refNode.getFirstAncestorByKind(SyntaxKind.ExportDeclaration);
 
     if (exportDecl) {
-      logger.trace("Found %s in %s", exportDecl.print(), exportDecl);
+      logger.trace("Found '%s' in %s", exportDecl.print(), exportDecl);
 
       const filePath = exportDecl.getSourceFile().getFilePath();
       for (const oldName of typeRenames) {
@@ -25,8 +25,8 @@ export function renameExports(context: NamespaceContext) {
         const n = () => (localName === importName ? localName : `${localName} as ${importName}`);
 
         context.addReplacement({
-          start: 0,
-          end: 0,
+          start: exportDecl.getStart(),
+          end: exportDecl.getStart(),
           filePath,
           newValue: `export { type ${n()} } from ${exportDecl.getModuleSpecifier()?.getText()};`,
         });
@@ -36,15 +36,14 @@ export function renameExports(context: NamespaceContext) {
         const { localName, importName } = getNewName(oldName, namespaceName);
         const n = () => (localName === importName ? localName : `${localName} as ${importName}`);
         context.addReplacement({
-          start: 0,
-          end: 0,
+          start: exportDecl.getStart(),
+          end: exportDecl.getStart(),
           filePath,
           newValue: `export { ${n()} } from ${exportDecl.getModuleSpecifier()?.getText()};`,
         });
       }
 
       if (!hasMultipleDeclarations) {
-        exportDecl;
         context.addReplacement({
           start: refNode.getStart(),
           end: refNode.getEnd(),
