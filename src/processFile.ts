@@ -2,7 +2,7 @@ import * as Assert from "assert";
 import { Node, type SourceFile, SyntaxKind } from "ts-morph";
 import { isSafeToRenameAllAcrossReferences } from "./isSafeToRenameAllAcrossReferences.js";
 import { renameAllReferences } from "./renameAllReferences.js";
-import { isNamespaceDeclaration } from "./utils/isNamespaceDeclaration.js";
+import { isNamespaceDeclaration } from "./utils/tsmorph/isNamespaceDeclaration.js";
 import * as path from "node:path";
 import type { ProjectContext } from "./Context.js";
 import { renameExports } from "./renameExports.js";

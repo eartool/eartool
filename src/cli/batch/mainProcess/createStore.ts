@@ -18,5 +18,6 @@ export function createStore(): { listenerMiddleware: ListenerMiddlewareInstance;
       );
     },
   });
+
   return { listenerMiddleware, store };
 }

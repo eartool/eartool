@@ -3,7 +3,7 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { processPackage } from "./processPackage.js";
-import { createConsoleLogger } from "./createConsoleLogger.js";
+import { createConsoleLogger } from "./utils/createConsoleLogger.js";
 import { batchRun } from "./cli/batch/mainProcess/batchRun.js";
 
 export default async function cli() {
