@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction, type Reducer } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction, type Reducer, type Slice } from "@reduxjs/toolkit";
 import type { SenderId } from "../shared/messages/withSenderId.js";
 import type { WorkerData } from "../shared/messages/WorkerData.js";
 
@@ -7,7 +7,7 @@ interface SliceState {
   packagePathToSenderId: Record<string, SenderId>;
 }
 
-const initialState: SliceState = {
+export const initialState: SliceState = {
   senderIdToPackagePath: {},
   packagePathToSenderId: {},
 };

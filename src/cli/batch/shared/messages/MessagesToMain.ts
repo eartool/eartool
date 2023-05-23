@@ -1,12 +1,13 @@
+import type { Status } from "../../../../processProject.js";
+import type { PackageExportRename } from "../../../../replacements/PackageExportRename.js";
 import { withSenderId } from "./withSenderId.js";
 import { createAction } from "@reduxjs/toolkit";
 
-export const ReadyMessage = createAction("ToMain-Ready", withSenderId<{ foo: string }>());
-export const UpdateStatus = createAction(
-  "ToMain-UpdateStatus",
-  withSenderId<{
-    totalFiles: number;
-    filesComplete: number;
-    stage: "analyzing" | "writing" | "organizing" | "complete";
-  }>()
+export const ready = createAction("ToMain-Ready", withSenderId<{ foo: string }>());
+
+export const updateStatus = createAction("ToMain-UpdateStatus", withSenderId<Status>());
+
+export const workComplete = createAction(
+  "ToMain-WorkComplete",
+  withSenderId<{ packageName: string; exportedRenames: PackageExportRename[] }>()
 );

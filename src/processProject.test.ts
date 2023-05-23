@@ -232,9 +232,7 @@ const cases: {
           export type MyProps = Foo.Props;
       `,
     },
-    additionalRenames: {
-      lib: [{ from: ["Foo", "Props"], to: ["FooProps"] }],
-    },
+    additionalRenames: new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
   },
   {
     name: "Generics work",
@@ -294,9 +292,9 @@ const cases: {
           export type Foo<T extends MapElement & Bleh.Bar.Other> = MapElementViewerProperties.OwnProps<T>;
       `,
     },
-    additionalRenames: {
-      somelib: [{ from: ["Bleh", "Bar", "Other"], to: ["Moo", "Cow"] }],
-    },
+    additionalRenames: new Map([
+      ["somelib", [{ from: ["Bleh", "Bar", "Other"], to: ["Moo", "Cow"] }]],
+    ]),
   },
 ];
 
@@ -309,6 +307,7 @@ describe("processProject", () => {
       await processProject(project, {
         logger,
         additionalRenames,
+        removeNamespaces: true,
       });
 
       const fs = project.getFileSystem();
@@ -350,7 +349,7 @@ describe("processProject", () => {
       `,
     });
 
-    const result = await processProject(project, { logger });
+    const result = await processProject(project, { logger, removeNamespaces: true });
     expect(result.exportedRenames).toHaveLength(1);
     expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Props"], to: ["FooProps"] });
   });

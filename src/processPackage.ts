@@ -1,4 +1,5 @@
 import * as path from "node:path";
+import * as fs from "node:fs";
 import { Project } from "ts-morph";
 import { processProject, type ProcessProjectOpts } from "./processProject.js";
 
@@ -16,8 +17,17 @@ import { processProject, type ProcessProjectOpts } from "./processProject.js";
 
 */
 export async function processPackage(packagePath: string, opts: ProcessProjectOpts) {
+  const tsconfigPath = path.join(packagePath, "tsconfig.json");
+
+  try {
+    await fs.promises.stat(tsconfigPath);
+  } catch (err) {
+    opts.logger.warn(`Skipping package due to missing tsconfig: ${packagePath}`);
+    return Promise.resolve({ exportedRenames: [] });
+  }
+
   const project = new Project({
-    tsConfigFilePath: path.join(packagePath, "tsconfig.json"),
+    tsConfigFilePath: tsconfigPath,
     skipLoadingLibFiles: true,
   });
 

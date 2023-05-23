@@ -52,7 +52,7 @@ export default async function cli() {
         const logger = createConsoleLogger(logLevel);
 
         try {
-          processPackage(process.cwd(), { logger, dryRun });
+          processPackage(process.cwd(), { logger, dryRun, removeNamespaces: true });
         } finally {
           logger.flush();
         }

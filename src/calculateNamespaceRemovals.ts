@@ -7,7 +7,7 @@ import * as path from "node:path";
 import type { ProjectContext } from "./Context.js";
 import { renameExports } from "./renameExports.js";
 
-export function processFile(sf: SourceFile, projectContext: ProjectContext) {
+export function calculateNamespaceRemovals(sf: SourceFile, projectContext: ProjectContext) {
   const filePath = path.relative(process.cwd(), sf.getFilePath());
   projectContext.logger.debug(`Processing file %s`, filePath);
 

@@ -1,94 +1,97 @@
 import type * as yargs from "yargs";
 import { MultiBar, Presets, type SingleBar } from "cli-progress";
 import { createWorkspaceInfo } from "../WorkspaceInfo.js";
-import { Worker, MessageChannel } from "node:worker_threads";
 import { MessagesToMain } from "../shared/messages/index.js";
-import { nanoid, type ListenerMiddlewareInstance, type Dispatch, isAllOf } from "@reduxjs/toolkit";
+import { nanoid, isAllOf, isAnyOf, type ListenerEffectAPI } from "@reduxjs/toolkit";
 import { startWorker } from "./workerIdReducer.js";
 import { createStore } from "./createStore.js";
-import type { WorkerData } from "../shared/messages/WorkerData.js";
 import { createHasSenderId } from "../shared/messages/withSenderId.js";
+import { selectAdditionalRenames } from "./workResults.js";
+import * as path from "node:path";
+import { forkWorker } from "./forkWorker.js";
 
 export default function registerCommand(_yargs: yargs.Argv<NonNullable<unknown>>) {
   // yargs.command()
 }
 
 export async function batchRun(workspaceDir: string, startProjectName: string | undefined) {
-  const workspaceInfo = await createWorkspaceInfo(workspaceDir);
-  const downStreamProjects = workspaceInfo.getDownStreamProjectsFromName(startProjectName);
+  // we have at least 11 under a normal run on my mac. it doesn't grow, we arent leaking
+  process.setMaxListeners(20);
+
+  const start = startProjectName ? { name: startProjectName } : undefined;
+
+  const workspace = await createWorkspaceInfo(workspaceDir);
+  const downStreamProjects = [...workspace.walkTreeDownstreamFromName(start)];
 
   const {
     listenerMiddleware,
-    store: { dispatch },
+    store: { dispatch, getState },
   } = createStore();
 
   const multibar = new MultiBar(
-    { format: " {bar} | {name} | {value}/{total}", fps: 2 },
+    { format: " {bar} | {name} | {percentage}% {stage}", fps: 2 },
     Presets.rect
   );
-  const topBar = multibar.create(downStreamProjects.length, 0, { name: "total" });
+  const topBar = multibar.create(downStreamProjects.length, 0, { name: "total", stage: "" });
 
-  registerListeners(listenerMiddleware, multibar, topBar);
+  listenerMiddleware.startListening({
+    actionCreator: startWorker,
+    effect: createListener(multibar, topBar),
+  });
 
-  await workspaceInfo.runTasksInOrder(startProjectName, async ({ packageName, packagePath }) => {
+  await workspace.runTasksInOrder(start, async ({ packageName, packagePath }) => {
     return new Promise<void>((resolve) => {
-      dispatch(startWorker({ senderId: nanoid(), packageName, packagePath, onComplete: resolve }));
+      dispatch(
+        startWorker({
+          removeNamespaces: start ? start?.name === packageName : true,
+          senderId: nanoid(),
+          packageName,
+          packagePath,
+          logDir: path.join(workspaceDir, ".log"),
+          onComplete: resolve,
+          additionalRenames: selectAdditionalRenames(getState()),
+        })
+      );
     });
-
-    // topBar.increment();
   });
 
   multibar.stop();
 }
 
-function registerListeners(
-  listenerMiddleware: ListenerMiddlewareInstance,
-  multibar: MultiBar,
-  topBar: SingleBar
-) {
-  listenerMiddleware.startListening({
-    actionCreator: startWorker,
-    effect: ({ payload: { onComplete, ...workerData } }, api) => {
-      const myPort = forkWorker(workerData, api.dispatch);
-      const hasSenderId = createHasSenderId(workerData.senderId);
+function createListener(multibar: MultiBar, topBar: SingleBar) {
+  return async (
+    { payload: { onComplete, ...workerData } }: ReturnType<typeof startWorker>,
+    api: ListenerEffectAPI<unknown, any, unknown>
+  ) => {
+    const myPort = forkWorker(workerData, api.dispatch);
+    const hasSenderId = createHasSenderId(workerData.senderId);
 
-      const bar = multibar.create(100, 0, {
-        name: workerData.packageName,
-      });
+    const bar = multibar.create(100, 0, {
+      name: workerData.packageName,
+      stage: "initializing",
+    });
 
-      api.fork(
-        async (_forkApi) => {
-          const [{ payload }] = await api.take(
-            isAllOf(MessagesToMain.UpdateStatus.match, hasSenderId)
-          );
-          bar.setTotal(payload.totalFiles);
-          bar.update(payload.filesComplete);
-
-          if (payload.stage === "complete") {
-            multibar.remove(bar);
-            topBar.increment();
-            onComplete();
-          }
-        },
-        { autoJoin: true }
+    while (!api.signal.aborted) {
+      const [result] = await api.take(
+        isAnyOf(
+          isAllOf(MessagesToMain.updateStatus.match, hasSenderId),
+          isAllOf(MessagesToMain.workComplete.match, hasSenderId)
+        )
       );
-    },
-  });
-}
 
-function forkWorker(action: WorkerData, dispatch: Dispatch) {
-  const worker = new Worker(new URL("../worker/batchWorker.js", import.meta.url), {
-    workerData: {
-      ...action,
-    },
-  });
-  const { port1: myPort, port2: theirPort } = new MessageChannel();
-
-  myPort.addListener("message", (message) => {
-    dispatch(message);
-  });
-
-  worker.postMessage({ port: theirPort }, [theirPort]);
-
-  return myPort;
+      if (MessagesToMain.workComplete.match(result)) {
+        multibar.remove(bar);
+        topBar.increment();
+        onComplete();
+        return;
+      } else {
+        bar.setTotal(result.payload.totalFiles * 3);
+        bar.update(
+          result.payload.filesComplete +
+            (result.payload.stage === "writing" ? result.payload.totalFiles : 0),
+          { stage: result.payload.stage }
+        );
+      }
+    }
+  };
 }

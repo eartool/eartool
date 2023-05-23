@@ -61,6 +61,7 @@ function processSingleExport(
     const n = () => (localName === importName ? localName : `${localName} as ${importName}`);
 
     if (isRootExport(exportDecl.getSourceFile())) {
+      // TODO Rename this to be clearer
       context.recordRename([context.namespaceName, oldName], [importName]);
     }
 

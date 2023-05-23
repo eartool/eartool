@@ -1,9 +1,10 @@
 import { describe, expect, it } from "@jest/globals";
 import { Project } from "ts-morph";
-import { calculateReplacementsForRenames } from "./calculateReplacementsForRenames.js";
+import { getReplacementsForRenames } from "./getReplacementsForRenames.js";
 import type { Replacement } from "./Replacement.js";
+import { createConsoleLogger } from "../utils/createConsoleLogger.js";
 
-describe(calculateReplacementsForRenames, () => {
+describe(getReplacementsForRenames, () => {
   it("records renames from root", async () => {
     const indexFileParts = [
       `import {`,
@@ -19,11 +20,11 @@ describe(calculateReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = calculateReplacementsForRenames(project, {
-      lib: [{ from: ["Foo", "Props"], to: ["FooProps"] }],
-    });
-
-    console.log(`'${indexFileContents.slice(r[0].start, r[0].end)}'`);
+    const r = getReplacementsForRenames(
+      project,
+      new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
+      createConsoleLogger("error")
+    );
 
     expect(r).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
@@ -46,11 +47,11 @@ describe(calculateReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = calculateReplacementsForRenames(project, {
-      lib: [{ from: ["Foo", "Props"], to: ["Baz", "Other"] }],
-    });
-
-    console.log(`'${indexFileContents.slice(r[0].start, r[0].end)}'`);
+    const r = getReplacementsForRenames(
+      project,
+      new Map([["lib", [{ from: ["Foo", "Props"], to: ["Baz", "Other"] }]]]),
+      createConsoleLogger("error")
+    );
 
     expect(r).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "Baz,"),
@@ -76,11 +77,11 @@ describe(calculateReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = calculateReplacementsForRenames(project, {
-      lib: [{ from: ["Foo", "Props"], to: ["FooProps"] }],
-    });
-
-    console.log(`'${indexFileContents.slice(r[0].start, r[0].end)}'`);
+    const r = getReplacementsForRenames(
+      project,
+      new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
+      createConsoleLogger("error")
+    );
 
     expect(r).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
@@ -107,11 +108,11 @@ describe(calculateReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = calculateReplacementsForRenames(project, {
-      lib: [{ from: ["Foo", "Props"], to: ["Merp", "Other"] }],
-    });
-
-    console.log(`'${indexFileContents.slice(r[0].start, r[0].end)}'`);
+    const r = getReplacementsForRenames(
+      project,
+      new Map([["lib", [{ from: ["Foo", "Props"], to: ["Merp", "Other"] }]]]),
+      createConsoleLogger("error")
+    );
 
     expect(r).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "Merp,"),
@@ -138,14 +139,19 @@ describe(calculateReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = calculateReplacementsForRenames(project, {
-      lib: [
-        { from: ["Foo", "Props"], to: ["FooProps"] },
-        { from: ["Foo", "State"], to: ["FooState"] },
-      ],
-    });
-
-    console.log(`'${indexFileContents.slice(r[0].start, r[0].end)}'`);
+    const r = getReplacementsForRenames(
+      project,
+      new Map([
+        [
+          "lib",
+          [
+            { from: ["Foo", "Props"], to: ["FooProps"] },
+            { from: ["Foo", "State"], to: ["FooState"] },
+          ],
+        ],
+      ]),
+      createConsoleLogger("error")
+    );
 
     expect(r).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
@@ -173,14 +179,19 @@ describe(calculateReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = calculateReplacementsForRenames(project, {
-      lib: [
-        { from: ["Foo", "Props"], to: ["Baz", "Other"] },
-        { from: ["Foo", "State"], to: ["Bar", "Moo"] },
-      ],
-    });
-
-    console.log(`'${indexFileContents.slice(r[0].start, r[0].end)}'`);
+    const r = getReplacementsForRenames(
+      project,
+      new Map([
+        [
+          "lib",
+          [
+            { from: ["Foo", "Props"], to: ["Baz", "Other"] },
+            { from: ["Foo", "State"], to: ["Bar", "Moo"] },
+          ],
+        ],
+      ]),
+      createConsoleLogger("error")
+    );
 
     expect(r).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "Baz,"),
@@ -220,12 +231,19 @@ describe(calculateReplacementsForRenames, () => {
       "foo.ts": fooFileParts.join(""),
     });
 
-    const r = calculateReplacementsForRenames(project, {
-      lib: [
-        { from: ["Foo", "Props"], to: ["FooProps"] },
-        { from: ["Foo", "State"], to: ["FooState"] },
-      ],
-    });
+    const r = getReplacementsForRenames(
+      project,
+      new Map([
+        [
+          "lib",
+          [
+            { from: ["Foo", "Props"], to: ["FooProps"] },
+            { from: ["Foo", "State"], to: ["FooState"] },
+          ],
+        ],
+      ]),
+      createConsoleLogger("error")
+    );
 
     expect(r).toEqual([
       createReplacement("/foo.ts", indexFileParts, 1, 1, "FooProps,"),

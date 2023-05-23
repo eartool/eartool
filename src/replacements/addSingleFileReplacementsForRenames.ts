@@ -1,21 +1,22 @@
-import type { Project } from "ts-morph";
-import type { PackageExportRename } from "../PackageExportRename.js";
+import type { SourceFile } from "ts-morph";
+import type { PackageExportRename } from "./PackageExportRename.js";
 import type { PackageName } from "../PackageName.js";
 import type { Replacement } from "./Replacement.js";
 import { findEntireQualifiedNameTree } from "../utils/tsmorph/findEntireQualifiedNameTree.js";
+import type { Logger } from "pino";
 
-// TODO This is going to be reall inefficient
-export function calculateReplacementsForRenames(
-  project: Project,
-  renames: Record<PackageName, PackageExportRename[]>
+export function addSingleFileReplacementsForRenames(
+  sf: SourceFile,
+  renames: Map<PackageName, PackageExportRename[]>,
+  replacements: Replacement[],
+  logger: Logger
 ) {
-  const replacements: Replacement[] = [];
+  const alreadyAdded = new Set();
 
-  for (const sf of project.getSourceFiles()) {
-    const alreadyAdded = new Set();
+  for (const importDecl of sf.getImportDeclarations()) {
+    try {
+      const renamesForPackage = renames.get(importDecl.getModuleSpecifier().getLiteralText());
 
-    for (const importDecl of sf.getImportDeclarations()) {
-      const renamesForPackage = renames[importDecl.getModuleSpecifier().getLiteralText()];
       if (!renamesForPackage) continue;
 
       for (const importSpec of importDecl.getNamedImports()) {
@@ -53,7 +54,10 @@ export function calculateReplacementsForRenames(
           }
         }
       }
+    } catch (e) {
+      logger.fatal(e);
+      logger.flush();
+      throw e;
     }
   }
-  return replacements;
 }

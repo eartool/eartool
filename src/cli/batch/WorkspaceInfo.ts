@@ -1,120 +1,201 @@
-import { filterPkgsBySelectorObjects, type PackageGraph } from "@pnpm/filter-workspace-packages";
-import { SetMultimap } from "@teppeis/multimaps";
+import { filterPkgsBySelectorObjects } from "@pnpm/filter-workspace-packages";
 import PQueue from "p-queue";
-import type { PackageNode } from "@pnpm/workspace.pkgs-graph";
-import {
-  findWorkspacePackagesNoCheck,
-  type Project as PnpmProject,
-} from "@pnpm/find-workspace-packages";
+import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
+import * as Assert from "assert";
 
-class WorkspaceInfo {
-  #allProjects: PnpmProject[];
-  #allProjectsGraph: PackageGraph<PnpmProject>;
-  #pathProjectGraph: Map<string, PackageNode<PnpmProject>>;
-  #pathToDependents: SetMultimap<string, string>;
+export class Node {
+  name: string;
+  packagePath: string;
+  depsByName = new Map<string, Node>();
+  depsByPath = new Map<string, Node>();
 
-  constructor(allProjects: PnpmProject[], allProjectsGraph: PackageGraph<PnpmProject>) {
-    this.#allProjects = allProjects;
-    this.#allProjectsGraph = allProjectsGraph;
+  inverseDepsByName = new Map<string, Node>();
+  inverseDepsByPath = new Map<string, Node>();
 
-    this.#pathProjectGraph = new Map(Object.entries(this.#allProjectsGraph));
-    this.#pathToDependents = new SetMultimap<string, string>();
+  #workspace: Workspace;
 
-    for (const [path, value] of this.#pathProjectGraph) {
-      this.#pathToDependents.putAll(path, new Set());
-      for (const dependency of value.dependencies) {
-        this.#pathToDependents.put(dependency, path);
-      }
-    }
+  constructor(workspace: Workspace, name: string, packagePath: string) {
+    this.name = name;
+    this.packagePath = packagePath;
+    this.#workspace = workspace;
   }
 
-  public getPackagePathForName(projectName: string) {
-    for (const [packagePath, t] of this.#pathProjectGraph) {
-      if (t.package.manifest.name === projectName) {
-        return packagePath;
-      }
+  addDependency = (node: Node) => {
+    this.depsByName.set(node.name, node);
+    this.depsByPath.set(node.packagePath, node);
+
+    node.inverseDepsByName.set(this.name, this);
+    node.inverseDepsByPath.set(this.packagePath, this);
+  };
+}
+
+type PackageLookupCriteria =
+  | {
+      name: string;
+      packagePath?: never;
     }
-    throw new Error("Couldnt find package");
+  | {
+      name?: never;
+      packagePath: string;
+    }
+  | {
+      name: string;
+      packagePath: string;
+    };
+
+export class Workspace {
+  #pathToNode = new Map<string, Node>();
+  #nameToNode = new Map<string, Node>();
+
+  public addPackage(name: string, packagePath: string) {
+    const maybe = this.getPackageBy({ name, packagePath });
+    if (maybe) return maybe;
+
+    const node = new Node(this, name, packagePath);
+    this.#pathToNode.set(packagePath, node);
+    this.#nameToNode.set(name, node);
+    return node;
   }
 
-  public *walkTreeDownstreamFromName(projectName?: string) {
-    const visited = new Set<string>();
-    const toVisit: string[] = [];
-
-    if (projectName) {
-      const start = this.getPackagePathForName(projectName);
-      toVisit.push(start);
+  public getPackageBy({ name, packagePath }: PackageLookupCriteria) {
+    if (name && packagePath) {
+      const maybe = [this.#pathToNode.get(packagePath), this.#nameToNode.get(name)];
+      Assert.ok(maybe[0] === maybe[1]);
+      return maybe[0];
+    } else if (name) {
+      return this.#nameToNode.get(name);
+    } else if (packagePath) {
+      return this.#pathToNode.get(packagePath);
     } else {
-      for (const [projectPath, packageNode] of this.#pathProjectGraph.entries()) {
-        if (packageNode.dependencies.length == 0) {
-          toVisit.push(projectPath);
-        }
+      Assert.fail();
+    }
+  }
+
+  public *walkTreeDownstreamFromName(lookup?: Node | PackageLookupCriteria) {
+    const startNode = lookup
+      ? lookup instanceof Node
+        ? lookup
+        : this.getPackageBy(lookup)
+      : undefined;
+
+    const visited = new Set<Node>();
+    const toVisit: Node[] = [];
+
+    if (startNode) {
+      toVisit.push(startNode);
+    } else {
+      for (const q of this.#nameToNode.values()) {
+        if (q.depsByName.size == 0) toVisit.push(q);
       }
     }
 
     while (toVisit.length > 0) {
-      const next = toVisit.shift()!;
-      if (!visited.has(next)) {
-        visited.add(next);
-        yield next;
+      const cur = toVisit.shift()!;
+      if (!visited.has(cur)) {
+        visited.add(cur);
+        yield cur;
 
-        toVisit.push(...Array.from(this.#pathToDependents.get(next)));
+        toVisit.push(...cur.inverseDepsByName.values());
       }
     }
   }
 
   async runTasksInOrder(
-    startProjectName: string | undefined,
-    createTaskCallback: (args: { packagePath: string; packageName: string }) => Promise<unknown>
+    lookup: Node | PackageLookupCriteria | undefined,
+    performTask: (args: { packagePath: string; packageName: string }) => Promise<unknown>
   ) {
-    const self = this;
-    const pathToDependents = this.#pathToDependents;
+    const startNode = lookup
+      ? lookup instanceof Node
+        ? lookup
+        : this.getPackageBy(lookup)
+      : undefined;
 
-    const scheduled = new Set<string>();
+    const statuses = new Map<Node, "skipped" | "scheduled" | "complete" | "todo">();
+
     const queue = new PQueue({ autoStart: true, concurrency: 6 });
 
-    // seed todo with projects that have no dependents
-    if (startProjectName) {
-      const packagePath = this.getPackagePathForName(startProjectName);
-      queue.add(createTask(packagePath));
+    // we manually set todo in the skipped case
+    for (const q of this.#nameToNode.values()) {
+      statuses.set(q, startNode ? "skipped" : "todo");
+    }
+
+    if (startNode) {
+      for (const packageDir of this.walkTreeDownstreamFromName(startNode)) {
+        statuses.set(packageDir, "todo");
+      }
+      queue.add(createTask(startNode));
     } else {
-      for (const [projectPath, value] of this.#pathProjectGraph.entries()) {
-        if (value.dependencies.length == 0) {
-          queue.add(createTask(projectPath));
+      // seed todo with projects that have no dependents
+      for (const q of this.#nameToNode.values()) {
+        if (q.depsByName.size == 0) {
+          queue.add(createTask(q));
         }
       }
     }
 
     await queue.onIdle();
 
-    function createTask(projectPath: string) {
-      scheduled.add(projectPath);
+    for (const [node, status] of statuses) {
+      if (status !== "complete" && status !== "skipped") {
+        debugPrintStatuses(statuses);
+        throw new Error("Failed");
+      }
+    }
+
+    function createTask(node: Node) {
+      statuses.set(node, "scheduled");
       return async () => {
-        await createTaskCallback({
-          packagePath: projectPath,
-          packageName: self.getNameFromPath(projectPath)!,
+        await performTask({
+          packagePath: node.packagePath,
+          packageName: node.name,
         });
-        for (const maybe of pathToDependents.get(projectPath)) {
-          if (!scheduled.has(maybe)) {
-            queue.add(createTask(maybe));
+        statuses.set(node, "complete");
+        for (const dependentNode of node.inverseDepsByName.values()) {
+          if (
+            statuses.get(dependentNode) === "todo" &&
+            allDepsOfPackagePathSatisified(dependentNode)
+          ) {
+            queue.add(createTask(dependentNode));
           }
         }
       };
     }
+
+    function allDepsOfPackagePathSatisified(node: Node) {
+      for (const q of node.depsByName.values()) {
+        const status = statuses.get(q);
+        if (status !== "complete" && status !== "skipped") {
+          return false;
+        }
+      }
+      return true;
+    }
   }
+}
 
-  getDownStreamProjectsFromName = (projectName?: string) => {
-    return Array.from(this.walkTreeDownstreamFromName(projectName));
-  };
+function getNames(toVisit: Node[] | Set<Node> | IterableIterator<Node>): any {
+  return [...toVisit].map((a) => a.name);
+}
 
-  getNameFromPath = (packagePath: string) => {
-    return this.#pathProjectGraph.get(packagePath)?.package.manifest.name;
-  };
+function debugPrintStatuses(statuses: Map<Node, "skipped" | "scheduled" | "complete" | "todo">) {
+  console.log([...statuses.entries()].map((a) => [a[0].name, a[1]]));
 }
 
 export async function createWorkspaceInfo(workspaceDir: string) {
   const allProjects = await findWorkspacePackagesNoCheck(workspaceDir);
   const { allProjectsGraph } = await filterPkgsBySelectorObjects(allProjects, [], { workspaceDir });
 
-  return new WorkspaceInfo(allProjects, allProjectsGraph);
+  const workspace = new Workspace();
+  const nodes = allProjects.map((p) => workspace.addPackage(p.manifest.name!, p.dir));
+
+  for (const node of nodes) {
+    for (const dep of allProjectsGraph[node.packagePath]!.dependencies) {
+      const depNode = workspace.getPackageBy({ packagePath: dep });
+      Assert.ok(depNode);
+
+      node.addDependency(depNode);
+    }
+  }
+
+  return workspace;
 }
