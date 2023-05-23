@@ -32,6 +32,28 @@ describe(getReplacementsForRenames, () => {
     ]);
   });
 
+  it("handles star imprts", async () => {
+    const indexFileParts = [
+      `import * as Bar from "lib";\n`,
+      `export type Asdf =`,
+      `Bar.Foo.Props`,
+      `;`,
+    ];
+    const indexFileContents = indexFileParts.join("");
+
+    const project = createProjectForTest({
+      "index.ts": indexFileContents,
+    });
+
+    const r = getReplacementsForRenames(
+      project,
+      new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
+      createConsoleLogger("error")
+    );
+
+    expect(r).toEqual([createReplacement("/index.ts", indexFileParts, 2, 3, "FooProps")]);
+  });
+
   it("Can do really complicated renames", async () => {
     const indexFileParts = [
       `import {`,
