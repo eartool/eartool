@@ -7,7 +7,7 @@ export async function workerMain(
   port: MessagePort,
   { logDir, packageName, removeNamespaces, additionalRenames, packagePath }: WorkerData
 ) {
-  const logger = createLogger(logDir, packageName, "trace"); // TODO FIX THIS SO I CAN SEE in fiels
+  const logger = createLogger(logDir, packageName, "trace");
 
   try {
     const result = await processPackage(packagePath, {

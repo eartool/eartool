@@ -12,8 +12,8 @@ import { addSingleFileReplacementsForRenames } from "./replacements/addSingleFil
 import type { Replacement } from "./replacements/Replacement.js";
 
 export interface Status {
-  totalFiles: number;
-  filesComplete: number;
+  totalWorkUnits: number;
+  completedWorkUnits: number;
   stage: "analyzing" | "writing" | "organizing";
 }
 
@@ -38,7 +38,27 @@ export async function processProject(
   dropDtsFiles(project);
   const context = new ProjectContext(project, logger);
   const totalFiles = project.getSourceFiles().length;
-  updateState({ totalFiles, filesComplete: 0, stage: "analyzing" });
+  // Three stages:
+  // * analyzing:
+  //   * if `removeNamespaces`: add `totalFiles`
+  //   * if `additionalRenames`: add `totalFiles`
+  // * organizing `[...changedFiles].length` work.
+  // * writing  `[]
+  function calculateTotalWorkUnits(changedFilesCount: number) {
+    return (
+      (removeNamespaces ? totalFiles : 0) +
+      (additionalRenames ? totalFiles : 0) +
+      (dryRun ? 0 : changedFilesCount) +
+      changedFilesCount
+    );
+  }
+
+  // Assume all files change for now
+  let totalWorkUnits = calculateTotalWorkUnits(totalFiles);
+
+  let completedWorkUnits = 0;
+  // TODO: Rename totalFiles here to totalWorkUnits or similar
+  updateState({ totalWorkUnits, completedWorkUnits, stage: "analyzing" });
 
   logger.debug("Running with opts %o", {
     dryRun,
@@ -46,36 +66,42 @@ export async function processProject(
     additionalRenames: [...(additionalRenames?.entries() ?? [])],
   });
 
-  let filesComplete = 0;
   for (const sf of project.getSourceFiles()) {
     if (removeNamespaces) {
       calculateNamespaceRemovals(sf, context);
+      completedWorkUnits++;
+      updateState({ totalWorkUnits, completedWorkUnits, stage: "analyzing" });
     }
+
     if (additionalRenames) {
       const replacements: Replacement[] = [];
       addSingleFileReplacementsForRenames(sf, additionalRenames, replacements, logger);
       for (const r of replacements) {
         context.addReplacement(r);
       }
+      completedWorkUnits++;
+      updateState({ totalWorkUnits, completedWorkUnits, stage: "analyzing" });
     }
-    filesComplete++;
-    updateState({ totalFiles, filesComplete, stage: "analyzing" });
   }
 
   // actually updates files in project!
-  const changedFiles = processReplacements(project, context.getReplacements());
+  const changedFiles = [...processReplacements(project, context.getReplacements())];
+  totalWorkUnits = calculateTotalWorkUnits(changedFiles.length);
 
   logger.debug("Organizing imports");
-  updateState({ totalFiles, filesComplete, stage: "organizing" });
+  updateState({ totalWorkUnits, completedWorkUnits, stage: "organizing" });
   organizeImportsOnFiles(project, changedFiles);
 
-  updateState({ totalFiles, filesComplete, stage: "writing" });
+  completedWorkUnits += changedFiles.length; // TODO make this granular?
+  updateState({ totalWorkUnits, completedWorkUnits, stage: "writing" });
 
   if (dryRun) {
     logger.info("DRY RUN");
   } else {
     logger.info("Saving");
     await project.save();
+    completedWorkUnits += changedFiles.length; // TODO make this granular?
+    updateState({ totalWorkUnits, completedWorkUnits, stage: "writing" });
   }
 
   return {
