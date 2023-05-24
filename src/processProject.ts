@@ -20,6 +20,8 @@ import type { PackageName } from "./PackageName.js";
 import { addSingleFileReplacementsForRenames } from "./replacements/addSingleFileReplacementsForRenames.js";
 import type { Replacement } from "./replacements/Replacement.js";
 import * as Assert from "assert";
+import { ReplacementsWrapper } from "./ReplacementsWrapper.js";
+import type { Replacements } from "./replacements/Replacements.js";
 
 export interface Status {
   totalWorkUnits: number;
@@ -83,7 +85,8 @@ export async function processProject(
       updateState({ totalWorkUnits, completedWorkUnits, stage: "analyzing" });
     }
 
-    calculateNamespaceLikeRemovals(sf, context);
+    const replacements = new ReplacementsWrapper(context);
+    calculateNamespaceLikeRemovals(sf, replacements);
 
     if (additionalRenames) {
       const replacements: Replacement[] = [];
@@ -121,69 +124,52 @@ export async function processProject(
   };
 }
 
-function calculateNamespaceLikeRemovals(sf: SourceFile, context: ProjectContext) {
+export function getFilePath(filePath: string | Node) {
+  return typeof filePath == "string" ? filePath : filePath.getSourceFile().getFilePath();
+}
+
+function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Replacements) {
   // TODO: Only perform task if its the only export
   // TODO: Should we check the filename too?
   // TODO: Check for collisions?
-  for (const node of sf.getStatements()) {
-    if (!isNamespaceLike(node)) continue;
-    const varDecl = node.getDeclarations()[0];
+
+  for (const statement of sf.getStatements()) {
+    if (!isNamespaceLike(statement)) continue;
+    const varDecl = statement.getDeclarations()[0];
 
     for (const refIdentifier of varDecl.findReferencesAsNodes()) {
-      const p = refIdentifier.getParentIfKind(SyntaxKind.ExportSpecifier);
-      const namedExports = p?.getParentIfKind(SyntaxKind.NamedExports);
+      const namedExports = refIdentifier
+        .getParentIfKind(SyntaxKind.ExportSpecifier)
+        ?.getParentIfKind(SyntaxKind.NamedExports);
       if (!namedExports) continue;
       Assert.ok(namedExports.getElements().length == 1);
 
-      context.addReplacement({
-        start: namedExports.getStart(),
-        end: namedExports.getEnd(),
-        filePath: refIdentifier.getSourceFile().getFilePath(),
-        newValue: `* as ${varDecl.getName()}`,
-      });
+      replacements.replaceNode(namedExports, `* as ${varDecl.getName()}`);
     }
 
     const syntaxList = varDecl.getInitializer().getExpression().getChildSyntaxList()!;
     syntaxList.getPreviousSiblingIfKindOrThrow(SyntaxKind.OpenBraceToken);
 
     // Drop `export const Name = {`
-    context.addReplacement({
-      start: node.getStart(),
-      end: syntaxList.getFullStart(),
-      filePath: sf.getFilePath(),
-      newValue: "",
-    });
+    replacements.remove(sf, statement.getStart(), syntaxList.getFullStart());
 
     // drop `} as const;`
     const closeBrace = syntaxList.getNextSiblingIfKindOrThrow(SyntaxKind.CloseBraceToken);
-    context.addReplacement({
-      start: closeBrace.getStart(),
-      end: node.getEnd(),
-      filePath: sf.getFilePath(),
-      newValue: "",
-    });
+    replacements.remove(sf, closeBrace.getStart(), statement.getEnd());
 
     for (const q of varDecl.getInitializer().getExpression().getProperties()) {
       if (Node.isMethodDeclaration(q)) {
-        context.addReplacement({
-          start: q.getStart(),
-          end: q.getStart(),
-          filePath: sf.getFilePath(),
-          newValue: "export function ",
-        });
+        replacements.insertBefore(q, "export function ");
       } else {
-        context.addReplacement({
-          start: q.getStart(),
-          end: q.getFirstChildByKindOrThrow(SyntaxKind.ColonToken).getEnd(),
-          filePath: sf.getFilePath(),
-          newValue: `export const ${q.getName()} = `,
-        });
+        replacements.addReplacement(
+          sf,
+          q.getStart(),
+          q.getFirstChildByKindOrThrow(SyntaxKind.ColonToken).getEnd(),
+          `export const ${q.getName()} = `
+        );
       }
-      // last comma can be omitted
-      removeNextSiblingComma(q, context, sf);
+      replacements.removeNextSiblingIfComma(q);
     }
-
-    // Need to update references from `import { Foo } from "./foo";` to `import * as Foo
   }
 }
 
@@ -204,18 +190,6 @@ type ObjectLiteralWithMethodLikeOnly = Replace<
   "getProperties",
   (MethodDeclaration | TypedPropertyAssignment<ArrowFunction>)[]
 >;
-
-function removeNextSiblingComma(q: Node, context: ProjectContext, sf: SourceFile) {
-  const sib = q.getNextSibling();
-  if (sib?.isKind(SyntaxKind.CommaToken)) {
-    context.addReplacement({
-      start: sib.getStart(),
-      end: sib.getEnd(),
-      filePath: sf.getFilePath(),
-      newValue: "",
-    });
-  }
-}
 
 function isNamespaceLike(
   node: Node
