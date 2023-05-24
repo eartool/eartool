@@ -1,13 +1,3 @@
-import type {
-  ObjectLiteralExpression,
-  VariableStatement,
-  VariableDeclaration,
-  AsExpression,
-  PropertyAssignment,
-  MethodDeclaration,
-  Expression,
-  ArrowFunction,
-} from "ts-morph";
 import { Node, SyntaxKind, type Project, type SourceFile } from "ts-morph";
 import { calculateNamespaceRemovals } from "./calculateNamespaceRemovals.js";
 import type { Logger } from "pino";
@@ -22,6 +12,7 @@ import type { Replacement } from "./replacements/Replacement.js";
 import * as Assert from "assert";
 import { ReplacementsWrapper } from "./ReplacementsWrapper.js";
 import type { Replacements } from "./replacements/Replacements.js";
+import { isNamespaceLike } from "./utils/tsmorph/isNamespaceLike.js";
 
 export interface Status {
   totalWorkUnits: number;
@@ -171,59 +162,4 @@ function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Replacemen
       replacements.removeNextSiblingIfComma(q);
     }
   }
-}
-
-type MaybeReturnType<T, K extends keyof T> = T[K] extends (...args: any[]) => infer R ? R : never;
-
-type Replace<T extends {}, K extends keyof T, V extends MaybeReturnType<T, K>> = Omit<T, K> & {
-  [k in K]: () => V;
-};
-
-interface TypedPropertyAssignment<Initializer extends Expression> extends PropertyAssignment {
-  getInitializer: () => Initializer;
-}
-
-// type ArrowFunctionPropertyAssignment = Replace<PropertyAssignment, "getInitializer", ArrowFunction>;
-
-type ObjectLiteralWithMethodLikeOnly = Replace<
-  ObjectLiteralExpression,
-  "getProperties",
-  (MethodDeclaration | TypedPropertyAssignment<ArrowFunction>)[]
->;
-
-function isNamespaceLike(
-  node: Node
-): node is Replace<
-  VariableStatement,
-  "getDeclarations",
-  Replace<
-    VariableDeclaration,
-    "getInitializer",
-    Replace<AsExpression, "getExpression", ObjectLiteralWithMethodLikeOnly>
-  >[]
-> {
-  if (!Node.isVariableStatement(node)) return false;
-
-  if (node.getDeclarations().length != 1) return false;
-  const varDecl = node.getDeclarations()[0];
-  // varDecl.getName();
-
-  const asExpression = varDecl.getInitializerIfKind(SyntaxKind.AsExpression);
-  if (!asExpression) return false;
-
-  const typeRef = asExpression.getTypeNode()?.asKind(SyntaxKind.TypeReference);
-  if (!typeRef || typeRef.getText() != "const") return false;
-
-  const objLiteral = asExpression.getExpressionIfKind(SyntaxKind.ObjectLiteralExpression);
-  if (!objLiteral) return false;
-
-  const methodsOnly = objLiteral.getProperties().every((a) => {
-    if (Node.isMethodDeclaration(a)) return true;
-    if (!Node.isPropertyAssignment(a)) return false;
-
-    return a.getInitializerIfKind(SyntaxKind.ArrowFunction) != null;
-  });
-  if (!methodsOnly) return false;
-
-  return true;
 }
