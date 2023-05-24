@@ -296,6 +296,48 @@ const cases: {
       ["somelib", [{ from: ["Bleh", "Bar", "Other"], to: ["Moo", "Cow"] }]],
     ]),
   },
+  {
+    name: "Handles const pattern nicely",
+    inputs: {
+      "index.ts": `
+        export {Foo} from "./foo";
+      `,
+      "foo.ts": `
+        export const Foo = {
+          // direct function
+          baz() {
+            return 5; 
+          },
+
+          bar: () => {
+            return 6;
+          }
+        } as const;
+      `,
+    },
+  },
+  {
+    name: "Doesn't change as const that has constnats",
+    inputs: {
+      "index.ts": `
+        export {Foo} from "./foo";
+      `,
+      "foo.ts": `
+        export const Foo = {
+          // direct function
+          baz() {
+            return 5; 
+          },
+
+          bar: () => {
+            return 6;
+          },
+
+          FOO: 7
+        } as const;
+      `,
+    },
+  },
 ];
 
 describe("processProject", () => {

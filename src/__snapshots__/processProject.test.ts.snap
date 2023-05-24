@@ -26,6 +26,33 @@ export type Props = { hi: "mom" };
 "
 `;
 
+exports[`processProject Doesn't change as const that has constnats 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+export const Foo = {
+  // direct function
+  baz() {
+    return 5;
+  },
+
+  bar: () => {
+    return 6;
+  },
+
+  FOO: 7,
+} as const;
+,//
+
+//
+// PATH: '/index.ts'
+//
+export { Foo } from "./foo";
+"
+`;
+
 exports[`processProject Generics work 1`] = `
 "//
 
@@ -95,6 +122,30 @@ export interface NectarProps {
 export type Props<T extends MapElement> = OwnProps<T> &
   StoreProps &
   NectarProps;
+"
+`;
+
+exports[`processProject Handles const pattern nicely 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+
+// direct function
+export function baz() {
+  return 5;
+}
+
+export const bar = () => {
+  return 6;
+};
+,//
+
+//
+// PATH: '/index.ts'
+//
+export * as Foo from "./foo";
 "
 `;
 
