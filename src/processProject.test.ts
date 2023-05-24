@@ -314,6 +314,18 @@ const cases: {
           }
         } as const;
       `,
+      "bar.ts": `
+        import {Foo} from "./foo";
+
+        console.log(Foo.bar());
+        console.log(Foo.baz());
+      `,
+      "alias.ts": `
+        import {Foo as Bar} from "./foo";
+
+        console.log(Bar.bar());
+        console.log(Bar.baz());
+      `,
     },
   },
   {

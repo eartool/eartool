@@ -129,6 +129,24 @@ exports[`processProject Handles const pattern nicely 1`] = `
 "//
 
 //
+// PATH: '/alias.ts'
+//
+import * as Bar from "./foo";
+
+console.log(Bar.bar());
+console.log(Bar.baz());
+,//
+
+//
+// PATH: '/bar.ts'
+//
+import * as Foo from "./foo";
+
+console.log(Foo.bar());
+console.log(Foo.baz());
+,//
+
+//
 // PATH: '/foo.ts'
 //
 

@@ -20,12 +20,7 @@ export class ReplacementsWrapper implements Replacements {
   }
 
   remove(filePath: string | SourceFile, start: number, end: number): void {
-    this.#context.addReplacement({
-      filePath: getFilePath(filePath),
-      start,
-      end,
-      newValue: "",
-    });
+    this.addReplacement(filePath, start, end, "");
   }
 
   replaceNode(node: Node, newValue: string): void {

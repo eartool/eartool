@@ -1,4 +1,4 @@
-import { Node, SyntaxKind, type Project, type SourceFile } from "ts-morph";
+import { Node, SyntaxKind, type Project, type SourceFile, NamedImports } from "ts-morph";
 import { calculateNamespaceRemovals } from "./calculateNamespaceRemovals.js";
 import type { Logger } from "pino";
 import { ProjectContext } from "./Context.js";
@@ -13,6 +13,7 @@ import * as Assert from "assert";
 import { ReplacementsWrapper } from "./ReplacementsWrapper.js";
 import type { Replacements } from "./replacements/Replacements.js";
 import { isNamespaceLike } from "./utils/tsmorph/isNamespaceLike.js";
+import { isAnyOf } from "@reduxjs/toolkit";
 
 export interface Status {
   totalWorkUnits: number;
@@ -128,18 +129,25 @@ function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Replacemen
     if (!isNamespaceLike(statement)) continue;
     const varDecl = statement.getDeclarations()[0];
 
+    const visitedSpecifiers = new Set();
     for (const refIdentifier of varDecl.findReferencesAsNodes()) {
-      const namedExports = refIdentifier
-        .getParentIfKind(SyntaxKind.ExportSpecifier)
-        ?.getParentIfKind(SyntaxKind.NamedExports);
-      if (!namedExports) continue;
-      Assert.ok(namedExports.getElements().length == 1);
+      // alias import nodes show up twice for some reason
+      // so we need to account for that
 
-      replacements.replaceNode(namedExports, `* as ${varDecl.getName()}`);
+      const specifier = refIdentifier.getParentIf(
+        isAnyOf(Node.isExportSpecifier, Node.isImportSpecifier)
+      );
+      if (!specifier) continue;
+      if (visitedSpecifiers.has(specifier)) continue;
+
+      const named = specifier.getParentIfOrThrow(isAnyOf(Node.isNamedExports, Node.isNamedImports));
+      Assert.ok(named.getElements().length == 1);
+      const varName = (specifier.getAliasNode() ?? specifier.getNameNode()).getText();
+      replacements.replaceNode(named, `* as ${varName}`);
+      visitedSpecifiers.add(specifier);
     }
 
     const syntaxList = varDecl.getInitializer().getExpression().getChildSyntaxList()!;
-    syntaxList.getPreviousSiblingIfKindOrThrow(SyntaxKind.OpenBraceToken);
 
     // Drop `export const Name = {`
     replacements.remove(sf, statement.getStart(), syntaxList.getFullStart());
