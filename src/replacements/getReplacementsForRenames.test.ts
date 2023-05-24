@@ -51,7 +51,56 @@ describe(getReplacementsForRenames, () => {
       createConsoleLogger("error")
     );
 
-    expect(r).toEqual([createReplacement("/index.ts", indexFileParts, 2, 3, "FooProps")]);
+    expect(r).toEqual([createReplacement("/index.ts", indexFileParts, 2, 3, "Bar.FooProps")]);
+  });
+
+  it("handles star imprts property access", async () => {
+    const indexFileParts = [
+      `import * as Bar from "lib";\n`,
+      `export const Asdf =`,
+      `Bar.Foo.Props`,
+      `;`,
+    ];
+    const indexFileContents = indexFileParts.join("");
+
+    const project = createProjectForTest({
+      "index.ts": indexFileContents,
+    });
+
+    const r = getReplacementsForRenames(
+      project,
+      new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
+      createConsoleLogger("error")
+    );
+
+    expect(r).toEqual([createReplacement("/index.ts", indexFileParts, 2, 3, "Bar.FooProps")]);
+  });
+
+  it("does property access", async () => {
+    const indexFileParts = [
+      `import {`,
+      `Foo`,
+      `} from "lib";\n`,
+      `export const Asdf =`,
+      `Foo.Props`,
+      `;`,
+    ];
+    const indexFileContents = indexFileParts.join("");
+
+    const project = createProjectForTest({
+      "index.ts": indexFileContents,
+    });
+
+    const r = getReplacementsForRenames(
+      project,
+      new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
+      createConsoleLogger("error")
+    );
+
+    expect(r).toEqual([
+      createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
+      createReplacement("/index.ts", indexFileParts, 4, 5, "FooProps"),
+    ]);
   });
 
   it("Can do really complicated renames", async () => {
@@ -224,14 +273,17 @@ describe(getReplacementsForRenames, () => {
   });
 
   it("records renames with multiple files", async () => {
+    // If references can be resolved across files, they will be, creating issues.
+    // this test will make sure that the references do resolve and therefore
+    // are handled properly
     const indexFileParts = [
       `import {`,
       `Foo`,
-      `} from "lib";\n`,
-      `export type Asdf =`,
+      `} from "./lib";\n`,
+      `export const Asdf =`,
       `Foo.Props`,
       `;\n`,
-      `export type Bleh =`,
+      `export const Bleh =`,
       `Foo.State`,
       `;`,
     ];
@@ -239,25 +291,39 @@ describe(getReplacementsForRenames, () => {
     const fooFileParts = [
       `import {`,
       `Foo`,
-      `} from "lib";\n`,
-      `export type Asdf =`,
+      `} from "./lib";\n`,
+      `export const Asdf =`,
       `Foo.Props`,
       `;\n`,
-      `export type Bleh =`,
+      `export const Bleh =`,
       `Foo.State`,
       `;`,
     ];
 
+    const libFooParts = `
+    export const Foo = {
+      State: 5,
+      Props: 6
+    };`;
+
     const project = createProjectForTest({
       "index.ts": indexFileParts.join(""),
       "foo.ts": fooFileParts.join(""),
+      "lib.ts": libFooParts,
     });
 
     const r = getReplacementsForRenames(
       project,
       new Map([
         [
-          "lib",
+          "./lib",
+          [
+            { from: ["Foo", "Props"], to: ["FooProps"] },
+            { from: ["Foo", "State"], to: ["FooState"] },
+          ],
+        ],
+        [
+          "bar",
           [
             { from: ["Foo", "Props"], to: ["FooProps"] },
             { from: ["Foo", "State"], to: ["FooState"] },
@@ -272,10 +338,10 @@ describe(getReplacementsForRenames, () => {
       createReplacement("/foo.ts", indexFileParts, 4, 5, "FooProps"),
       createReplacement("/foo.ts", indexFileParts, 1, 1, "FooState,"),
       createReplacement("/foo.ts", indexFileParts, 7, 8, "FooState"),
-      createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
-      createReplacement("/index.ts", indexFileParts, 4, 5, "FooProps"),
-      createReplacement("/index.ts", indexFileParts, 1, 1, "FooState,"),
-      createReplacement("/index.ts", indexFileParts, 7, 8, "FooState"),
+      createReplacement("/index.ts", fooFileParts, 1, 1, "FooProps,"),
+      createReplacement("/index.ts", fooFileParts, 4, 5, "FooProps"),
+      createReplacement("/index.ts", fooFileParts, 1, 1, "FooState,"),
+      createReplacement("/index.ts", fooFileParts, 7, 8, "FooState"),
     ]);
   });
 });

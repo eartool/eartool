@@ -5,6 +5,7 @@ import type { Replacement } from "./Replacement.js";
 import { findEntireQualifiedNameTree } from "../utils/tsmorph/findEntireQualifiedNameTree.js";
 import type { Logger } from "pino";
 import type { Identifier } from "ts-morph";
+import * as Assert from "assert";
 
 export function addSingleFileReplacementsForRenames(
   sf: SourceFile,
@@ -20,12 +21,23 @@ export function addSingleFileReplacementsForRenames(
       if (!renamesForPackage) continue;
 
       for (const importSpec of importDecl.getNamedImports()) {
-        handleImportSpec(importSpec, renamesForPackage);
+        accumulateRenamesForImportedIdentifier(
+          importSpec.getAliasNode() ?? importSpec.getNameNode(),
+          renamesForPackage,
+          replacements,
+          alreadyAdded,
+          importSpec
+        );
       }
 
       const maybeNamepsaceImport = importDecl.getNamespaceImport();
       if (maybeNamepsaceImport) {
-        handleNamespaceImport(maybeNamepsaceImport, renamesForPackage);
+        const modifiedRenames = renamesForPackage.map((a) => ({
+          from: [maybeNamepsaceImport.getText(), ...a.from],
+          to: [maybeNamepsaceImport.getText(), ...a.to],
+        }));
+
+        accumulateRenamesForImportedIdentifier(maybeNamepsaceImport, modifiedRenames, replacements);
       }
     } catch (e) {
       logger.fatal(e);
@@ -33,62 +45,55 @@ export function addSingleFileReplacementsForRenames(
       throw e;
     }
   }
+}
 
-  function handleNamespaceImport(
-    namespaceImport: Identifier,
-    renamesForPackage: PackageExportRename[]
-  ) {
-    for (const packageExportRename of renamesForPackage) {
-      for (const refNode of namespaceImport.findReferencesAsNodes()) {
-        if (refNode == namespaceImport) continue;
-        const fullyQualifiedInstance = findEntireQualifiedNameTree(refNode, [
-          namespaceImport.getText(),
-          ...packageExportRename.from,
-        ]);
-        if (!fullyQualifiedInstance) continue;
-        replacements.push({
-          start: fullyQualifiedInstance.getStart(),
-          end: fullyQualifiedInstance.getEnd(),
-          newValue: packageExportRename.to.join("."),
-          filePath: refNode.getSourceFile().getFilePath(),
-        });
-      }
-    }
-  }
-
-  function handleImportSpec(importSpec: ImportSpecifier, renamesForPackage: PackageExportRename[]) {
-    const packageExportRenames = renamesForPackage.filter((q) => q.from[0] == importSpec.getName());
+function accumulateRenamesForImportedIdentifier(
+  importedIdentifier: Identifier,
+  packageExportRenames: PackageExportRename[],
+  replacements: Replacement[]
+): void;
+function accumulateRenamesForImportedIdentifier(
+  importedIdentifier: Identifier,
+  packageExportRenames: PackageExportRename[],
+  replacements: Replacement[],
+  addedImportSet: Set<unknown>,
+  importSpec: ImportSpecifier
+): void;
+function accumulateRenamesForImportedIdentifier(
+  importedIdentifier: Identifier,
+  packageExportRenames: PackageExportRename[],
+  replacements: Replacement[],
+  // in this case we can skip the add
+  addedImportSet?: Set<unknown> | undefined,
+  importSpec?: ImportSpecifier | undefined
+) {
+  Assert.ok(
+    (addedImportSet == null && importSpec == null) || (addedImportSet != null && importSpec != null)
+  );
+  for (const refNode of importedIdentifier.findReferencesAsNodes()) {
+    if (refNode === importedIdentifier) continue; // I hate this edge case of tsmorph
+    if (refNode.getSourceFile() !== importedIdentifier.getSourceFile()) continue;
 
     for (const packageExportRename of packageExportRenames) {
-      const nameNode = importSpec.getAliasNode() ?? importSpec.getNameNode();
+      const fullyQualifiedInstance = findEntireQualifiedNameTree(refNode, packageExportRename.from);
+      if (!fullyQualifiedInstance) continue;
 
-      const addImport = true;
-      for (const refNode of nameNode.findReferencesAsNodes()) {
-        if (refNode === nameNode) continue; // I hate this edge case of tsmorph
-
-        const fullyQualifiedInstance = findEntireQualifiedNameTree(
-          refNode,
-          packageExportRename.from
-        );
-        if (!fullyQualifiedInstance) continue;
-
-        if (addImport && !alreadyAdded.has(packageExportRename)) {
-          alreadyAdded.add(packageExportRename);
-          replacements.push({
-            start: importSpec.getStart(),
-            end: importSpec.getStart(),
-            newValue: `${packageExportRename.to[0]},`,
-            filePath: refNode.getSourceFile().getFilePath(),
-          });
-        }
-
+      if (importSpec && addedImportSet && !addedImportSet.has(packageExportRename)) {
+        addedImportSet.add(packageExportRename);
         replacements.push({
-          start: fullyQualifiedInstance.getStart(),
-          end: fullyQualifiedInstance.getEnd(),
-          newValue: packageExportRename.to.join("."),
+          start: importSpec.getStart(),
+          end: importSpec.getStart(),
+          newValue: `${packageExportRename.to[0]},`,
           filePath: refNode.getSourceFile().getFilePath(),
         });
       }
+
+      replacements.push({
+        start: fullyQualifiedInstance.getStart(),
+        end: fullyQualifiedInstance.getEnd(),
+        newValue: packageExportRename.to.join("."),
+        filePath: refNode.getSourceFile().getFilePath(),
+      });
     }
   }
 }

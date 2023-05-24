@@ -1,6 +1,7 @@
+import { isAnyOf } from "@reduxjs/toolkit";
 import { Node } from "ts-morph";
 import { SyntaxKind } from "ts-morph";
-import type { Identifier } from "ts-morph";
+import type { Identifier, PropertyAccessExpression } from "ts-morph";
 import type { QualifiedName } from "ts-morph";
 
 /**
@@ -22,14 +23,21 @@ import type { QualifiedName } from "ts-morph";
 export function findEntireQualifiedNameTree(
   initialNode: Node,
   path: string[]
-): Identifier | QualifiedName | undefined {
+): Identifier | QualifiedName | PropertyAccessExpression | undefined {
   if (!Node.isIdentifier(initialNode) || initialNode.getText() != path[0]) return undefined;
 
-  let cur: Identifier | QualifiedName = initialNode;
+  let cur: Identifier | QualifiedName | PropertyAccessExpression = initialNode;
   for (let i = 1; i < path.length; i++) {
-    const parent: QualifiedName | undefined = cur.getParentIfKind(SyntaxKind.QualifiedName);
+    const parent: QualifiedName | PropertyAccessExpression | undefined = cur.getParentIf(
+      isAnyOf(Node.isQualifiedName, Node.isPropertyAccessExpression)
+    );
     if (!parent) return undefined;
-    if (parent.getRight().getText() !== path[i]) return undefined;
+    if (Node.isQualifiedName(parent)) {
+      if (parent.getRight().getText() !== path[i]) return undefined;
+    }
+    if (Node.isPropertyAccessExpression(parent)) {
+      if (parent.getName() !== path[i]) return undefined;
+    }
 
     cur = parent;
   }

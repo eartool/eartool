@@ -40,7 +40,11 @@ export async function processProject(
   const totalFiles = project.getSourceFiles().length;
   updateState({ totalFiles, filesComplete: 0, stage: "analyzing" });
 
-  logger.debug("Running with opts %o", { dryRun, removeNamespaces, additionalRenames });
+  logger.debug("Running with opts %o", {
+    dryRun,
+    removeNamespaces,
+    additionalRenames: [...(additionalRenames?.entries() ?? [])],
+  });
 
   let filesComplete = 0;
   for (const sf of project.getSourceFiles()) {
