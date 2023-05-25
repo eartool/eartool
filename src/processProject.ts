@@ -1,4 +1,5 @@
-import { Node, SyntaxKind, type Project, type SourceFile, NamedImports } from "ts-morph";
+import type { Node } from "ts-morph";
+import type { Project } from "ts-morph";
 import { calculateNamespaceRemovals } from "./calculateNamespaceRemovals.js";
 import type { Logger } from "pino";
 import { ProjectContext } from "./Context.js";
@@ -9,11 +10,8 @@ import type { PackageExportRename } from "./replacements/PackageExportRename.js"
 import type { PackageName } from "./PackageName.js";
 import { addSingleFileReplacementsForRenames } from "./replacements/addSingleFileReplacementsForRenames.js";
 import type { Replacement } from "./replacements/Replacement.js";
-import * as Assert from "assert";
 import { ReplacementsWrapper } from "./ReplacementsWrapper.js";
-import type { Replacements } from "./replacements/Replacements.js";
-import { isNamespaceLike } from "./utils/tsmorph/isNamespaceLike.js";
-import { isAnyOf } from "@reduxjs/toolkit";
+import { calculateNamespaceLikeRemovals } from "./calculateNamespaceLikeRemovals.js";
 
 export interface Status {
   totalWorkUnits: number;
@@ -118,56 +116,4 @@ export async function processProject(
 
 export function getFilePath(filePath: string | Node) {
   return typeof filePath == "string" ? filePath : filePath.getSourceFile().getFilePath();
-}
-
-function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Replacements) {
-  // TODO: Only perform task if its the only export
-  // TODO: Should we check the filename too?
-  // TODO: Check for collisions?
-
-  for (const statement of sf.getStatements()) {
-    if (!isNamespaceLike(statement)) continue;
-    const varDecl = statement.getDeclarations()[0];
-
-    const visitedSpecifiers = new Set();
-    for (const refIdentifier of varDecl.findReferencesAsNodes()) {
-      // alias import nodes show up twice for some reason
-      // so we need to account for that
-
-      const specifier = refIdentifier.getParentIf(
-        isAnyOf(Node.isExportSpecifier, Node.isImportSpecifier)
-      );
-      if (!specifier) continue;
-      if (visitedSpecifiers.has(specifier)) continue;
-
-      const named = specifier.getParentIfOrThrow(isAnyOf(Node.isNamedExports, Node.isNamedImports));
-      Assert.ok(named.getElements().length == 1);
-      const varName = (specifier.getAliasNode() ?? specifier.getNameNode()).getText();
-      replacements.replaceNode(named, `* as ${varName}`);
-      visitedSpecifiers.add(specifier);
-    }
-
-    const syntaxList = varDecl.getInitializer().getExpression().getChildSyntaxList()!;
-
-    // Drop `export const Name = {`
-    replacements.remove(sf, statement.getStart(), syntaxList.getFullStart());
-
-    // drop `} as const;`
-    const closeBrace = syntaxList.getNextSiblingIfKindOrThrow(SyntaxKind.CloseBraceToken);
-    replacements.remove(sf, closeBrace.getStart(), statement.getEnd());
-
-    for (const q of varDecl.getInitializer().getExpression().getProperties()) {
-      if (Node.isMethodDeclaration(q)) {
-        replacements.insertBefore(q, "export function ");
-      } else {
-        replacements.addReplacement(
-          sf,
-          q.getStart(),
-          q.getFirstChildByKindOrThrow(SyntaxKind.ColonToken).getEnd(),
-          `export const ${q.getName()} = `
-        );
-      }
-      replacements.removeNextSiblingIfComma(q);
-    }
-  }
 }

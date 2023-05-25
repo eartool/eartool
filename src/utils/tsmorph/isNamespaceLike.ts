@@ -16,14 +16,16 @@ type ObjectLiteralWithMethodLikeOnly = ReplaceMethodReturnType<
   (MethodDeclaration | TypedPropertyAssignment<ArrowFunction>)[]
 >;
 
-type NamespaceLike = ReplaceMethodReturnType<
+export type NamespaceLikeDeclaration = ReplaceMethodReturnType<
+  VariableDeclaration,
+  "getInitializer",
+  ReplaceMethodReturnType<AsExpression, "getExpression", ObjectLiteralWithMethodLikeOnly>
+>;
+
+export type NamespaceLike = ReplaceMethodReturnType<
   VariableStatement,
   "getDeclarations",
-  ReplaceMethodReturnType<
-    VariableDeclaration,
-    "getInitializer",
-    ReplaceMethodReturnType<AsExpression, "getExpression", ObjectLiteralWithMethodLikeOnly>
-  >[]
+  NamespaceLikeDeclaration[]
 >;
 
 export function isNamespaceLike(node: Node): node is NamespaceLike {
