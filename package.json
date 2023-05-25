@@ -4,7 +4,7 @@
   "bin": "./bin/fix-namespace.js",
   "license": "ISC",
   "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest",
     "lint": "eslint packages/*/src",
     "fixFormatting": "prettier --write ."
   },
