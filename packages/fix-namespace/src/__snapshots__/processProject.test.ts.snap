@@ -191,6 +191,27 @@ export * as Foo from "./foo";
 "
 `;
 
+exports[`processProject Properly handles conflict with module local variable or function 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+function bar0() {
+  return 5;
+}
+const baz0 = 5;
+
+export function baz() {
+  return baz0;
+}
+
+export const bar = () => {
+  return bar0();
+};
+"
+`;
+
 exports[`processProject Renames import specifiers as needed 1`] = `
 "//
 
@@ -198,10 +219,11 @@ exports[`processProject Renames import specifiers as needed 1`] = `
 // PATH: '/foo.ts'
 //
 import { bar as bar0 } from "lib";
+import baz0 from "lib2";
 
 // direct function
 export function baz() {
-  return bar0();
+  return bar0() + baz0();
 }
 
 export const bar = () => {
@@ -216,11 +238,14 @@ exports[`processProject Renames star imports as needed 1`] = `
 //
 // PATH: '/foo.ts'
 //
+import * as otherStar from "other";
+import otherDefault, { other } from "other";
+
 import * as bar0 from "lib";
 
 // direct function
 export function baz() {
-  return bar0.baz();
+  return bar0.baz() + other + otherStar.foo + otherDefault;
 }
 
 export const bar = () => {

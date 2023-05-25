@@ -7,9 +7,7 @@ import {
   type NamespaceLikeVariableDeclaration,
 } from "./utils/tsmorph/isNamespaceLike.js";
 import { isAnyOf } from "@reduxjs/toolkit";
-import { replaceImportSpecifierWithNewName } from "./replacements/replaceImportSpecifierWithNewName.js";
-import { addReplacementsForRenamedIdentifier } from "./replacements/addReplacementsForRenamedIdentifier.js";
-import { findNewNameInScope } from "./utils/findNewNameInScope.js";
+import { replaceAllNamesInScope } from "./replacements/replaceAllNamesInScope.js";
 
 export function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Replacements) {
   // TODO: Only perform task if its the only export
@@ -74,34 +72,7 @@ function unwrapInFile(
       .map((a) => a.getName())
   );
 
-  for (const importDecl of varDecl.getSourceFile().getImportDeclarations()) {
-    const namespaceImport = importDecl.getNamespaceImport();
-    if (namespaceImport) {
-      const newName = findNewNameInScope(
-        namespaceImport.getText(),
-        namespaceImport.getSourceFile(),
-        propertyNames
-      );
-      replacements.replaceNode(namespaceImport, newName);
-      addReplacementsForRenamedIdentifier(replacements, namespaceImport, newName);
-    }
-
-    for (const importSpecifier of importDecl.getNamedImports()) {
-      const nodeToReplace = importSpecifier.getAliasNode() ?? importSpecifier.getNameNode();
-
-      if (propertyNames.has(nodeToReplace.getText())) {
-        // find a new name!
-        const newName = findNewNameInScope(
-          nodeToReplace.getText(),
-          varDecl.getSourceFile(),
-          propertyNames
-        );
-
-        replaceImportSpecifierWithNewName(replacements, importSpecifier, newName); // update the actual variable
-        addReplacementsForRenamedIdentifier(replacements, nodeToReplace, newName);
-      }
-    }
-  }
+  replaceAllNamesInScope(replacements, varDecl.getSourceFile(), propertyNames);
 }
 
 function replaceImportsAndExports(

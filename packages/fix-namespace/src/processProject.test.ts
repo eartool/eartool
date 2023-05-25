@@ -377,11 +377,12 @@ const cases: {
     inputs: {
       "foo.ts": `
         import {bar} from "lib";
+        import baz from "lib2";
 
         export const Foo = {
           // direct function
           baz() {
-            return bar(); 
+            return bar() + baz(); 
           },
 
           bar: () => {
@@ -397,12 +398,16 @@ const cases: {
     name: "Renames star imports as needed",
     inputs: {
       "foo.ts": `
+        import {other} from "other";
+        import * as otherStar from "other";
+        import otherDefault from "other";
+
         import * as bar from "lib";
 
         export const Foo = {
           // direct function
           baz() {
-            return bar.baz(); 
+            return bar.baz() + other + otherStar.foo + otherDefault; 
           },
 
           bar: () => {
@@ -410,6 +415,25 @@ const cases: {
           },
 
           
+        } as const;
+      `,
+    },
+  },
+  {
+    name: "Properly handles conflict with module local variable or function",
+    inputs: {
+      "foo.ts": `
+        function bar() { return 5; }
+        const baz = 5;
+
+        export const Foo = {
+          baz() {
+            return baz; 
+          },
+
+          bar: () => {
+            return bar();
+          },
         } as const;
       `,
     },
