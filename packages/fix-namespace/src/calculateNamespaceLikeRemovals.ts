@@ -1,4 +1,4 @@
-import { Node, SyntaxKind, type SourceFile, Statement } from "ts-morph";
+import { Node, SyntaxKind, type SourceFile } from "ts-morph";
 import * as Assert from "assert";
 import type { Replacements } from "./replacements/Replacements.js";
 import {
@@ -7,6 +7,9 @@ import {
   type NamespaceLikeVariableDeclaration,
 } from "./utils/tsmorph/isNamespaceLike.js";
 import { isAnyOf } from "@reduxjs/toolkit";
+import { replaceImportSpecifierWithNewName } from "./replacements/replaceImportSpecifierWithNewName.js";
+import { addReplacementsForRenamedIdentifier } from "./replacements/addReplacementsForRenamedIdentifier.js";
+import { findNewNameInScope } from "./utils/findNewNameInScope.js";
 
 export function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Replacements) {
   // TODO: Only perform task if its the only export
@@ -50,6 +53,54 @@ function unwrapInFile(
       );
     }
     replacements.removeNextSiblingIfComma(q);
+  }
+
+  // Its possible there was self referential code, so we need to handle that case
+  for (const refIdentifier of varDecl.findReferencesAsNodes()) {
+    if (refIdentifier.getSourceFile() !== sf) continue;
+
+    const parent = refIdentifier.getParentIfKind(SyntaxKind.PropertyAccessExpression);
+    if (!parent) continue;
+
+    replacements.replaceNode(parent, parent.getNameNode().getFullText());
+  }
+
+  // And of course we can import things that now collide
+  const propertyNames = new Set(
+    varDecl
+      .getInitializer()
+      .getExpression()
+      .getProperties()
+      .map((a) => a.getName())
+  );
+
+  for (const importDecl of varDecl.getSourceFile().getImportDeclarations()) {
+    const namespaceImport = importDecl.getNamespaceImport();
+    if (namespaceImport) {
+      const newName = findNewNameInScope(
+        namespaceImport.getText(),
+        namespaceImport.getSourceFile(),
+        propertyNames
+      );
+      replacements.replaceNode(namespaceImport, newName);
+      addReplacementsForRenamedIdentifier(replacements, namespaceImport, newName);
+    }
+
+    for (const importSpecifier of importDecl.getNamedImports()) {
+      const nodeToReplace = importSpecifier.getAliasNode() ?? importSpecifier.getNameNode();
+
+      if (propertyNames.has(nodeToReplace.getText())) {
+        // find a new name!
+        const newName = findNewNameInScope(
+          nodeToReplace.getText(),
+          varDecl.getSourceFile(),
+          propertyNames
+        );
+
+        replaceImportSpecifierWithNewName(replacements, importSpecifier, newName); // update the actual variable
+        addReplacementsForRenamedIdentifier(replacements, nodeToReplace, newName);
+      }
+    }
   }
 }
 

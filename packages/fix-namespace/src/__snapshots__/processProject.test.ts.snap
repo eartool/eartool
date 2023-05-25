@@ -167,6 +167,68 @@ export * as Foo from "./foo";
 "
 `;
 
+exports[`processProject Handles in file references to faux namespaces 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+
+// direct function
+export function baz() {
+  return 5;
+}
+
+export const bar = () => {
+  return baz();
+};
+,//
+
+//
+// PATH: '/index.ts'
+//
+export * as Foo from "./foo";
+"
+`;
+
+exports[`processProject Renames import specifiers as needed 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+import { bar as bar0 } from "lib";
+
+// direct function
+export function baz() {
+  return bar0();
+}
+
+export const bar = () => {
+  return baz();
+};
+"
+`;
+
+exports[`processProject Renames star imports as needed 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+import * as bar0 from "lib";
+
+// direct function
+export function baz() {
+  return bar0.baz();
+}
+
+export const bar = () => {
+  return baz();
+};
+"
+`;
+
 exports[`processProject Simple additional renames work 1`] = `
 "//
 

@@ -350,6 +350,70 @@ const cases: {
       `,
     },
   },
+  {
+    name: "Handles in file references to faux namespaces",
+    inputs: {
+      "index.ts": `
+        export {Foo} from "./foo";
+      `,
+      "foo.ts": `
+        export const Foo = {
+          // direct function
+          baz() {
+            return 5; 
+          },
+
+          bar: () => {
+            return Foo.baz();
+          },
+
+          
+        } as const;
+      `,
+    },
+  },
+  {
+    name: "Renames import specifiers as needed",
+    inputs: {
+      "foo.ts": `
+        import {bar} from "lib";
+
+        export const Foo = {
+          // direct function
+          baz() {
+            return bar(); 
+          },
+
+          bar: () => {
+            return Foo.baz();
+          },
+
+          
+        } as const;
+      `,
+    },
+  },
+  {
+    name: "Renames star imports as needed",
+    inputs: {
+      "foo.ts": `
+        import * as bar from "lib";
+
+        export const Foo = {
+          // direct function
+          baz() {
+            return bar.baz(); 
+          },
+
+          bar: () => {
+            return Foo.baz();
+          },
+
+          
+        } as const;
+      `,
+    },
+  },
 ];
 
 describe("processProject", () => {
@@ -361,7 +425,7 @@ describe("processProject", () => {
       await processProject(project, {
         logger,
         additionalRenames,
-        removeFauxNamespaces: false,
+        removeFauxNamespaces: true,
         dryRun: false,
         organizeImports: true,
         removeNamespaces: true,
