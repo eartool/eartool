@@ -1,6 +1,9 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 const baseConfig = {
-  preset: "ts-jest/presets/default-esm",
+  transform: {
+    "^.+\\.(t|j)sx?$": ["@swc/jest"],
+  },
+  extensionsToTreatAsEsm: [".ts", ".tsx"],
 
   testPathIgnorePatterns: ["node_modules", "lib"],
   watchPathIgnorePatterns: ["lib", "log"],
