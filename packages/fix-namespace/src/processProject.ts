@@ -1,4 +1,4 @@
-import type { Node } from "ts-morph";
+import type { Node, SourceFile } from "ts-morph";
 import type { Project } from "ts-morph";
 import { calculateNamespaceRemovals } from "./calculateNamespaceRemovals.js";
 import type { Logger } from "pino";
@@ -27,6 +27,12 @@ export interface ProcessProjectOpts {
   additionalRenames?: Map<PackageName, PackageExportRename[]>;
 }
 
+/**
+ * Process a project, removing namespaces and organizing imports.
+ * @param project  The project to process
+ * @param param1  Options
+ * @returns
+ */
 export async function processProject(
   project: Project,
   {

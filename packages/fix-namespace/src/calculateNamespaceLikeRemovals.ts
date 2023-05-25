@@ -4,7 +4,7 @@ import type { Replacements } from "./replacements/Replacements.js";
 import {
   isNamespaceLike,
   type NamespaceLike,
-  type NamespaceLikeDeclaration,
+  type NamespaceLikeVariableDeclaration,
 } from "./utils/tsmorph/isNamespaceLike.js";
 import { isAnyOf } from "@reduxjs/toolkit";
 
@@ -24,7 +24,7 @@ export function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Rep
 }
 
 function unwrapInFile(
-  varDecl: NamespaceLikeDeclaration,
+  varDecl: NamespaceLikeVariableDeclaration,
   replacements: Replacements,
   namespaceLike: NamespaceLike
 ) {
@@ -53,7 +53,10 @@ function unwrapInFile(
   }
 }
 
-function replaceImportsAndExports(varDecl: NamespaceLikeDeclaration, replacements: Replacements) {
+function replaceImportsAndExports(
+  varDecl: NamespaceLikeVariableDeclaration,
+  replacements: Replacements
+) {
   const visitedSpecifiers = new Set();
   for (const refIdentifier of varDecl.findReferencesAsNodes()) {
     // alias import nodes show up twice for some reason

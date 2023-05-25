@@ -1,3 +1,4 @@
+/** @type {import('eslint').} */
 module.exports = {
   env: {
     es2021: true,
@@ -9,7 +10,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
-    project: true,
+    project: ["./tsconfig.json", "./packages/*/tsconfig.json"],
   },
   plugins: ["@typescript-eslint"],
   rules: {
