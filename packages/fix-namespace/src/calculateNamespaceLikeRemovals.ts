@@ -15,8 +15,35 @@ export function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Rep
 
   // TODO: Check for collisions?
 
+  const exports = sf.getStatements().filter((s) => {
+    if (Node.isExportable(s)) {
+      return s.isExported();
+    }
+    return false;
+  });
+
+  if (exports.length > 1) {
+    // console.log(sf.getFilePath());
+    // console.log(
+    //   exports.map((e) => {
+    //     if (Node.isModuleDeclaration(e)) {
+    //       return e.getName();
+    //     } else if (Node.isVariableStatement(e)) {
+    //       return e.getDeclarations().map((a) => a.getName());
+    //     } else if (Node.isFunctionDeclaration(e)) {
+    //       return e.getName();
+    //     }
+    //   })
+    // );
+    return;
+  }
+
   for (const statement of sf.getStatements()) {
     if (!isNamespaceLike(statement)) continue;
+
+    // not bothering with this case right now
+    if (statement.getDeclarations().length > 1) continue;
+
     const varDecl = statement.getDeclarations()[0];
 
     replaceImportsAndExports(varDecl, replacements);
@@ -90,7 +117,13 @@ function replaceImportsAndExports(
     if (visitedSpecifiers.has(specifier)) continue;
 
     const named = specifier.getParentIfOrThrow(isAnyOf(Node.isNamedExports, Node.isNamedImports));
-    Assert.ok(named.getElements().length == 1);
+    if (named.getElements().length != 1) continue;
+    Assert.ok(
+      named.getElements().length == 1,
+      `Expected only one element in '${named.getText()}', file: ${named
+        .getSourceFile()
+        .getFilePath()} while looking for ${specifier.getText()}`
+    );
     const varName = (specifier.getAliasNode() ?? specifier.getNameNode()).getText();
     replacements.replaceNode(named, `* as ${varName}`);
     visitedSpecifiers.add(specifier);

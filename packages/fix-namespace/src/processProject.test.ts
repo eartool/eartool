@@ -14,6 +14,8 @@ const cases: {
   name: string;
   inputs: Record<string, string>;
   additionalRenames?: ProcessProjectOpts["additionalRenames"];
+  removeNamespaces?: ProcessProjectOpts["removeNamespaces"];
+  removeFauxNamespaces?: ProcessProjectOpts["removeFauxNamespaces"];
 }[] = [
   {
     name: "redeclare export",
@@ -438,31 +440,61 @@ const cases: {
       `,
     },
   },
+  {
+    name: "Multiple things in the file",
+    inputs: {
+      "foo.ts": `
+        export namespace MetadataValue {
+          export type Foo = string;
+        }
+
+        export const MetadataValue = {
+          doThing() {
+            return 5;
+          }
+        }
+
+        export function foo() {
+          return 5;
+        }
+      `,
+      "bar.ts": `
+        import {MetadataValue, foo} from "./foo";
+
+        console.log(MetadataValue.doThing());
+        console.log(foo());
+      `,
+    },
+
+    removeNamespaces: false,
+  },
 ];
 
 describe("processProject", () => {
-  it.each(cases)("$name", async ({ inputs, additionalRenames }) => {
-    const logger = createTestLogger();
-    try {
-      const project = createProjectForTest(inputs);
+  it.each(cases)(
+    "$name",
+    async ({ inputs, additionalRenames, removeFauxNamespaces, removeNamespaces }) => {
+      const logger = createTestLogger();
+      try {
+        const project = createProjectForTest(inputs);
 
-      await processProject(project, {
-        logger,
-        additionalRenames,
-        removeFauxNamespaces: true,
-        dryRun: false,
-        organizeImports: true,
-        removeNamespaces: true,
-      });
+        await processProject(project, {
+          logger,
+          additionalRenames,
+          removeFauxNamespaces: removeFauxNamespaces ?? true,
+          dryRun: false,
+          organizeImports: true,
+          removeNamespaces: removeNamespaces ?? true,
+        });
 
-      const fs = project.getFileSystem();
+        const fs = project.getFileSystem();
 
-      const output = project
-        .getSourceFiles()
-        .map((sf) => {
-          const filePath = sf.getFilePath();
-          return formatTestTypescript(
-            `
+        const output = project
+          .getSourceFiles()
+          .map((sf) => {
+            const filePath = sf.getFilePath();
+            return formatTestTypescript(
+              `
         //
 
         //
@@ -470,15 +502,16 @@ describe("processProject", () => {
         //
         ${fs.readFileSync(filePath)}
         `
-          );
-        })
-        .join();
+            );
+          })
+          .join();
 
-      expect(output).toMatchSnapshot();
-    } finally {
-      logger.flush();
+        expect(output).toMatchSnapshot();
+      } finally {
+        logger.flush();
+      }
     }
-  });
+  );
 
   it("records renames from root", async () => {
     const logger = createTestLogger();

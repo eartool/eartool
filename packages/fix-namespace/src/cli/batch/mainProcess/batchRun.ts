@@ -17,42 +17,47 @@ export default function registerCommand(yargs: yargs.Argv<NonNullable<unknown>>)
     "foo",
     "describe",
     (yargs) => {
-      return yargs.options({
-        workspaceDir: {
-          alias: "w",
-          type: "string",
-          describe: "The workspace to run against",
-          demandOption: true,
-        },
-        startPackageNames: {
-          describe: "",
-          array: true,
-          type: "string",
-          default: [] as string[],
-        },
-        removeNamespaces: {
-          default: true,
-        },
-        removeFauxNamespaces: {
-          default: true,
-        },
-        fixDownstream: {
-          default: true,
-        },
-        organizeImports: {
-          describe: "Whether or not to organise imports",
-          type: "boolean",
-          default: true,
-        },
-        dryRun: {
-          describe: "Whether to run without saving changes",
-          type: "boolean",
-          default: false,
-        },
-      } as const satisfies { [key: string]: yargs.Options });
+      return yargs
+        .options({
+          workspace: {
+            alias: ["w", "workspaceDir"],
+            type: "string",
+            describe: "The workspace to run against",
+            demandOption: true,
+          },
+          startPackageNames: {
+            describe: "",
+            array: true,
+            type: "string",
+            default: [] as string[],
+          },
+          removeNamespaces: {
+            type: "boolean",
+            default: true,
+          },
+          removeFauxNamespaces: {
+            type: "boolean",
+            default: true,
+          },
+          fixDownstream: {
+            type: "boolean",
+            default: true,
+          },
+          organizeImports: {
+            describe: "Whether or not to organise imports",
+            type: "boolean",
+            default: true,
+          },
+          dryRun: {
+            describe: "Whether to run without saving changes",
+            type: "boolean",
+            default: false,
+          },
+        } as const satisfies { [key: string]: yargs.Options })
+        .strict();
     },
     async ({
-      workspaceDir,
+      workspace,
       startPackageNames,
       dryRun,
       removeNamespaces,
@@ -60,7 +65,7 @@ export default function registerCommand(yargs: yargs.Argv<NonNullable<unknown>>)
       fixDownstream,
       organizeImports,
     }) => {
-      await batchRun(workspaceDir, {
+      await batchRun(workspace, {
         startProjects: startPackageNames,
         dryRun,
         organizeImports,
@@ -91,6 +96,8 @@ export async function batchRun(
   // we have at least 11 under a normal run on my mac. it doesn't grow, we arent leaking
   process.setMaxListeners(20);
 
+  // TODO If we arent fixing downstream we can short circuit this a lot
+
   const logger = createLogger(path.join(workspaceDir, ".log"), "main", "trace");
 
   logger.trace("Creating workspace object");
@@ -104,7 +111,7 @@ export async function batchRun(
   } = createStore();
 
   const multibar = new MultiBar(
-    { format: " {bar} | {name} | {percentage}% {stage} {eta}", fps: 2 },
+    { format: " {bar} | {name} | {percentage}% {stage} | {eta_formatted}", fps: 2 },
     Presets.rect
   );
   const topBar = multibar.create(downStreamProjects.length, 0, {

@@ -191,6 +191,37 @@ export * as Foo from "./foo";
 "
 `;
 
+exports[`processProject Multiple things in the file 1`] = `
+"//
+
+//
+// PATH: '/bar.ts'
+//
+import { MetadataValue, foo } from "./foo";
+
+console.log(MetadataValue.doThing());
+console.log(foo());
+,//
+
+//
+// PATH: '/foo.ts'
+//
+export namespace MetadataValue {
+  export type Foo = string;
+}
+
+export const MetadataValue = {
+  doThing() {
+    return 5;
+  },
+};
+
+export function foo() {
+  return 5;
+}
+"
+`;
+
 exports[`processProject Properly handles conflict with module local variable or function 1`] = `
 "//
 

@@ -46,6 +46,8 @@ export async function processProject(
     updateState = (_data) => undefined,
     additionalRenames,
     removeNamespaces,
+    removeFauxNamespaces,
+    organizeImports: shouldOrganizeImports,
   }: ProcessProjectOpts
 ) {
   dropDtsFiles(project);
@@ -61,8 +63,9 @@ export async function processProject(
     return (
       (removeNamespaces ? totalFiles : 0) +
       (additionalRenames ? totalFiles : 0) +
+      (additionalRenames ? totalFiles : 0) +
       (dryRun ? 0 : changedFilesCount) +
-      changedFilesCount
+      (shouldOrganizeImports ? changedFilesCount : 0)
     );
   }
 
@@ -86,8 +89,12 @@ export async function processProject(
       updateState({ totalWorkUnits, completedWorkUnits, stage: "analyzing" });
     }
 
-    const replacements = new ReplacementsWrapper(context);
-    calculateNamespaceLikeRemovals(sf, replacements);
+    if (removeFauxNamespaces) {
+      const replacements = new ReplacementsWrapper(context);
+      calculateNamespaceLikeRemovals(sf, replacements);
+      completedWorkUnits++;
+      updateState({ totalWorkUnits, completedWorkUnits, stage: "analyzing" });
+    }
 
     if (additionalRenames) {
       const replacements: Replacement[] = [];
@@ -104,9 +111,11 @@ export async function processProject(
   const changedFiles = [...processReplacements(project, context.getReplacements())];
   totalWorkUnits = calculateTotalWorkUnits(changedFiles.length);
 
-  logger.debug("Organizing imports");
-  updateState({ totalWorkUnits, completedWorkUnits, stage: "organizing" });
-  organizeImportsOnFiles(project, changedFiles);
+  if (shouldOrganizeImports) {
+    logger.debug("Organizing imports");
+    updateState({ totalWorkUnits, completedWorkUnits, stage: "organizing" });
+    organizeImportsOnFiles(project, changedFiles);
+  }
 
   completedWorkUnits += changedFiles.length; // TODO make this granular?
   updateState({ totalWorkUnits, completedWorkUnits, stage: "writing" });
