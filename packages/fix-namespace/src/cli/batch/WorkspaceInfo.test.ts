@@ -15,7 +15,7 @@ describe(Workspace, () => {
       baz.addDependency(bar);
 
       const order: string[] = [];
-      await workspace.runTasksInOrder(undefined, async (args) => {
+      await workspace.runTasksInOrder([] /*all*/, async (args) => {
         order.push(args.packageName);
       });
 
@@ -32,7 +32,7 @@ describe(Workspace, () => {
       foo.addDependency(baz);
 
       const order: string[] = [];
-      await workspace.runTasksInOrder(bar, async (args) => {
+      await workspace.runTasksInOrder([bar], async (args) => {
         order.push(args.packageName);
       });
 
@@ -50,7 +50,7 @@ describe(Workspace, () => {
       foo.addDependency(bar);
       foo.addDependency(baz);
 
-      const q = [...workspace.walkTreeDownstreamFromName(bar)];
+      const q = [...workspace.walkTreeDownstreamFrom(bar)];
       expect(q.map((a) => a.name)).toEqual(["bar", "foo"]);
     });
   });

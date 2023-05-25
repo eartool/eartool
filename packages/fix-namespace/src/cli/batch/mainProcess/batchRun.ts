@@ -1,5 +1,5 @@
 import type * as yargs from "yargs";
-import { MultiBar, Presets, type SingleBar } from "cli-progress";
+import { MultiBar, Presets } from "cli-progress";
 import { createWorkspaceInfo } from "../WorkspaceInfo.js";
 import { MessagesToMain } from "../shared/messages/index.js";
 import { nanoid, isAllOf, isAnyOf, type ListenerEffectAPI } from "@reduxjs/toolkit";
@@ -12,21 +12,91 @@ import { forkWorker } from "./forkWorker.js";
 import { createLogger } from "../worker/createLogger.js";
 import type { Logger } from "pino";
 
-export default function registerCommand(_yargs: yargs.Argv<NonNullable<unknown>>) {
-  // yargs.command()
+export default function registerCommand(yargs: yargs.Argv<NonNullable<unknown>>) {
+  return yargs.command(
+    "foo",
+    "describe",
+    (yargs) => {
+      return yargs.options({
+        workspaceDir: {
+          alias: "w",
+          type: "string",
+          describe: "The workspace to run against",
+          demandOption: true,
+        },
+        startPackageNames: {
+          describe: "",
+          array: true,
+          type: "string",
+          default: [] as string[],
+        },
+        removeNamespaces: {
+          default: true,
+        },
+        removeFauxNamespaces: {
+          default: true,
+        },
+        fixDownstream: {
+          default: true,
+        },
+        organizeImports: {
+          describe: "Whether or not to organise imports",
+          type: "boolean",
+          default: true,
+        },
+        dryRun: {
+          describe: "Whether to run without saving changes",
+          type: "boolean",
+          default: false,
+        },
+      } as const satisfies { [key: string]: yargs.Options });
+    },
+    async ({
+      workspaceDir,
+      startPackageNames,
+      dryRun,
+      removeNamespaces,
+      removeFauxNamespaces,
+      fixDownstream,
+      organizeImports,
+    }) => {
+      await batchRun(workspaceDir, {
+        startProjects: startPackageNames,
+        dryRun,
+        organizeImports,
+        removeFauxNamespaces,
+        removeNamespaces,
+        fixDownstream,
+        logDir: "", // FIXME
+      });
+    }
+  );
 }
 
-export async function batchRun(workspaceDir: string, startProjectName: string | undefined) {
+export interface BatchRunOptions {
+  startProjects: string[]; // todo support glob?
+  removeNamespaces: boolean;
+  removeFauxNamespaces: boolean;
+  organizeImports: boolean;
+  fixDownstream: boolean;
+  dryRun: boolean;
+  logDir: string;
+}
+
+export async function batchRun(
+  workspaceDir: string,
+  // startProjectName: string | undefined,
+  opts: BatchRunOptions
+) {
   // we have at least 11 under a normal run on my mac. it doesn't grow, we arent leaking
   process.setMaxListeners(20);
-
-  const start = startProjectName ? { name: startProjectName } : undefined;
 
   const logger = createLogger(path.join(workspaceDir, ".log"), "main", "trace");
 
   logger.trace("Creating workspace object");
   const workspace = await createWorkspaceInfo(workspaceDir);
-  const downStreamProjects = [...workspace.walkTreeDownstreamFromName(start)];
+  const startNodeLookups = opts.startProjects.map((name) => ({ name }));
+  const downStreamProjects = [...workspace.walkTreeDownstreamFrom(...startNodeLookups)];
 
   const {
     listenerMiddleware,
@@ -47,11 +117,17 @@ export async function batchRun(workspaceDir: string, startProjectName: string | 
     effect: createStartWorkerEffect(multibar, logger),
   });
 
-  await workspace.runTasksInOrder(start, async ({ packageName, packagePath }) => {
+  await workspace.runTasksInOrder(startNodeLookups, async ({ packageName, packagePath }) => {
     return new Promise<void>((resolve) => {
+      const isInStartGroup =
+        startNodeLookups.length === 0 || startNodeLookups.some((a) => a.name === packageName);
       dispatch(
         startWorker({
-          removeNamespaces: start ? start?.name === packageName : true,
+          removeNamespaces: opts.removeNamespaces && isInStartGroup,
+          removeFauxNamespaces: opts.removeFauxNamespaces && isInStartGroup,
+          dryRun: opts.dryRun,
+          organizeImports: opts.organizeImports,
+
           senderId: nanoid(),
           packageName,
           packagePath,
@@ -60,7 +136,7 @@ export async function batchRun(workspaceDir: string, startProjectName: string | 
             topBar.increment();
             resolve();
           },
-          additionalRenames: selectAdditionalRenames(getState()),
+          additionalRenames: opts.fixDownstream ? selectAdditionalRenames(getState()) : new Map(),
         })
       );
     });

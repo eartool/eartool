@@ -19,10 +19,15 @@ export interface Status {
   stage: "analyzing" | "writing" | "organizing";
 }
 
-export interface ProcessProjectOpts {
-  dryRun?: boolean;
-  logger: Logger;
+export interface BaseOptions {
+  dryRun: boolean;
   removeNamespaces: boolean;
+  removeFauxNamespaces: boolean;
+  organizeImports: boolean;
+}
+
+export interface ProcessProjectOpts extends BaseOptions {
+  logger: Logger;
   updateState?: (data: Status) => void;
   additionalRenames?: Map<PackageName, PackageExportRename[]>;
 }

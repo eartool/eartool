@@ -5,7 +5,16 @@ import { createLogger } from "./createLogger.js";
 
 export async function workerMain(
   port: MessagePort,
-  { logDir, packageName, removeNamespaces, additionalRenames, packagePath }: WorkerData
+  {
+    logDir,
+    packageName,
+    removeNamespaces,
+    additionalRenames,
+    packagePath,
+    dryRun,
+    organizeImports,
+    removeFauxNamespaces,
+  }: WorkerData
 ) {
   const logger = createLogger(logDir, packageName, "trace");
 
@@ -14,6 +23,9 @@ export async function workerMain(
       logger,
       removeNamespaces,
       additionalRenames,
+      dryRun,
+      organizeImports,
+      removeFauxNamespaces,
       updateState: (data) => {
         port.postMessage(MessagesToMain.updateStatus(data));
       },

@@ -71,18 +71,20 @@ export class Workspace {
     }
   }
 
-  public *walkTreeDownstreamFromName(lookup?: Node | PackageLookupCriteria) {
-    const startNode = lookup
-      ? lookup instanceof Node
-        ? lookup
-        : this.getPackageBy(lookup)
-      : undefined;
+  public *nodesFor(lookups: (Node | PackageLookupCriteria)[]) {
+    for (const lookup of lookups) {
+      const s = lookup instanceof Node ? lookup : this.getPackageBy(lookup);
+      if (!s) throw new Error("Invalid package");
+      yield s;
+    }
+  }
 
+  public *walkTreeDownstreamFrom(...lookups: (Node | PackageLookupCriteria)[]) {
     const visited = new Set<Node>();
     const toVisit: Node[] = [];
 
-    if (startNode) {
-      toVisit.push(startNode);
+    if (lookups.length > 0) {
+      toVisit.push(...this.nodesFor(lookups));
     } else {
       for (const q of this.#nameToNode.values()) {
         if (q.depsByName.size == 0) toVisit.push(q);
@@ -101,14 +103,10 @@ export class Workspace {
   }
 
   async runTasksInOrder(
-    lookup: Node | PackageLookupCriteria | undefined,
+    lookup: (Node | PackageLookupCriteria)[],
     performTask: (args: { packagePath: string; packageName: string }) => Promise<unknown>
   ) {
-    const startNode = lookup
-      ? lookup instanceof Node
-        ? lookup
-        : this.getPackageBy(lookup)
-      : undefined;
+    const startNodes = [...this.nodesFor(lookup)];
 
     const statuses = new Map<Node, "skipped" | "scheduled" | "complete" | "todo">();
 
@@ -116,14 +114,16 @@ export class Workspace {
 
     // we manually set todo in the skipped case
     for (const q of this.#nameToNode.values()) {
-      statuses.set(q, startNode ? "skipped" : "todo");
+      statuses.set(q, startNodes.length > 0 ? "skipped" : "todo");
     }
 
-    if (startNode) {
-      for (const packageDir of this.walkTreeDownstreamFromName(startNode)) {
+    if (startNodes.length > 0) {
+      for (const packageDir of this.walkTreeDownstreamFrom(...startNodes)) {
         statuses.set(packageDir, "todo");
       }
-      queue.add(createTask(startNode));
+      for (const node of startNodes) {
+        createTaskIfReady(node);
+      }
     } else {
       // seed todo with projects that have no dependents
       for (const q of this.#nameToNode.values()) {
@@ -151,14 +151,15 @@ export class Workspace {
         });
         statuses.set(node, "complete");
         for (const dependentNode of node.inverseDepsByName.values()) {
-          if (
-            statuses.get(dependentNode) === "todo" &&
-            allDepsOfPackagePathSatisified(dependentNode)
-          ) {
-            queue.add(createTask(dependentNode));
-          }
+          createTaskIfReady(dependentNode);
         }
       };
+    }
+
+    function createTaskIfReady(dependentNode: Node) {
+      if (statuses.get(dependentNode) === "todo" && allDepsOfPackagePathSatisified(dependentNode)) {
+        queue.add(createTask(dependentNode));
+      }
     }
 
     function allDepsOfPackagePathSatisified(node: Node) {
