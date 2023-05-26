@@ -1,4 +1,4 @@
-import { Node, SyntaxKind, type SourceFile } from "ts-morph";
+import { Node, SyntaxKind, type SourceFile, SymbolFlags } from "ts-morph";
 import * as Assert from "assert";
 import type { Replacements } from "./replacements/Replacements.js";
 import {
@@ -8,9 +8,9 @@ import {
 } from "./utils/tsmorph/isNamespaceLike.js";
 import { isAnyOf } from "@reduxjs/toolkit";
 import { replaceAllNamesInScope } from "./replacements/replaceAllNamesInScope.js";
+import { autorenameIdentifierAndReferences } from "./replacements/autorenameIdentifierAndReferences.js";
 
 export function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Replacements) {
-  // TODO: Only perform task if its the only export
   // TODO: Should we check the filename too?
 
   // TODO: Check for collisions?
@@ -59,6 +59,14 @@ function unwrapInFile(
   const sf = namespaceLike.getSourceFile();
   const syntaxList = varDecl.getInitializer().getExpression().getChildSyntaxList()!;
 
+  const propertyNames = new Set(
+    varDecl
+      .getInitializer()
+      .getExpression()
+      .getProperties()
+      .map((a) => a.getName())
+  );
+
   // Drop `export const Name = {`
   replacements.remove(sf, namespaceLike.getStart(), syntaxList.getFullStart());
 
@@ -66,18 +74,73 @@ function unwrapInFile(
   const closeBrace = syntaxList.getNextSiblingIfKindOrThrow(SyntaxKind.CloseBraceToken);
   replacements.remove(sf, closeBrace.getStart(), namespaceLike.getEnd());
 
-  for (const q of varDecl.getInitializer().getExpression().getProperties()) {
-    if (Node.isMethodDeclaration(q)) {
-      replacements.insertBefore(q, "export function ");
+  for (const propOrMethod of varDecl.getInitializer().getExpression().getProperties()) {
+    if (Node.isMethodDeclaration(propOrMethod)) {
+      replacements.insertBefore(propOrMethod, "export function ");
+
+      // console.log("METHOD: " + propOrMethod.getName());
+      // console.log(
+      //   propOrMethod
+      //     .getBodyOrThrow()
+      //     .getSymbolsInScope(SymbolFlags.Value)
+      //     .map((a) => a.getName())
+      // );
+
+      const set = new Set(propOrMethod.getBodyOrThrow().getSymbolsInScope(SymbolFlags.Value));
+
+      for (const q of propOrMethod.getParent().getSymbolsInScope(SymbolFlags.Value)) {
+        set.delete(q);
+      }
+
+      // console.log([...set].map((a) => a.getName()));
+      for (const q of set) {
+        if (!propertyNames.has(q.getName())) continue;
+        // console.log(q.getName());
+        const d = q.getDeclarations()[0];
+        if (!d) continue;
+        if (
+          Node.isFunctionDeclaration(d) ||
+          Node.isVariableDeclaration(d) ||
+          Node.isBindingElement(d) ||
+          Node.isBindingNamed(d)
+        ) {
+          // need to rename this
+          const nameNode = d.getNameNode()!.asKindOrThrow(SyntaxKind.Identifier);
+          // console.log(d.getKindName() + " _ " + d.getText());
+          autorenameIdentifierAndReferences(replacements, nameNode, propOrMethod, propertyNames);
+        }
+
+        // console.log(d.getKindName() + " _ " + d.getText());
+      }
+
+      // propOrMethod.forEachDescendant((node, traversal) => {
+      //   if (Node.isIdentifier(node)) {
+      //     if (propertyNames.has(node.getText()))
+      //       console.log(`${node.getText()} : ${node.getParent().getKindName()}`);
+      //   }
+      // });
+
+      // console.log(body.getKindName());
+      // console.log(
+      //   body
+      //     .getChildSyntaxList()
+      //     ?.getChildAtIndex(0)
+      //     // ?.getSymbolsInScope(SymbolFlags.Variable)
+      //     ?.getLocals()
+      //     .map((a) => a.getName())
+      // );
+
+      //const body = propOrMethod.getBodyOrThrow();
+      // replaceAllNamesInScope(replacements, body, propertyNames);
     } else {
       replacements.addReplacement(
         sf,
-        q.getStart(),
-        q.getFirstChildByKindOrThrow(SyntaxKind.ColonToken).getEnd(),
-        `export const ${q.getName()} = `
+        propOrMethod.getStart(),
+        propOrMethod.getFirstChildByKindOrThrow(SyntaxKind.ColonToken).getEnd(),
+        `export const ${propOrMethod.getName()} = `
       );
     }
-    replacements.removeNextSiblingIfComma(q);
+    replacements.removeNextSiblingIfComma(propOrMethod);
   }
 
   // Its possible there was self referential code, so we need to handle that case
@@ -91,13 +154,6 @@ function unwrapInFile(
   }
 
   // And of course we can import things that now collide
-  const propertyNames = new Set(
-    varDecl
-      .getInitializer()
-      .getExpression()
-      .getProperties()
-      .map((a) => a.getName())
-  );
 
   replaceAllNamesInScope(replacements, varDecl.getSourceFile(), propertyNames);
 }

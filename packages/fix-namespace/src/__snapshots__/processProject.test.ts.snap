@@ -191,6 +191,47 @@ export * as Foo from "./foo";
 "
 `;
 
+exports[`processProject Handles local variable name collisions inside functions 1`] = `
+"//
+
+//
+// PATH: '/sourceInstances.ts'
+//
+import { SourceInstance } from "../types/sourceInstance";
+
+interface FromArgs {
+  readonly isFirst: boolean;
+  readonly isLast: boolean;
+}
+
+export function isFirst(instance: SourceInstance) {
+  return instance === SourceInstance.FIRST || instance === SourceInstance.ONLY;
+}
+
+export function isLast(instance: SourceInstance) {
+  return instance === SourceInstance.LAST || instance === SourceInstance.ONLY;
+}
+
+export function from({ isFirst: isFirst0, isLast: reduce0 }: FromArgs) {
+  if (isFirst0) {
+    return reduce0 ? SourceInstance.ONLY : SourceInstance.FIRST;
+  } else {
+    return reduce0 ? SourceInstance.LAST : SourceInstance.INNER;
+  }
+}
+export function reduce(instance1: SourceInstance, instance2: SourceInstance) {
+  const isFirst0 = isFirst(instance1) && isFirst(instance2);
+  const isLast0 = isLast(instance1) && isLast(instance2);
+
+  function from0() {
+    console.log(t);
+  }
+  from0();
+  return from({ isFirst: isFirst0, isLast: isLast0 });
+}
+"
+`;
+
 exports[`processProject Multiple things in the file 1`] = `
 "//
 

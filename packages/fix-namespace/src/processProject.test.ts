@@ -468,6 +468,49 @@ const cases: {
 
     removeNamespaces: false,
   },
+  /*
+            
+          */
+  {
+    name: "Handles local variable name collisions inside functions",
+    inputs: {
+      "sourceInstances.ts": `
+        import { SourceInstance } from "../types/sourceInstance";
+
+        interface FromArgs {
+          readonly isFirst: boolean;
+          readonly isLast: boolean;
+        }
+
+        export const SourceInstances = {
+          isFirst(instance: SourceInstance) {
+            return instance === SourceInstance.FIRST || instance === SourceInstance.ONLY;
+          },
+
+          isLast(instance: SourceInstance) {
+            return instance === SourceInstance.LAST || instance === SourceInstance.ONLY;
+          },
+
+          from({ isFirst, isLast: reduce }: FromArgs) {
+            if (isFirst) {
+              return reduce ? SourceInstance.ONLY : SourceInstance.FIRST;
+            } else {
+              return reduce ? SourceInstance.LAST : SourceInstance.INNER;
+            }
+          },
+          reduce(instance1: SourceInstance, instance2: SourceInstance) {
+            const isFirst = SourceInstances.isFirst(instance1) && SourceInstances.isFirst(instance2);
+            const isLast = SourceInstances.isLast(instance1) && SourceInstances.isLast(instance2);
+
+            function from() { console.log(t) };
+            from();
+            return SourceInstances.from({ isFirst, isLast });
+          },
+
+        } as const;
+      `,
+    },
+  },
 ];
 
 describe("processProject", () => {

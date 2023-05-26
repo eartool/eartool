@@ -21,7 +21,7 @@ export function replaceAllNamesInScope(
 
         const newName = findNewNameInScope(nodeToReplace.getText(), scope, banNames);
         replaceImportSpecifierWithNewName(replacements, declaration, newName); // update the actual variable
-        addReplacementsForRenamedIdentifier(replacements, nodeToReplace, newName);
+        addReplacementsForRenamedIdentifier(replacements, nodeToReplace, scope, newName);
       } else if (Node.isImportClause(declaration)) {
         // e.g. import foo from
         const nameNode = declaration.getDefaultImport();
