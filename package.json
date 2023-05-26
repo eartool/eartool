@@ -9,16 +9,20 @@
     "fixFormatting": "prettier --write ."
   },
   "devDependencies": {
-    "prettier": "^2.8.8",
+    "@monorepolint/cli": "^0.5.0-alpha.107",
+    "@monorepolint/config": "^0.5.0-alpha.107",
+    "@monorepolint/core": "^0.5.0-alpha.107",
+    "@monorepolint/rules": "^0.5.0-alpha.107",
     "@swc/jest": "^0.2.26",
     "@typescript-eslint/eslint-plugin": "^5.59.6",
     "@typescript-eslint/parser": "^5.59.6",
     "babel-jest": "^29.5.0",
     "eslint": "^8.40.0",
     "jest": "^29.5.0",
+    "prettier": "^2.8.8",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.4",
-    "tslib": "^2.5.0"
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.4"
   }
 }

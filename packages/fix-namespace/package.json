@@ -2,18 +2,27 @@
   "name": "fix-namespace",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
-  "bin": "./bin/fix-namespace.js",
-  "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "fixFormatting": "prettier --write .",
-    "fixLint": "eslint --fix src",
-    "fixAll": "pnpm fixFormatting && pnpm fixLint"
-  },
-  "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    }
+  },
+  "bin": "./bin/fix-namespace.js",
+  "scripts": {
+    "clean": "rm -rf lib tsconfig.tsbuildinfo",
+    "fixAll": "pnpm fixFormatting && pnpm fixLint",
+    "fixFormatting": "prettier --write .",
+    "fixLint": "eslint --fix src",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+  },
   "dependencies": {
+    "@eartool/replacements": "workspace:*",
+    "@eartool/test-utils": "workspace:*",
+    "@eartool/utils": "workspace:*",
     "@pnpm/filter-workspace-packages": "7.0.8",
     "@pnpm/find-workspace-packages": "^6.0.8",
     "@pnpm/workspace.pkgs-graph": "^2.0.4",
@@ -28,10 +37,7 @@
     "prettier": "^2.8.8",
     "ts-morph": "^18.0.0",
     "tslib": "^2.5.0",
-    "yargs": "^17.7.2",
-    "@eartool/replacements": "workspace:*",
-    "@eartool/utils": "workspace:*",
-    "@eartool/test-utils": "workspace:*"
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@jest/globals": "^29.5.0",
@@ -47,5 +53,6 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
-  }
+  },
+  "keywords": []
 }
