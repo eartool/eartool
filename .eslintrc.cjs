@@ -20,6 +20,7 @@ module.exports = {
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+    "no-console": "error",
   },
   reportUnusedDisableDirectives: true,
 };

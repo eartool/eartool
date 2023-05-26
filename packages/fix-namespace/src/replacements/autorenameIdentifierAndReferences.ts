@@ -10,16 +10,18 @@ export function autorenameIdentifierAndReferences(
   scope: Node,
   banNames: Set<string>
 ) {
-  // console.log("---" + nameNode.getText());
+  const { logger } = replacements;
+
+  logger.trace("TOP OF autorenameIdentifierAndReferences: " + nameNode.getText());
   const newName = findNewNameInScope(nameNode.getText(), scope, banNames);
   const parent = nameNode.getParent();
   if (Node.isBindingElement(parent)) {
-    // console.log(parent.getText());
-    // parent.getPropertyNameNode
+    logger.trace(parent.getText());
+
     if (parent.getPropertyNameNode() == null) {
-      // console.log(
-      //   "!!! " + parent.getNameNode().getText() + " - " + parent.getPropertyNameNode()?.getText()
-      // );
+      logger.trace(
+        "!!! " + parent.getNameNode().getText() + " - " + parent.getPropertyNameNode()?.getText()
+      );
       replacements.addReplacement(
         nameNode.getSourceFile(),
         nameNode.getEnd(),
@@ -27,9 +29,11 @@ export function autorenameIdentifierAndReferences(
         `: ${newName}`
       );
     } else {
+      logger.trace("alt case");
       replacements.replaceNode(nameNode, newName);
     }
   } else {
+    logger.trace("parent is not a binding element, its a %s", parent.getKindName());
     replacements.replaceNode(nameNode, newName);
   }
   addReplacementsForRenamedIdentifier(replacements, nameNode, scope, newName);

@@ -2,9 +2,7 @@ import { describe, expect, it } from "@jest/globals";
 import { format } from "prettier";
 import { Node, Project } from "ts-morph";
 import { processProject, type ProcessProjectOpts } from "./processProject.js";
-import { pino } from "pino";
-import pinoPretty from "pino-pretty";
-import * as Assert from "node:assert";
+import { createTestLogger } from "./createTestLogger.js";
 
 function formatTestTypescript(src: string) {
   return format(src, { parser: "typescript", tabWidth: 2, useTabs: false });
@@ -594,53 +592,7 @@ function createProjectForTest(inputs: Record<string, string>) {
   return project;
 }
 
-function createTestLogger() {
-  const { currentTestName } = expect.getState();
-  Assert.ok(currentTestName != null);
-
-  return pino(
-    {
-      level: "trace",
-      serializers: {
-        ...pino.stdSerializers,
-        foo: (n: Node) => `${n.getSourceFile().getFilePath()}:${n.getStartLineNumber()}`,
-      },
-      hooks: {
-        logMethod: function logMethod([msg, ...args], method, _foo) {
-          args = args.map((a) => maybeConvertNodeToFileAndLineNum(a));
-          // console.log([msg, ...args]);
-          method.apply(this, [msg, ...args]);
-        },
-      },
-    },
-    pino.multistream([
-      {
-        level: "trace",
-        stream: pino.destination({
-          sync: true,
-          mkdir: true,
-          dest: `logs/processProject/${currentTestName}.log.json`,
-        }),
-      },
-      {
-        level: "trace",
-        stream: pinoPretty.default({
-          colorize: false,
-          sync: true,
-          singleLine: false,
-          destination: pino.destination({
-            sync: true,
-            mkdir: true,
-            append: false,
-            dest: `logs/processProject/${currentTestName}.log.txt`,
-          }),
-        }),
-      },
-    ])
-  );
-}
-
-function maybeConvertNodeToFileAndLineNum(a: any): any {
+export function maybeConvertNodeToFileAndLineNum(a: any): any {
   if (a instanceof Node) {
     return `${a.getSourceFile().getFilePath()}:${a.getStartLineNumber()}`;
   }

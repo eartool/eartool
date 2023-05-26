@@ -1,0 +1,6 @@
+{
+  "explorer.fileNesting.patterns": {
+    "*.ts": "${capture}.test.ts",
+    "*.test.ts": "${capture}.test.ts.log, ${capture}.test.ts.log.json"
+  }
+}

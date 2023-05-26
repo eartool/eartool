@@ -3,6 +3,7 @@ import { SyntaxKind, type SourceFile } from "ts-morph";
 import type { ProjectContext } from "./Context.js";
 import type { Replacements } from "./replacements/Replacements.js";
 import { getFilePath } from "./processProject.js";
+import type { Replacement } from "./replacements/Replacement.js";
 
 export class ReplacementsWrapper implements Replacements {
   #context: ProjectContext;
@@ -10,13 +11,17 @@ export class ReplacementsWrapper implements Replacements {
     this.#context = context;
   }
 
+  get logger() {
+    return this.#context.logger;
+  }
+
   addReplacement(filePath: string | Node, start: number, end: number, newValue: string): void {
-    // console.log({
-    //   filePath: getFilePath(filePath),
-    //   start,
-    //   end,
-    //   newValue,
-    // });
+    this.logger.trace({
+      filePath: getFilePath(filePath),
+      start,
+      end,
+      newValue,
+    });
     this.#context.addReplacement({
       filePath: getFilePath(filePath),
       start,
@@ -42,5 +47,9 @@ export class ReplacementsWrapper implements Replacements {
     if (sib?.isKind(SyntaxKind.CommaToken)) {
       this.addReplacement(q.getSourceFile(), sib.getStart(), sib.getEnd(), "");
     }
+  }
+
+  getReplacementsMap(): Map<string, Replacement[]> {
+    return this.#context.getReplacements();
   }
 }

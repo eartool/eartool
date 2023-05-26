@@ -10,11 +10,13 @@ export function addReplacementsForRenamedIdentifier(
   scope: Node,
   newName: string
 ) {
+  const logger = replacements.logger.child({ func: addReplacementsForRenamedIdentifier.name });
   for (const node of localIdentifier.findReferencesAsNodes()) {
     if (node === localIdentifier) continue;
     if (!node.getFirstAncestor((a) => a === scope)) continue;
 
     const parent = node.getParent();
+    logger.trace("parent: %s", parent?.getKindName());
 
     if (Node.isShorthandPropertyAssignment(parent)) {
       replacements.addReplacement(
@@ -24,13 +26,16 @@ export function addReplacementsForRenamedIdentifier(
         `: ${newName}`
       );
     } else if (Node.isBindingElement(parent)) {
-      if (parent.getPropertyNameNode() == null) {
+      const propertyNameNode = parent.getPropertyNameNode();
+      if (propertyNameNode == null) {
         replacements.addReplacement(
           node.getSourceFile(),
           node.getEnd(),
           node.getEnd(),
           `: ${newName}`
         );
+      } else {
+        replacements.replaceNode(parent.getNameNode(), newName);
       }
     } else {
       replacements.replaceNode(node, newName);

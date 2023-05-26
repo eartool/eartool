@@ -1,9 +1,18 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-const baseConfig = {
+const tsJestBase = {
+  preset: "ts-jest/presets/default-esm",
+};
+
+const swcBase = {
   transform: {
     "^.+\\.(t|j)sx?$": ["@swc/jest"],
   },
   extensionsToTreatAsEsm: [".ts", ".tsx"],
+};
+
+/** @type {import('ts-jest').JestConfigWithTsJest} */
+const baseConfig = {
+  ...(false ? swcBase : tsJestBase),
 
   testPathIgnorePatterns: ["node_modules", "lib"],
   watchPathIgnorePatterns: ["lib", "log"],
