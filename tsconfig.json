@@ -3,6 +3,15 @@
   "references": [
     {
       "path": "./packages/fix-namespace"
+    },
+    {
+      "path": "./packages/test-utils"
+    },
+    {
+      "path": "./packages/utils"
+    },
+    {
+      "path": "./packages/replacements"
     }
   ]
 }

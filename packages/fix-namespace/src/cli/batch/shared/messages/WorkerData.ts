@@ -1,5 +1,5 @@
 import type { BaseOptions } from "../../../../processProject.js";
-import type { PackageExportRename } from "../../../../replacements/PackageExportRename.js";
+import type { PackageExportRename } from "@eartool/replacements";
 import type { SenderId } from "./withSenderId.js";
 
 export interface WorkerData extends BaseOptions {

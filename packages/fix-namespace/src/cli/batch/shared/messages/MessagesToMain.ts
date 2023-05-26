@@ -1,5 +1,5 @@
 import type { Status } from "../../../../processProject.js";
-import type { PackageExportRename } from "../../../../replacements/PackageExportRename.js";
+import type { PackageExportRename } from "@eartool/replacements";
 import { withSenderId } from "./withSenderId.js";
 import { createAction } from "@reduxjs/toolkit";
 

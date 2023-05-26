@@ -179,6 +179,7 @@ function getNames(toVisit: Node[] | Set<Node> | IterableIterator<Node>): any {
 }
 
 function debugPrintStatuses(statuses: Map<Node, "skipped" | "scheduled" | "complete" | "todo">) {
+  // eslint-disable-next-line no-console
   console.log([...statuses.entries()].map((a) => [a[0].name, a[1]]));
 }
 

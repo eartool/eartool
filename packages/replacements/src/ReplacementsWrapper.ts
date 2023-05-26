@@ -1,9 +1,8 @@
 import type { Node } from "ts-morph";
 import { SyntaxKind, type SourceFile } from "ts-morph";
 import type { ProjectContext } from "./Context.js";
-import type { Replacements } from "./replacements/Replacements.js";
-import { getFilePath } from "./processProject.js";
-import type { Replacement } from "./replacements/Replacement.js";
+import type { Replacement } from "./Replacement.js";
+import type { Replacements } from "./Replacements.js";
 
 export class ReplacementsWrapper implements Replacements {
   #context: ProjectContext;
@@ -52,4 +51,8 @@ export class ReplacementsWrapper implements Replacements {
   getReplacementsMap(): Map<string, Replacement[]> {
     return this.#context.getReplacements();
   }
+}
+
+export function getFilePath(filePath: string | Node) {
+  return typeof filePath == "string" ? filePath : filePath.getSourceFile().getFilePath();
 }

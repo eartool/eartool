@@ -1,5 +1,5 @@
 import { isMainThread, workerData } from "node:worker_threads";
-import type { Flavored } from "../../../../utils/Flavored.js";
+import type { Flavored } from "@eartool/utils";
 
 export type SenderId = Flavored<string, "SenderId">;
 export const senderId: SenderId = isMainThread ? "main" : workerData.senderId;

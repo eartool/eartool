@@ -2,7 +2,7 @@ import type { Identifier } from "ts-morph";
 import { Node } from "ts-morph";
 import type { Replacements } from "./Replacements.js";
 import { addReplacementsForRenamedIdentifier } from "./addReplacementsForRenamedIdentifier.js";
-import { findNewNameInScope } from "../utils/findNewNameInScope.js";
+import { findNewNameInScope } from "@eartool/utils";
 
 export function autorenameIdentifierAndReferences(
   replacements: Replacements,

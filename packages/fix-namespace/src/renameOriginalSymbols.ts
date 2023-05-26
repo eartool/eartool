@@ -1,7 +1,7 @@
 import * as Assert from "node:assert";
 import { Node } from "ts-morph";
 import { getNewName } from "./getNewName.js";
-import type { NamespaceContext } from "./Context.js";
+import type { NamespaceContext } from "@eartool/replacements";
 
 export function renameOriginalSymbols(context: NamespaceContext) {
   for (const originalName of context.typeRenames) {

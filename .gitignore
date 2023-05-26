@@ -3,3 +3,4 @@ lib/
 logs/
 **/src/**/*.log
 **/src/**/*.log.json
+tsconfig.tsbuildinfo

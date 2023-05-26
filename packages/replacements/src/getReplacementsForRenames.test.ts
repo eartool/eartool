@@ -2,7 +2,7 @@ import { describe, expect, it } from "@jest/globals";
 import { Project } from "ts-morph";
 import { getReplacementsForRenames } from "./getReplacementsForRenames.js";
 import type { Replacement } from "./Replacement.js";
-import { createConsoleLogger } from "../utils/createConsoleLogger.js";
+import { createConsoleLogger } from "@eartool/utils";
 
 describe(getReplacementsForRenames, () => {
   it("records renames from root", async () => {

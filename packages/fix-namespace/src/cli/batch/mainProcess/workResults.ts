@@ -1,6 +1,6 @@
 import type { EntityState, Reducer } from "@reduxjs/toolkit";
 import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
-import type { PackageExportRename } from "../../../replacements/PackageExportRename.js";
+import type { PackageExportRename } from "@eartool/replacements";
 import * as MessagesToMain from "../shared/messages/MessagesToMain.js";
 
 interface JobResult {

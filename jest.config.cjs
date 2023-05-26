@@ -26,7 +26,7 @@ const baseConfig = {
 module.exports = {
   ...baseConfig,
 
-  projects: ["fix-namespace"].map((displayName) => [
+  projects: ["fix-namespace", "utils", "test-utils", "replacements"].map((displayName) => [
     {
       ...baseConfig,
       displayName,

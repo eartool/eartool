@@ -1,6 +1,5 @@
 import { isAnyOf } from "@reduxjs/toolkit";
 import { Node } from "ts-morph";
-import { SyntaxKind } from "ts-morph";
 import type { Identifier, PropertyAccessExpression } from "ts-morph";
 import type { QualifiedName } from "ts-morph";
 

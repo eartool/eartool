@@ -1,14 +1,14 @@
 import { Node, SyntaxKind, type SourceFile, SymbolFlags } from "ts-morph";
 import * as Assert from "assert";
-import type { Replacements } from "./replacements/Replacements.js";
+import type { Replacements } from "@eartool/replacements";
 import {
   isNamespaceLike,
   type NamespaceLike,
   type NamespaceLikeVariableDeclaration,
-} from "./utils/tsmorph/isNamespaceLike.js";
+} from "@eartool/utils";
 import { isAnyOf } from "@reduxjs/toolkit";
-import { replaceAllNamesInScope } from "./replacements/replaceAllNamesInScope.js";
-import { autorenameIdentifierAndReferences } from "./replacements/autorenameIdentifierAndReferences.js";
+import { replaceAllNamesInScope } from "@eartool/replacements";
+import { autorenameIdentifierAndReferences } from "@eartool/replacements";
 
 export function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Replacements) {
   // TODO: Should we check the filename too?

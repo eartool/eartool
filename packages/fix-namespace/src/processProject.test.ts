@@ -1,8 +1,8 @@
 import { describe, expect, it } from "@jest/globals";
 import { format } from "prettier";
-import { Node, Project } from "ts-morph";
+import { Project } from "ts-morph";
 import { processProject, type ProcessProjectOpts } from "./processProject.js";
-import { createTestLogger } from "./createTestLogger.js";
+import { createTestLogger } from "@eartool/test-utils";
 
 function formatTestTypescript(src: string) {
   return format(src, { parser: "typescript", tabWidth: 2, useTabs: false });
@@ -590,12 +590,4 @@ function createProjectForTest(inputs: Record<string, string>) {
   }
   project.saveSync();
   return project;
-}
-
-export function maybeConvertNodeToFileAndLineNum(a: any): any {
-  if (a instanceof Node) {
-    return `${a.getSourceFile().getFilePath()}:${a.getStartLineNumber()}`;
-  }
-
-  return a;
 }

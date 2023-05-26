@@ -1,8 +1,8 @@
 import type { SourceFile } from "ts-morph";
 import { Project } from "ts-morph";
-import { createTestLogger } from "../createTestLogger.js";
-import { ReplacementsWrapper } from "../ReplacementsWrapper.js";
-import { ProjectContext } from "../Context.js";
+import { createTestLogger } from "@eartool/test-utils";
+import { ReplacementsWrapper } from "./ReplacementsWrapper.js";
+import { ProjectContext } from "./Context.js";
 import { processReplacements } from "./processReplacements.js";
 import type { Replacements } from "./Replacements.js";
 import { format } from "prettier";

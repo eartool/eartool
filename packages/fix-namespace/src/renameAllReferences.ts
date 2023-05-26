@@ -1,4 +1,4 @@
-import type { NamespaceContext } from "./Context.js";
+import type { NamespaceContext } from "@eartool/replacements";
 import { renameReferences } from "./renameReferences.js";
 
 /**

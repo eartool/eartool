@@ -1,6 +1,6 @@
 import type { Project } from "ts-morph";
 import type { PackageExportRename } from "./PackageExportRename.js";
-import type { PackageName } from "../PackageName.js";
+import type { PackageName } from "@eartool/utils";
 import type { Replacement } from "./Replacement.js";
 import { addSingleFileReplacementsForRenames } from "./addSingleFileReplacementsForRenames.js";
 import type { Logger } from "pino";

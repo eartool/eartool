@@ -3,7 +3,7 @@ import * as Assert from "assert";
 import type { Replacements } from "./Replacements.js";
 import { replaceImportSpecifierWithNewName } from "./replaceImportSpecifierWithNewName.js";
 import { addReplacementsForRenamedIdentifier } from "./addReplacementsForRenamedIdentifier.js";
-import { findNewNameInScope } from "../utils/findNewNameInScope.js";
+import { findNewNameInScope } from "@eartool/utils";
 import { autorenameIdentifierAndReferences } from "./autorenameIdentifierAndReferences.js";
 
 export function replaceAllNamesInScope(

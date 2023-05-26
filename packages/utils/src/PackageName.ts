@@ -1,3 +1,3 @@
-import type { Flavored } from "./utils/Flavored.js";
+import type { Flavored } from "./Flavored.js";
 
 export type PackageName = Flavored<string, "PackageName">;

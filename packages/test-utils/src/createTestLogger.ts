@@ -1,9 +1,8 @@
 import { expect } from "@jest/globals";
-import type { Node } from "ts-morph";
+import { Node } from "ts-morph";
 import { pino, type Logger } from "pino";
 import pinoPretty from "pino-pretty";
 import * as Assert from "node:assert";
-import { maybeConvertNodeToFileAndLineNum } from "./processProject.test.js";
 
 let lastCreated: Logger | undefined;
 let lastCreatedTestPath: string | undefined;
@@ -62,4 +61,11 @@ export function createTestLogger(): Logger {
 
   lastCreated.info(`New logger 'creation' for ${currentTestName}`);
   return lastCreated;
+}
+export function maybeConvertNodeToFileAndLineNum(a: any): any {
+  if (a instanceof Node) {
+    return `${a.getSourceFile().getFilePath()}:${a.getStartLineNumber()}`;
+  }
+
+  return a;
 }

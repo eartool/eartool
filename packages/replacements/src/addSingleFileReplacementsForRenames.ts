@@ -1,8 +1,8 @@
 import type { ImportSpecifier, SourceFile } from "ts-morph";
 import type { PackageExportRename } from "./PackageExportRename.js";
-import type { PackageName } from "../PackageName.js";
+import type { PackageName } from "@eartool/utils";
 import type { Replacement } from "./Replacement.js";
-import { findEntireQualifiedNameTree } from "../utils/tsmorph/findEntireQualifiedNameTree.js";
+import { findEntireQualifiedNameTree } from "@eartool/utils";
 import type { Logger } from "pino";
 import type { Identifier } from "ts-morph";
 import * as Assert from "assert";

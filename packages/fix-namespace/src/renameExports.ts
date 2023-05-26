@@ -1,9 +1,9 @@
 import type { ExportDeclaration, Node } from "ts-morph";
 import { SyntaxKind } from "ts-morph";
-import type { NamespaceContext } from "./Context.js";
+import type { NamespaceContext } from "@eartool/replacements";
 import { getNewName } from "./getNewName.js";
 import * as Assert from "node:assert";
-import { isRootExport } from "./utils/tsmorph/isRootExport.js";
+import { isRootExport } from "@eartool/utils";
 
 export function renameExports(context: NamespaceContext) {
   const { namespaceDecl, logger, namespaceName } = context;

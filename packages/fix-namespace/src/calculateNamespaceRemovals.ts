@@ -2,9 +2,9 @@ import * as Assert from "assert";
 import { Node, type SourceFile, SyntaxKind } from "ts-morph";
 import { isSafeToRenameAllAcrossReferences } from "./isSafeToRenameAllAcrossReferences.js";
 import { renameAllReferences } from "./renameAllReferences.js";
-import { isNamespaceDeclaration } from "./utils/tsmorph/isNamespaceDeclaration.js";
+import { isNamespaceDeclaration } from "@eartool/utils";
 import * as path from "node:path";
-import type { ProjectContext } from "./Context.js";
+import type { ProjectContext } from "@eartool/replacements";
 import { renameExports } from "./renameExports.js";
 
 export function calculateNamespaceRemovals(sf: SourceFile, projectContext: ProjectContext) {

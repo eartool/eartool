@@ -1,16 +1,12 @@
-import type { Node, SourceFile } from "ts-morph";
 import type { Project } from "ts-morph";
 import { calculateNamespaceRemovals } from "./calculateNamespaceRemovals.js";
 import type { Logger } from "pino";
-import { ProjectContext } from "./Context.js";
-import { processReplacements } from "./replacements/processReplacements.js";
-import { dropDtsFiles } from "./utils/tsmorph/dropDtsFiles.js";
-import { organizeImportsOnFiles } from "./utils/tsmorph/organizeImportsOnFiles.js";
-import type { PackageExportRename } from "./replacements/PackageExportRename.js";
-import type { PackageName } from "./PackageName.js";
-import { addSingleFileReplacementsForRenames } from "./replacements/addSingleFileReplacementsForRenames.js";
-import type { Replacement } from "./replacements/Replacement.js";
-import { ReplacementsWrapper } from "./ReplacementsWrapper.js";
+import { ProjectContext } from "@eartool/replacements";
+import { processReplacements, addSingleFileReplacementsForRenames } from "@eartool/replacements";
+import { dropDtsFiles, organizeImportsOnFiles } from "@eartool/utils";
+import type { PackageName } from "../../utils/src/PackageName.js";
+import type { Replacement, PackageExportRename } from "@eartool/replacements";
+import { ReplacementsWrapper } from "@eartool/replacements";
 import { calculateNamespaceLikeRemovals } from "./calculateNamespaceLikeRemovals.js";
 
 export interface Status {
@@ -132,8 +128,4 @@ export async function processProject(
   return {
     exportedRenames: context.getRecordedRenames(),
   };
-}
-
-export function getFilePath(filePath: string | Node) {
-  return typeof filePath == "string" ? filePath : filePath.getSourceFile().getFilePath();
 }

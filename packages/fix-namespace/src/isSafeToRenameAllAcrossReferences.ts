@@ -1,5 +1,5 @@
 import { isSafeToRenameAcrossReferences } from "./isSafeToRenameAcrossReferences.js";
-import type { NamespaceContext } from "./Context.js";
+import type { NamespaceContext } from "@eartool/replacements";
 
 export function isSafeToRenameAllAcrossReferences(context: NamespaceContext) {
   for (const oldName of context.typeRenames) {

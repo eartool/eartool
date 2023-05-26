@@ -1,0 +1,560 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`processProject Conflicting imports work 1`] = `
+"//
+
+//
+// PATH: '/bar.ts'
+//
+
+export type Props = { hi: "mom" };
+,//
+
+//
+// PATH: '/baz.ts'
+//
+import { Props as BarProps } from "./bar";
+import { Props as FooProps } from "./foo";
+export type Props = FooProps & BarProps;
+,//
+
+//
+// PATH: '/foo.ts'
+//
+
+export type Props = { hi: "mom" };
+"
+`;
+
+exports[`processProject Doesn't change as const that has constnats 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+export const Foo = {
+  // direct function
+  baz() {
+    return 5;
+  },
+
+  bar: () => {
+    return 6;
+  },
+
+  FOO: 7,
+} as const;
+,//
+
+//
+// PATH: '/index.ts'
+//
+export { Foo } from "./foo";
+"
+`;
+
+exports[`processProject Generics work 1`] = `
+"//
+
+//
+// PATH: '/bar.ts'
+//
+import { OwnProps as MapElementViewerPropertiesOwnProps } from "./foo";
+
+export type Foo<T extends MapElement> = MapElementViewerPropertiesOwnProps<T>;
+,//
+
+//
+// PATH: '/foo.ts'
+//
+
+export interface OwnProps<T extends MapElement> {
+  mapElement: T;
+  locked: boolean;
+  section: RightMapPanelType;
+}
+
+export interface StoreProps {
+  mapDataState: MapDataState;
+}
+
+export interface NectarProps {
+  dispatch: Dispatch;
+}
+
+export type Props<T extends MapElement> = OwnProps<T> &
+  StoreProps &
+  NectarProps;
+"
+`;
+
+exports[`processProject Generics work with additional 1`] = `
+"//
+
+//
+// PATH: '/bar.ts'
+//
+import { Moo } from "somelib";
+import { OwnProps as MapElementViewerPropertiesOwnProps } from "./foo";
+
+export type Foo<T extends MapElement & Moo.Cow> =
+  MapElementViewerPropertiesOwnProps<T>;
+,//
+
+//
+// PATH: '/foo.ts'
+//
+
+export interface OwnProps<T extends MapElement> {
+  mapElement: T;
+  locked: boolean;
+  section: RightMapPanelType;
+}
+
+export interface StoreProps {
+  mapDataState: MapDataState;
+}
+
+export interface NectarProps {
+  dispatch: Dispatch;
+}
+
+export type Props<T extends MapElement> = OwnProps<T> &
+  StoreProps &
+  NectarProps;
+"
+`;
+
+exports[`processProject Handles const pattern nicely 1`] = `
+"//
+
+//
+// PATH: '/alias.ts'
+//
+import * as Bar from "./foo";
+
+console.log(Bar.bar());
+console.log(Bar.baz());
+,//
+
+//
+// PATH: '/bar.ts'
+//
+import * as Foo from "./foo";
+
+console.log(Foo.bar());
+console.log(Foo.baz());
+,//
+
+//
+// PATH: '/foo.ts'
+//
+
+// direct function
+export function baz() {
+  return 5;
+}
+
+export const bar = () => {
+  return 6;
+};
+,//
+
+//
+// PATH: '/index.ts'
+//
+export * as Foo from "./foo";
+"
+`;
+
+exports[`processProject Handles in file references to faux namespaces 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+
+// direct function
+export function baz() {
+  return 5;
+}
+
+export const bar = () => {
+  return baz();
+};
+,//
+
+//
+// PATH: '/index.ts'
+//
+export * as Foo from "./foo";
+"
+`;
+
+exports[`processProject Handles local variable name collisions inside functions 1`] = `
+"//
+
+//
+// PATH: '/sourceInstances.ts'
+//
+import { SourceInstance } from "../types/sourceInstance";
+
+interface FromArgs {
+  readonly isFirst: boolean;
+  readonly isLast: boolean;
+}
+
+export function isFirst(instance: SourceInstance) {
+  return instance === SourceInstance.FIRST || instance === SourceInstance.ONLY;
+}
+
+export function isLast(instance: SourceInstance) {
+  return instance === SourceInstance.LAST || instance === SourceInstance.ONLY;
+}
+
+export function from({ isFirst: isFirst0, isLast: reduce0 }: FromArgs) {
+  if (isFirst0) {
+    return reduce0 ? SourceInstance.ONLY : SourceInstance.FIRST;
+  } else {
+    return reduce0 ? SourceInstance.LAST : SourceInstance.INNER;
+  }
+}
+export function reduce(instance1: SourceInstance, instance2: SourceInstance) {
+  const isFirst0 = isFirst(instance1) && isFirst(instance2);
+  const isLast0 = isLast(instance1) && isLast(instance2);
+
+  function from0() {
+    console.log(t);
+  }
+  from0();
+  return from({ isFirst: isFirst0, isLast: isLast0 });
+}
+"
+`;
+
+exports[`processProject Multiple things in the file 1`] = `
+"//
+
+//
+// PATH: '/bar.ts'
+//
+import { MetadataValue, foo } from "./foo";
+
+console.log(MetadataValue.doThing());
+console.log(foo());
+,//
+
+//
+// PATH: '/foo.ts'
+//
+export namespace MetadataValue {
+  export type Foo = string;
+}
+
+export const MetadataValue = {
+  doThing() {
+    return 5;
+  },
+};
+
+export function foo() {
+  return 5;
+}
+"
+`;
+
+exports[`processProject Properly handles conflict with module local variable or function 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+function bar0() {
+  return 5;
+}
+const baz0 = 5;
+
+export function baz() {
+  return baz0;
+}
+
+export const bar = () => {
+  return bar0();
+};
+"
+`;
+
+exports[`processProject Renames import specifiers as needed 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+import { bar as bar0 } from "lib";
+import baz0 from "lib2";
+
+// direct function
+export function baz() {
+  return bar0() + baz0();
+}
+
+export const bar = () => {
+  return baz();
+};
+"
+`;
+
+exports[`processProject Renames star imports as needed 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+import * as otherStar from "other";
+import otherDefault, { other } from "other";
+
+import * as bar0 from "lib";
+
+// direct function
+export function baz() {
+  return bar0.baz() + other + otherStar.foo + otherDefault;
+}
+
+export const bar = () => {
+  return baz();
+};
+"
+`;
+
+exports[`processProject Simple additional renames work 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+import { FooProps } from "lib";
+export type MyProps = FooProps;
+"
+`;
+
+exports[`processProject combined types 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export interface OgreProps {
+  properties: Property<any>[];
+}
+
+export interface ReduxProps {
+  appRealmId: RealmId;
+  mapConfig: GaiaMapConfig;
+}
+
+export interface State {
+  map?: MapSearchResult;
+  user?: IAcmeUser;
+  isLoading: boolean;
+}
+
+export type Props = OverviewObjectMinProps & OgreProps & ReduxProps;
+"
+`;
+
+exports[`processProject doesnt clobber component exports 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export interface Props {
+  what: number;
+}
+
+export class Foo extends React.Component<Props> {}
+,//
+
+//
+// PATH: '/index.ts'
+//
+export { Foo, type Props as FooProps } from "./foo";
+"
+`;
+
+exports[`processProject dont explode if error 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+const foo = 5;
+
+export namespace Wat {
+  export const foo = 6;
+}
+"
+`;
+
+exports[`processProject function invoke within namespace 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export function barForFoo() {
+  bazForFoo();
+}
+
+export function bazForFoo() {
+  return 5;
+}
+"
+`;
+
+exports[`processProject redeclare export 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export function barForFoo() {
+  return 5;
+}
+
+export function bazForFoo() {
+  return 5;
+}
+
+export type ThingForFoo = string;
+
+export interface Props {
+  what: ThingForFoo;
+}
+,//
+
+//
+// PATH: '/index.ts'
+//
+export {
+  barForFoo,
+  bazForFoo,
+  type Props as FooProps,
+  type ThingForFoo,
+} from "./foo";
+"
+`;
+
+exports[`processProject redeclare export w funky names 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export type ThingFooBar = string;
+
+export const doFooForFooBar = () => 5;
+
+export const VAR_FOO_BAR = 5;
+,//
+
+//
+// PATH: '/index.ts'
+//
+export { VAR_FOO_BAR, doFooForFooBar, type ThingFooBar } from "./foo";
+"
+`;
+
+exports[`processProject redeclare export with ordering 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export interface Props {
+  what: Thing;
+}
+,//
+
+//
+// PATH: '/index.ts'
+//
+export const before = 5;
+export { type Props as FooProps } from "./foo";
+export const after = 5;
+"
+`;
+
+exports[`processProject rename in other file 1`] = `
+"//
+
+//
+// PATH: '/refWat.ts'
+//
+import { BazForWat, FooForWat, fForWat, keyForWat } from "./wat";
+
+console.log(keyForWat);
+console.log(fForWat());
+console.log(new FooForWat());
+const f: BazForWat = "hi";
+,//
+
+//
+// PATH: '/wat.ts'
+//
+
+export const keyForWat = 3;
+export function fForWat() {
+  return 5;
+}
+
+export class FooForWat {}
+
+export type BazForWat = string;
+"
+`;
+
+exports[`processProject simple 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+const foo = 5;
+
+export const aasdfForWat = 3;
+export const secondForWat = 5;
+
+export const thirdSpacedForWat = 56;
+
+// Foo
+export const fourthWithCommentForWat = 555;
+"
+`;
+
+exports[`processProject works nicely with interfaces 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export interface Props {
+  what: number;
+}
+
+class Foo extends React.Component<Props> {}
+,//
+
+//
+// PATH: '/index.ts'
+//
+export { type Props as FooProps } from "./foo";
+"
+`;
