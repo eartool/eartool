@@ -4,7 +4,7 @@ import type { Logger } from "pino";
 import { ProjectContext } from "@eartool/replacements";
 import { processReplacements, addSingleFileReplacementsForRenames } from "@eartool/replacements";
 import { dropDtsFiles, organizeImportsOnFiles } from "@eartool/utils";
-import type { PackageName } from "../../utils/src/PackageName.js";
+import type { PackageName } from "@eartool/utils";
 import type { Replacement, PackageExportRename } from "@eartool/replacements";
 import { ReplacementsWrapper } from "@eartool/replacements";
 import { calculateNamespaceLikeRemovals } from "./calculateNamespaceLikeRemovals.js";
@@ -75,6 +75,8 @@ export async function processProject(
   logger.debug("Running with opts %o", {
     dryRun,
     removeNamespaces,
+    removeFauxNamespaces,
+    organizeImports: shouldOrganizeImports,
     additionalRenames: [...(additionalRenames?.entries() ?? [])],
   });
 

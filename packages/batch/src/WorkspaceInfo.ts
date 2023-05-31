@@ -43,6 +43,11 @@ type PackageLookupCriteria =
       packagePath: string;
     };
 
+export type RunTaskCallback = (args: {
+  packagePath: string;
+  packageName: string;
+}) => Promise<unknown>;
+
 export class Workspace {
   #pathToNode = new Map<string, Node>();
   #nameToNode = new Map<string, Node>();
@@ -102,10 +107,7 @@ export class Workspace {
     }
   }
 
-  async runTasksInOrder(
-    lookup: (Node | PackageLookupCriteria)[],
-    performTask: (args: { packagePath: string; packageName: string }) => Promise<unknown>
-  ) {
+  async runTasksInOrder(lookup: (Node | PackageLookupCriteria)[], performTask: RunTaskCallback) {
     const startNodes = [...this.nodesFor(lookup)];
 
     const statuses = new Map<Node, "skipped" | "scheduled" | "complete" | "todo">();

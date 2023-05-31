@@ -13,6 +13,7 @@
   },
   "scripts": {
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
+    "deepClean": "rm -rf lib tsconfig.tsbuildinfo",
     "fixAll": "pnpm fixFormatting && pnpm fixLint",
     "fixFormatting": "prettier --write .",
     "fixLint": "eslint --fix src",

@@ -2,7 +2,7 @@ import * as path from "node:path";
 import { pino, type LevelWithSilent } from "pino";
 import pinoPretty from "pino-pretty";
 
-export function createLogger(logDir: string, packageName: string, level: LevelWithSilent) {
+export function createLogger(logDir: string, level: LevelWithSilent) {
   return pino(
     {
       level,
@@ -13,7 +13,7 @@ export function createLogger(logDir: string, packageName: string, level: LevelWi
         stream: pino.destination({
           sync: true,
           mkdir: true,
-          dest: path.join(logDir, packageName, "log.json"),
+          dest: path.join(logDir, "log.json"),
         }),
       },
       {
@@ -26,7 +26,7 @@ export function createLogger(logDir: string, packageName: string, level: LevelWi
             sync: true,
             mkdir: true,
             append: false,
-            dest: path.join(logDir, packageName, "log.txt"),
+            dest: path.join(logDir, "log.txt"),
           }),
         }),
       },

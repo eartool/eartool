@@ -1,7 +1,6 @@
 import type { EntityState, Reducer } from "@reduxjs/toolkit";
 import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
 import type { PackageExportRename } from "@eartool/replacements";
-import * as MessagesToMain from "../shared/messages/MessagesToMain.js";
 
 interface JobResult {
   packageName: string;
@@ -16,14 +15,7 @@ const slice = createSlice({
   name: "workResults",
   initialState: adapter.getInitialState(),
   reducers: {
-    junk: (state) => {
-      return state;
-    },
-  },
-  extraReducers: (a) => {
-    a.addCase(MessagesToMain.workComplete, (state, aa) => {
-      adapter.addOne(state, aa.payload);
-    });
+    workCompleted: adapter.addOne,
   },
   selectors: {
     selectAdditionalRenames: (state) => {
@@ -37,6 +29,7 @@ const slice = createSlice({
 });
 
 export const { selectAdditionalRenames } = slice.selectors;
+export const { workCompleted } = slice.actions;
 
 // it needs to be declared for the reducer export
 export default slice.reducer as Reducer<EntityState<JobResult>>;

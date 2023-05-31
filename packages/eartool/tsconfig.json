@@ -10,7 +10,7 @@
   ],
   "references": [
     {
-      "path": "../batch"
+      "path": "../fix-namespace"
     },
     {
       "path": "../replacements"

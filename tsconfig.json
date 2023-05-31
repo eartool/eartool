@@ -12,6 +12,12 @@
     },
     {
       "path": "./packages/replacements"
+    },
+    {
+      "path": "./packages/batch"
+    },
+    {
+      "path": "./packages/eartool"
     }
   ]
 }

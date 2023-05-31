@@ -30,6 +30,7 @@ export default {
       options: {
         scripts: {
           clean: "rm -rf lib tsconfig.tsbuildinfo",
+          deepClean: "rm -rf lib tsconfig.tsbuildinfo",
         },
       },
     }),

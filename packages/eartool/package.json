@@ -1,5 +1,5 @@
 {
-  "name": "@eartool/test-utils",
+  "name": "eartool",
   "version": "1.0.0",
   "description": "",
   "author": "",
@@ -11,6 +11,7 @@
       "import": "./lib/index.js"
     }
   },
+  "bin": "./bin/eartool.js",
   "scripts": {
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "deepClean": "rm -rf lib tsconfig.tsbuildinfo",
@@ -20,6 +21,10 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
+    "@eartool/fix-namespace": "workspace:*",
+    "@eartool/replacements": "workspace:*",
+    "@eartool/test-utils": "workspace:*",
+    "@eartool/utils": "workspace:*",
     "@pnpm/filter-workspace-packages": "7.0.8",
     "@pnpm/find-workspace-packages": "^6.0.8",
     "@pnpm/workspace.pkgs-graph": "^2.0.4",
