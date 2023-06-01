@@ -64,6 +64,9 @@ importers:
       '@types/pino-pretty':
         specifier: ^5.0.0
         version: 5.0.0
+      chalk:
+        specifier: ^5.2.0
+        version: 5.2.0
       cli-progress:
         specifier: ^3.12.0
         version: 3.12.0
@@ -73,6 +76,9 @@ importers:
       pino:
         specifier: ^8.14.1
         version: 8.14.1
+      pino-abstract-transport:
+        specifier: ^1.0.0
+        version: 1.0.0
       pino-pretty:
         specifier: ^10.0.0
         version: 10.0.0

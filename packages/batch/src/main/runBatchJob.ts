@@ -8,6 +8,7 @@ import type { JobDef } from "../shared/JobDef.js";
 import type { Progress } from "./progress/Progress.js";
 import { NoopProgress } from "./progress/NoopProgress.js";
 import { RealProgress } from "./progress/RealProgress.js";
+import type { Level } from "pino";
 
 interface JobInfo {
   packageName: string;
@@ -36,7 +37,10 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
   // we have at least 11 under a normal run on my mac. it doesn't grow, we arent leaking
   process.setMaxListeners(20);
 
-  const logger = createLogger(path.join(opts.logDir, "main"), "trace", true);
+  const logger = createLogger(path.join(opts.logDir, "main"), {
+    level: "trace",
+    consoleLevel: opts.progress ? "silent" : "info",
+  });
   logger.trace("Creating workspace object");
 
   const progress: Progress = opts.progress ? new RealProgress() : new NoopProgress();
@@ -67,7 +71,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
     }
 
     progress.completeProject(packageName);
-    logger.trace("Done with %s", packageName);
+    logger.info("Done with %s", packageName);
   });
 
   progress.stop();
@@ -82,12 +86,22 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
       jobArgs: await jobSpec.getJobArgs(jobInfo),
     };
 
-    logger.trace("Forking worker for %s", packagePath);
+    logger.info("Forking worker for %s", packageName);
     const worker = new Worker(jobSpec.workerUrl, { workerData });
 
     const { port1: myPort, port2: theirPort } = new MessageChannel();
     const result = new Promise<Q["__ResultType"]>((resolve) => {
       myPort.addListener("message", (message) => {
+        if (MessagesToMain.log.match(message)) {
+          const { level, msg, ...remaining } = message.payload;
+          logger.levels.labels[message.payload.level];
+          logger[logger.levels.labels[level] as Level](
+            { ...remaining, packageName: jobInfo.packageName },
+            msg
+          );
+
+          return;
+        }
         if (MessagesToMain.updateStatus.match(message)) {
           progress.updateProject(
             jobInfo.packageName,

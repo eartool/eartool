@@ -5,6 +5,7 @@ import { createLogger } from "../shared/createLogger.js";
 import type { Status } from "../shared/MessagesToMain.js";
 import * as MessagesToMain from "../shared/MessagesToMain.js";
 import type { JobDef } from "../shared/JobDef.js";
+import abstractTransport from "pino-abstract-transport";
 
 export interface BaseWorkerData<T> {
   jobArgs: T;
@@ -33,7 +34,16 @@ export function setupWorker<Q extends JobDef<any, any>>(
     const { port } = value;
     const { logDir, ...jobData }: WireWorkerData<any> = workerData;
 
-    const logger = createLogger(logDir, "trace");
+    const realAbstractTransport =
+      abstractTransport as unknown as (typeof abstractTransport)["default"];
+
+    const customTransport = realAbstractTransport(async function (source) {
+      for await (const chunk of source) {
+        port.postMessage(MessagesToMain.log(chunk));
+      }
+    });
+
+    const logger = createLogger(logDir, { level: "trace", extraStreams: [customTransport] });
 
     const result = await worker(
       {
