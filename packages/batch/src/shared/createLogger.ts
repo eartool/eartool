@@ -2,12 +2,23 @@ import * as path from "node:path";
 import { pino, type LevelWithSilent } from "pino";
 import pinoPretty from "pino-pretty";
 
-export function createLogger(logDir: string, level: LevelWithSilent) {
+export function createLogger(logDir: string, level: LevelWithSilent, includeConsole?: boolean) {
   return pino(
     {
       level,
     },
     pino.multistream([
+      ...(includeConsole
+        ? [
+            {
+              level: "trace" as const,
+              stream: pinoPretty.default({
+                colorize: true,
+                sync: true,
+              }),
+            },
+          ]
+        : []),
       {
         level: "trace",
         stream: pino.destination({

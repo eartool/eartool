@@ -1,9 +1,10 @@
 import { ok } from "node:assert";
 import { MessagePort, parentPort, workerData } from "node:worker_threads";
 import type { Logger } from "pino";
-import { createLogger } from "./createLogger.js";
-import type { Status } from "./MessagesToMain.js";
-import * as MessagesToMain from "./MessagesToMain.js";
+import { createLogger } from "../shared/createLogger.js";
+import type { Status } from "../shared/MessagesToMain.js";
+import * as MessagesToMain from "../shared/MessagesToMain.js";
+import type { JobDef } from "../shared/JobDef.js";
 
 export interface BaseWorkerData<T> {
   jobArgs: T;
@@ -19,11 +20,6 @@ export interface WireWorkerData<T> extends BaseWorkerData<T> {
 export interface WorkerData<T> extends BaseWorkerData<T> {
   logger: Logger;
   updateStatus: (status: Status) => void;
-}
-
-export interface JobDef<Args, Result> {
-  __ArgsType: Args;
-  __ResultType: Result;
 }
 
 export function setupWorker<Q extends JobDef<any, any>>(

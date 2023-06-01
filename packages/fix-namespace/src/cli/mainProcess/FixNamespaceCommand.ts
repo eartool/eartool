@@ -23,6 +23,10 @@ const standardBatchYargsOptions = {
     type: "boolean",
     default: true,
   },
+  progress: {
+    type: "boolean",
+    default: true,
+  },
   "dry-run": {
     describe: "Whether to run without saving changes",
     type: "boolean",
@@ -63,6 +67,7 @@ export default function registerCommand(yargs: yargs.Argv<NonNullable<unknown>>)
         fauxNamespaces: removeFauxNamespaces,
         downstream: fixDownstream,
         organizeImports,
+        progress,
       } = args;
 
       const { store } = createStore();
@@ -72,7 +77,7 @@ export default function registerCommand(yargs: yargs.Argv<NonNullable<unknown>>)
         startPackageNames,
         dryRun,
         logDir: path.join(workspaceDir, ".log"),
-        progress: true,
+        progress,
       };
 
       await runBatchJob<FixWorkspaceJob>(common, {
