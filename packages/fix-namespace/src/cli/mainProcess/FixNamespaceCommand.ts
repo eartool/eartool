@@ -95,7 +95,6 @@ export default function registerCommand(yargs: yargs.Argv<NonNullable<unknown>>)
           };
         },
         onComplete: ({ packageName }, exportedRenames) => {
-          console.log(exportedRenames);
           store.dispatch(workCompleted({ exportedRenames, packageName }));
         },
       });
