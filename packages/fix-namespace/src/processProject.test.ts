@@ -439,6 +439,24 @@ const cases: {
     },
   },
   {
+    name: "Properly handles conflict with import",
+    inputs: {
+      "foo.ts": `
+        import {bar} from "lib";
+
+        export const Foo = {
+          baz() {
+            return baz; 
+          },
+
+          bar: () => {
+            return bar();
+          },
+        } as const;
+      `,
+    },
+  },
+  {
     name: "Multiple things in the file",
     inputs: {
       "foo.ts": `

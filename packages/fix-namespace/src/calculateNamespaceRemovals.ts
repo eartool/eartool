@@ -35,6 +35,11 @@ export function calculateNamespaceRemovals(sf: SourceFile, projectContext: Proje
           // unwrap is going to make this really hard to deal with cause we
           // have figure out which was the old and which is the new so we
           // just bail on this file
+          projectContext.logger.warn(
+            { filename: varDecl.getSourceFile().getFilePath() },
+            "Aborting fixing '%s' as it will be too hard to unwrap",
+            varDecl.getName()
+          );
           return;
         } else {
           context.concreteRenames.add(varDecl.getName());
@@ -55,7 +60,7 @@ export function calculateNamespaceRemovals(sf: SourceFile, projectContext: Proje
     } else if (Node.isEnumDeclaration(q)) {
       throw new Error("Not implemented"); // FIXME
     } else {
-      context.logger.warn("Unknown kind %s", q.getKindName());
+      context.logger.error("Unknown kind %s", q.getKindName());
     }
   }
 

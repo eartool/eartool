@@ -21,7 +21,7 @@ export class ProjectContext {
       ? node
       : node.getFirstChildByKindOrThrow(SyntaxKind.Identifier);
 
-    this.logger.warn("%s %d", identifier.getFullText(), identifier.getFullStart());
+    this.logger.trace("%s %d", identifier.getFullText(), identifier.getFullStart());
     const filePath = node.getSourceFile().getFilePath();
 
     const replacement: Replacement = {

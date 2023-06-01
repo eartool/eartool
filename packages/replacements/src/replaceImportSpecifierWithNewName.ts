@@ -15,7 +15,6 @@ export function replaceImportSpecifierWithNewName(
 ) {
   const aliasNode = importSpecifier.getAliasNode();
 
-  // update the imports first
   if (aliasNode) {
     replacements.replaceNode(importSpecifier, newName);
   } else {
@@ -27,6 +26,6 @@ export function replaceImportSpecifierWithNewName(
         .getParentSyntaxList()!
         .getNextSiblingIfKindOrThrow(SyntaxKind.CloseBraceToken);
 
-    replacements.insertBefore(before, `as ${newName}`);
+    replacements.insertBefore(before, ` as ${newName}`);
   }
 }

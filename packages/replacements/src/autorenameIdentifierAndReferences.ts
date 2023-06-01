@@ -1,4 +1,4 @@
-import type { Identifier } from "ts-morph";
+import { SymbolFlags, type Identifier } from "ts-morph";
 import { Node } from "ts-morph";
 import type { Replacements } from "./Replacements.js";
 import { addReplacementsForRenamedIdentifier } from "./addReplacementsForRenamedIdentifier.js";
@@ -14,6 +14,12 @@ export function autorenameIdentifierAndReferences(
 
   logger.trace("TOP OF autorenameIdentifierAndReferences: " + nameNode.getText());
   const newName = findNewNameInScope(nameNode.getText(), scope, banNames);
+
+  // logger.trace(
+  //   "HuH: %s",
+  //   scope?.getSymbolsInScope(SymbolFlags.Value).map((a) => a.getName())
+  // );
+
   const parent = nameNode.getParent();
   if (Node.isBindingElement(parent)) {
     logger.trace(parent.getText());

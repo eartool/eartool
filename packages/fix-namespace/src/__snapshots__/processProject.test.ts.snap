@@ -263,6 +263,24 @@ export function foo() {
 "
 `;
 
+exports[`processProject Properly handles conflict with import 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+import { bar as bar0 } from "lib";
+
+export function baz() {
+  return baz;
+}
+
+export const bar = () => {
+  return bar0();
+};
+"
+`;
+
 exports[`processProject Properly handles conflict with module local variable or function 1`] = `
 "//
 

@@ -13,7 +13,7 @@ export function renameReferences(oldName: string, context: NamespaceContext) {
   const [q] = sym.getDeclarations();
   Assert.ok(Node.isReferenceFindable(q), "Invariant failed. How is this not findable?");
 
-  logger.info("Inside renameReferences for '%s' (%s)", q.getText(), q.getKindName());
+  logger.trace("Inside renameReferences for '%s' (%s)", q.getText(), q.getKindName());
   context.addReplacementForNode(q, localName);
 
   logger.trace("Count of references: %d", q.findReferencesAsNodes().length);

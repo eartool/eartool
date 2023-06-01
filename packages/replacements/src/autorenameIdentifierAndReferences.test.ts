@@ -93,4 +93,88 @@ describe(autorenameIdentifierAndReferences, () => {
     `);
     //
   });
+
+  it("renames a named import ", () => {
+    const { output } = new TestBuilder()
+      .addFile(
+        "/foo.ts",
+        `
+          import {Bar} from "./bar";
+
+          doStuff(Bar);
+      `
+      )
+      .performWork(({ replacements, files }) => {
+        const sf = files.get("/foo.ts")!;
+
+        const callExpression = sf
+          .getStatementByKindOrThrow(SyntaxKind.ExpressionStatement)
+          .getExpressionIfKindOrThrow(SyntaxKind.CallExpression);
+        const q = callExpression.getArguments()[0].asKindOrThrow(SyntaxKind.Identifier);
+
+        autorenameIdentifierAndReferences(replacements, q, sf, new Set("Bar"));
+      })
+      .build();
+
+    expect(output).toMatchInlineSnapshot(`
+      "
+      //
+      // </foo.ts>
+      //
+
+      import { Bar as Bar0 } from "./bar";
+
+      doStuff(Bar0);
+
+
+      //
+      // <//foo.ts>
+      //
+
+      "
+    `);
+    //
+  });
+
+  it("renames a default import ", () => {
+    const { output } = new TestBuilder()
+      .addFile(
+        "/foo.ts",
+        `
+          import Bar from "./bar";
+
+          doStuff(Bar);
+      `
+      )
+      .performWork(({ replacements, files }) => {
+        const sf = files.get("/foo.ts")!;
+
+        const callExpression = sf
+          .getStatementByKindOrThrow(SyntaxKind.ExpressionStatement)
+          .getExpressionIfKindOrThrow(SyntaxKind.CallExpression);
+        const q = callExpression.getArguments()[0].asKindOrThrow(SyntaxKind.Identifier);
+
+        autorenameIdentifierAndReferences(replacements, q, sf, new Set("Bar"));
+      })
+      .build();
+
+    expect(output).toMatchInlineSnapshot(`
+      "
+      //
+      // </foo.ts>
+      //
+
+      import Bar0 from "./bar";
+
+      doStuff(Bar0);
+
+
+      //
+      // <//foo.ts>
+      //
+
+      "
+    `);
+    //
+  });
 });

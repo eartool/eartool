@@ -1,5 +1,6 @@
 import type { Replacements } from "./Replacements.js";
 import { Node, type Identifier } from "ts-morph";
+import { replaceImportSpecifierWithNewName } from "./replaceImportSpecifierWithNewName.js";
 
 /**
  * Renames all the references to the identifier but not the identifier itself!
@@ -37,7 +38,10 @@ export function addReplacementsForRenamedIdentifier(
       } else {
         replacements.replaceNode(parent.getNameNode(), newName);
       }
+    } else if (Node.isImportSpecifier(parent)) {
+      replaceImportSpecifierWithNewName(replacements, parent, newName);
     } else {
+      logger.trace("Fallback replacement for %s", node.getText());
       replacements.replaceNode(node, newName);
     }
   }
