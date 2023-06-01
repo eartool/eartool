@@ -1,22 +1,13 @@
 import * as Assert from "assert";
-import type { ModuleDeclaration } from "ts-morph";
 import { Node, type SourceFile, SyntaxKind } from "ts-morph";
 import { isSafeToRenameAllAcrossReferences } from "./isSafeToRenameAllAcrossReferences.js";
 import { renameAllReferences } from "./renameAllReferences.js";
-import { isNamespaceDeclaration, type NamespaceLikeVariableDeclaration } from "@eartool/utils";
+import { isNamespaceDeclaration } from "@eartool/utils";
 import * as path from "node:path";
-import {
-  replaceAllNamesInScope,
-  type ProjectContext,
-  type Replacements,
-} from "@eartool/replacements";
+import type { ProjectContext, Replacements } from "@eartool/replacements";
 import { renameExports } from "./renameExports.js";
 import { replaceImportsAndExports } from "./replaceImportsAndExports.js";
-import {
-  renameVariablesInBody,
-  replaceSelfReferentialUsage,
-  unwrapInFile,
-} from "./calculateNamespaceLikeRemovals.js";
+import { unwrapNamespaceInFile } from "./unwrapNamespaceInFile.js";
 
 export function calculateNamespaceRemovals(
   sf: SourceFile,
@@ -40,7 +31,7 @@ export function calculateNamespaceRemovals(
       );
     } else {
       replaceImportsAndExports(namespaceDecl, replacements);
-      unwrapInFile(namespaceDecl, replacements);
+      unwrapNamespaceInFile(namespaceDecl, replacements);
       return;
     }
   }
@@ -50,12 +41,9 @@ export function calculateNamespaceRemovals(
   const namespaceName = namespaceDecl.getName();
   context.logger.trace(`Found namespace %s`, namespaceName);
 
-  const syntaxList = namespaceDecl
-    .getLastChildByKindOrThrow(SyntaxKind.ModuleBlock)
-    .getLastChildByKindOrThrow(SyntaxKind.SyntaxList);
+  const syntaxList = namespaceDecl.getChildSyntaxListOrThrow();
   const symbolsInRootScope = new Set(sf.getLocals().map((a) => a.getName()));
 
-  Assert.ok(namespaceDecl.getChildSyntaxList() == syntaxList);
   for (const q of syntaxList.getChildren()) {
     if (Node.isVariableStatement(q)) {
       for (const varDecl of q.getDeclarations()) {
@@ -123,70 +111,3 @@ export function calculateNamespaceRemovals(
     newValue: "",
   });
 }
-
-// function unwrapInFile(
-//   varDecl: ModuleDeclaration | NamespaceLikeVariableDeclaration,
-//   replacements: Replacements
-//   /* intentionally blank*/
-// ) {
-//   const logger = replacements.logger.child({ primaryNode: varDecl });
-
-//   const sf = varDecl.getSourceFile();
-//   // const syntaxList = varDecl.getChildSyntaxList()!;
-//   const syntaxList = Node.isModuleDeclaration(varDecl)
-//     ? varDecl.getChildSyntaxList()!
-//     : varDecl.getInitializer().getExpression().getChildSyntaxList()!;
-
-//   const exportedNames = new Set(
-//     syntaxList
-//       .getChildren()
-//       .flatMap((a) => (Node.isVariableStatement(a) ? a.getDeclarations() : a))
-//       .filter(Node.hasName)
-//       .map((a) => a.getName())
-//   );
-
-//   logger.trace("Exported names: %s", [...exportedNames].join(", "));
-
-//   const startNode = Node.isModuleDeclaration(varDecl)
-//     ? varDecl
-//     : varDecl.getFirstAncestorByKindOrThrow(SyntaxKind.VariableStatement);
-
-//   // Drop `export const Name = {`
-//   // Drop `export namespace Foo {`
-//   replacements.remove(sf, startNode.getStart(), syntaxList.getFullStart());
-
-//   // drop `} as const;`
-//   // drop `};`
-//   const closeBrace = syntaxList.getNextSiblingIfKindOrThrow(SyntaxKind.CloseBraceToken);
-//   replacements.remove(sf, closeBrace.getStart(), varDecl.getEnd());
-
-//   const kids = Node.isModuleDeclaration(varDecl)
-//     ? varDecl.getChildSyntaxListOrThrow().getChildren()
-//     : varDecl.getInitializer().getExpression().getProperties();
-//   for (const propOrMethod of kids) {
-//     if (Node.isMethodDeclaration(propOrMethod)) {
-//       replacements.insertBefore(propOrMethod, "export function ");
-//       renameVariablesInBody(exportedNames, replacements, propOrMethod);
-//     } else if (Node.isPropertyAssignment(propOrMethod)) {
-//       replacements.addReplacement(
-//         sf,
-//         propOrMethod.getStart(),
-//         propOrMethod.getFirstChildByKindOrThrow(SyntaxKind.ColonToken).getEnd(),
-//         `export const ${(propOrMethod as any).getName()} = `
-//       );
-//     } else if (Node.isFunctionDeclaration(propOrMethod)) {
-//       renameVariablesInBody(exportedNames, replacements, propOrMethod);
-//     } else if (Node.isVariableStatement(propOrMethod)) {
-//       // do nothing!
-//     } else {
-//       replacements.logger.error("Unexpected kind %s", propOrMethod.getKindName());
-//     }
-//     replacements.removeNextSiblingIfComma(propOrMethod);
-//   }
-
-//   // Its possible there was self referential code, so we need to handle that case
-//   replaceSelfReferentialUsage(varDecl, replacements);
-
-//   // And of course we can import things that now collide
-//   replaceAllNamesInScope(replacements, varDecl.getSourceFile(), exportedNames);
-// }
