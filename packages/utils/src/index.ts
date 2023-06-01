@@ -12,3 +12,4 @@ export { isNamespaceLike } from "./tsmorph/isNamespaceLike.js";
 export type { NamespaceLike, NamespaceLikeVariableDeclaration } from "./tsmorph/isNamespaceLike.js";
 export { isRootExport } from "./tsmorph/isRootExport.js";
 export { organizeImportsOnFiles } from "./tsmorph/organizeImportsOnFiles.js";
+export { getSimplifiedNodeInfo, getSimplifiedNodeInfoAsString } from "./getSimplifiedNodeInfo.js";

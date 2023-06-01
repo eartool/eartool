@@ -15,12 +15,12 @@ export class ReplacementsWrapper implements Replacements {
   }
 
   addReplacement(filePath: string | Node, start: number, end: number, newValue: string): void {
-    this.logger.trace({
-      filePath: getFilePath(filePath),
-      start,
-      end,
-      newValue,
-    });
+    // this.logger.trace({
+    //   filePath: getFilePath(filePath),
+    //   start,
+    //   end,
+    //   newValue,
+    // });
     this.#context.addReplacement({
       filePath: getFilePath(filePath),
       start,

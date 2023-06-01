@@ -10,7 +10,7 @@ export function autorenameIdentifierAndReferences(
   scope: Node,
   banNames: Set<string>
 ) {
-  const { logger } = replacements;
+  const logger = replacements.logger.child({ primaryNode: nameNode });
 
   logger.trace("TOP OF autorenameIdentifierAndReferences: " + nameNode.getText());
   const newName = findNewNameInScope(nameNode.getText(), scope, banNames);

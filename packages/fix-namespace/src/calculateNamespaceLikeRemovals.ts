@@ -1,14 +1,22 @@
+import {
+  type MethodDeclaration,
+  type FunctionDeclaration,
+  type ModuleDeclaration,
+  type SyntaxList,
+  VariableStatement,
+} from "ts-morph";
 import { Node, SyntaxKind, type SourceFile, SymbolFlags } from "ts-morph";
-import * as Assert from "assert";
 import type { Replacements } from "@eartool/replacements";
 import {
   isNamespaceLike,
   type NamespaceLike,
   type NamespaceLikeVariableDeclaration,
 } from "@eartool/utils";
-import { isAnyOf } from "@reduxjs/toolkit";
 import { replaceAllNamesInScope } from "@eartool/replacements";
 import { autorenameIdentifierAndReferences } from "@eartool/replacements";
+import { replaceImportsAndExports } from "./replaceImportsAndExports.js";
+import type { Logger } from "pino";
+import type { Module } from "@reduxjs/toolkit/query";
 
 export function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Replacements) {
   // TODO: Should we check the filename too?
@@ -47,141 +55,160 @@ export function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Rep
     const varDecl = statement.getDeclarations()[0];
 
     replaceImportsAndExports(varDecl, replacements);
-    unwrapInFile(varDecl, replacements, statement);
+    unwrapInFile(varDecl, replacements);
   }
 }
 
-function unwrapInFile(
-  varDecl: NamespaceLikeVariableDeclaration,
-  replacements: Replacements,
-  namespaceLike: NamespaceLike
+export function unwrapInFile(
+  varDecl: NamespaceLikeVariableDeclaration | ModuleDeclaration,
+  replacements: Replacements
 ) {
-  const sf = namespaceLike.getSourceFile();
-  const syntaxList = varDecl.getInitializer().getExpression().getChildSyntaxList()!;
+  const logger = replacements.logger.child({ primaryNode: varDecl });
 
-  const propertyNames = new Set(
-    varDecl
-      .getInitializer()
-      .getExpression()
-      .getProperties()
+  const sf = varDecl.getSourceFile();
+  const syntaxList = Node.isModuleDeclaration(varDecl)
+    ? varDecl.getChildSyntaxListOrThrow()
+    : varDecl.getInitializer().getExpression().getChildSyntaxList()!;
+
+  const exportedNames = new Set(
+    syntaxList
+      .getChildren()
+      .flatMap((a) => (Node.isVariableStatement(a) ? a.getDeclarations() : a))
+      .filter(Node.hasName)
       .map((a) => a.getName())
   );
 
+  logger.trace("Exported names: %s", [...exportedNames].join(", "));
+
+  const startNode = Node.isModuleDeclaration(varDecl)
+    ? varDecl
+    : varDecl.getFirstAncestorByKindOrThrow(SyntaxKind.VariableStatement);
+
   // Drop `export const Name = {`
-  replacements.remove(sf, namespaceLike.getStart(), syntaxList.getFullStart());
+  // Drop `export namespace Foo {`
+  replacements.remove(sf, startNode.getStart(), syntaxList.getFullStart());
 
   // drop `} as const;`
+  // drop `};`
   const closeBrace = syntaxList.getNextSiblingIfKindOrThrow(SyntaxKind.CloseBraceToken);
-  replacements.remove(sf, closeBrace.getStart(), namespaceLike.getEnd());
+  replacements.remove(sf, closeBrace.getStart(), varDecl.getEnd());
 
-  for (const propOrMethod of varDecl.getInitializer().getExpression().getProperties()) {
+  const kids = Node.isModuleDeclaration(varDecl)
+    ? varDecl.getChildSyntaxListOrThrow().getChildren()
+    : varDecl.getInitializer().getExpression().getProperties();
+  for (const propOrMethod of kids) {
     if (Node.isMethodDeclaration(propOrMethod)) {
+      // namespace like
       replacements.insertBefore(propOrMethod, "export function ");
-
-      // console.log("METHOD: " + propOrMethod.getName());
-      // console.log(
-      //   propOrMethod
-      //     .getBodyOrThrow()
-      //     .getSymbolsInScope(SymbolFlags.Value)
-      //     .map((a) => a.getName())
-      // );
-
-      const set = new Set(propOrMethod.getBodyOrThrow().getSymbolsInScope(SymbolFlags.Value));
-
-      for (const q of propOrMethod.getParent().getSymbolsInScope(SymbolFlags.Value)) {
-        set.delete(q);
-      }
-
-      // console.log([...set].map((a) => a.getName()));
-      for (const q of set) {
-        if (!propertyNames.has(q.getName())) continue;
-        // console.log(q.getName());
-        const d = q.getDeclarations()[0];
-        if (!d) continue;
-        if (
-          Node.isFunctionDeclaration(d) ||
-          Node.isVariableDeclaration(d) ||
-          Node.isBindingElement(d) ||
-          Node.isBindingNamed(d)
-        ) {
-          // need to rename this
-          const nameNode = d.getNameNode()!.asKindOrThrow(SyntaxKind.Identifier);
-          // console.log(d.getKindName() + " _ " + d.getText());
-          autorenameIdentifierAndReferences(replacements, nameNode, propOrMethod, propertyNames);
-        }
-
-        // console.log(d.getKindName() + " _ " + d.getText());
-      }
-
-      // propOrMethod.forEachDescendant((node, traversal) => {
-      //   if (Node.isIdentifier(node)) {
-      //     if (propertyNames.has(node.getText()))
-      //       console.log(`${node.getText()} : ${node.getParent().getKindName()}`);
-      //   }
-      // });
-
-      // console.log(body.getKindName());
-      // console.log(
-      //   body
-      //     .getChildSyntaxList()
-      //     ?.getChildAtIndex(0)
-      //     // ?.getSymbolsInScope(SymbolFlags.Variable)
-      //     ?.getLocals()
-      //     .map((a) => a.getName())
-      // );
-
-      //const body = propOrMethod.getBodyOrThrow();
-      // replaceAllNamesInScope(replacements, body, propertyNames);
-    } else {
+      renameVariablesInBody(exportedNames, replacements, propOrMethod);
+    } else if (Node.isPropertyAssignment(propOrMethod)) {
+      // namespace like
       replacements.addReplacement(
         sf,
         propOrMethod.getStart(),
         propOrMethod.getFirstChildByKindOrThrow(SyntaxKind.ColonToken).getEnd(),
-        `export const ${propOrMethod.getName()} = `
+        `export const ${(propOrMethod as any).getName()} = `
       );
+    } else if (Node.isFunctionDeclaration(propOrMethod)) {
+      // namespace
+      renameVariablesInBody(exportedNames, replacements, propOrMethod);
+    } else if (Node.isVariableStatement(propOrMethod)) {
+      // namespace
+      // do nothing!
+    } else {
+      replacements.logger.error("Unexpected kind %s", propOrMethod.getKindName());
     }
     replacements.removeNextSiblingIfComma(propOrMethod);
   }
 
   // Its possible there was self referential code, so we need to handle that case
+  replaceSelfReferentialUsage(varDecl, replacements);
+
+  // And of course we can import things that now collide
+
+  replaceAllNamesInScope(replacements, varDecl.getSourceFile(), exportedNames);
+}
+
+export function replaceSelfReferentialUsage(
+  varDecl: NamespaceLikeVariableDeclaration | ModuleDeclaration,
+  replacements: Replacements
+) {
   for (const refIdentifier of varDecl.findReferencesAsNodes()) {
-    if (refIdentifier.getSourceFile() !== sf) continue;
+    if (refIdentifier.getSourceFile() !== varDecl.getSourceFile()) continue;
 
     const parent = refIdentifier.getParentIfKind(SyntaxKind.PropertyAccessExpression);
     if (!parent) continue;
 
     replacements.replaceNode(parent, parent.getNameNode().getFullText());
   }
-
-  // And of course we can import things that now collide
-
-  replaceAllNamesInScope(replacements, varDecl.getSourceFile(), propertyNames);
 }
 
-function replaceImportsAndExports(
-  varDecl: NamespaceLikeVariableDeclaration,
-  replacements: Replacements
+export function renameVariablesInBody(
+  banNames: Set<string>,
+  replacements: Replacements,
+  propOrMethod: MethodDeclaration | FunctionDeclaration | SyntaxList
 ) {
-  const visitedSpecifiers = new Set();
-  for (const refIdentifier of varDecl.findReferencesAsNodes()) {
-    // alias import nodes show up twice for some reason
-    // so we need to account for that
-    const specifier = refIdentifier.getParentIf(
-      isAnyOf(Node.isExportSpecifier, Node.isImportSpecifier)
-    );
-    if (!specifier) continue;
-    if (visitedSpecifiers.has(specifier)) continue;
+  const logger = replacements.logger.child({
+    method: renameVariablesInBody.name,
+    banNames: [...banNames].join(", "),
+    primaryNode: propOrMethod,
+  });
+  const symbolsInScope = getSymbolsExclusiveToFunctionBody(propOrMethod, replacements.logger);
 
-    const named = specifier.getParentIfOrThrow(isAnyOf(Node.isNamedExports, Node.isNamedImports));
-    if (named.getElements().length != 1) continue;
-    Assert.ok(
-      named.getElements().length == 1,
-      `Expected only one element in '${named.getText()}', file: ${named
-        .getSourceFile()
-        .getFilePath()} while looking for ${specifier.getText()}`
-    );
-    const varName = (specifier.getAliasNode() ?? specifier.getNameNode()).getText();
-    replacements.replaceNode(named, `* as ${varName}`);
-    visitedSpecifiers.add(specifier);
+  logger.trace(
+    "propOrMethod name: %s",
+    Node.hasName(propOrMethod) ? propOrMethod.getName() : propOrMethod.getKindName()
+  );
+  logger.trace("Symbols in scope: %s", [...symbolsInScope].map((a) => a.getName()).join(", "));
+
+  for (const q of symbolsInScope) {
+    if (!banNames.has(q.getName())) continue;
+    // console.log(q.getName());
+    const d = q.getDeclarations()[0];
+    if (!d) continue;
+    if (
+      Node.isFunctionDeclaration(d) ||
+      Node.isVariableDeclaration(d) ||
+      Node.isBindingElement(d) ||
+      Node.isBindingNamed(d)
+    ) {
+      // need to rename this
+      const nameNode = d.getNameNode()!.asKindOrThrow(SyntaxKind.Identifier);
+      // console.log(d.getKindName() + " _ " + d.getText());
+      autorenameIdentifierAndReferences(replacements, nameNode, propOrMethod, banNames);
+    }
+
+    // console.log(d.getKindName() + " _ " + d.getText());
   }
+}
+
+// This is wrong, it should be the symbols in scope that are not in the parent scope
+export function getSymbolsExclusiveToFunctionBody(
+  node: MethodDeclaration | FunctionDeclaration | SyntaxList,
+  passedLogger: Logger
+) {
+  const logger = passedLogger.child({ primaryNode: node });
+
+  const body = Node.isSyntaxList(node) ? node : node.getBodyOrThrow();
+  const set = new Set(body.getSymbolsInScope(SymbolFlags.Value));
+
+  // logger.info([...set].map((a) => a.getName()));
+
+  for (const q of set) {
+    if (
+      q.getDeclarations().length == 0 ||
+      !q
+        .getDeclarations()
+        .every((d) => d.getSourceFile() === node.getSourceFile() && d.getAncestors().includes(node))
+    ) {
+      set.delete(q);
+    }
+  }
+
+  logger.info(
+    "Discovered exclusive in body scope: %s",
+    [...set].map((a) => a.getName()).join(", ")
+  );
+
+  return set;
 }

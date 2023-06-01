@@ -3,6 +3,9 @@ import { Node } from "ts-morph";
 import { pino, type Logger } from "pino";
 import pinoPretty from "pino-pretty";
 import * as Assert from "node:assert";
+import { getSimplifiedNodeInfo, getSimplifiedNodeInfoAsString } from "@eartool/utils";
+import pinoCaller from "pino-caller";
+import { fileURLToPath } from "node:url";
 
 let lastCreated: Logger | undefined;
 let lastCreatedTestPath: string | undefined;
@@ -12,45 +15,52 @@ export function createTestLogger(): Logger {
   Assert.ok(currentTestName != null);
 
   if (lastCreatedTestPath !== testPath || !lastCreated) {
-    const logger = pino(
-      {
-        level: "trace",
-        serializers: {
-          ...pino.stdSerializers,
-          foo: (n: Node) => `${n.getSourceFile().getFilePath()}:${n.getStartLineNumber()}`,
-        },
-        hooks: {
-          logMethod: function logMethod([msg, ...args], method, _foo) {
-            args = args.map((a) => maybeConvertNodeToFileAndLineNum(a));
-            // console.log([msg, ...args]);
-            method.apply(this, [msg, ...args]);
+    const logger = pinoCaller.default(
+      pino(
+        {
+          level: "trace",
+          serializers: {
+            ...pino.stdSerializers,
+            primaryNode: getSimplifiedNodeInfoAsString,
+          },
+          hooks: {
+            logMethod: function logMethod([msg, ...args], method, _foo) {
+              args = args.map((a) => maybeConvertNodeToFileAndLineNum(a));
+              // console.log([msg, ...args]);
+              method.apply(this, [msg, ...args]);
+            },
           },
         },
-      },
-      pino.multistream([
-        {
-          level: "trace",
-          stream: pino.destination({
-            sync: true,
-            mkdir: true,
-            dest: `${testPath}.log.json`,
-          }),
-        },
-        {
-          level: "trace",
-          stream: pinoPretty.default({
-            colorize: true,
-            sync: true,
-            singleLine: false,
-            destination: pino.destination({
+        pino.multistream([
+          {
+            level: "trace",
+            stream: pino.destination({
               sync: true,
               mkdir: true,
-              append: false,
-              dest: `${testPath}.log`,
+              dest: `${testPath}.log.json`,
             }),
-          }),
-        },
-      ])
+          },
+          {
+            level: "trace",
+            stream: pinoPretty.default({
+              colorize: true,
+              colorizeObjects: false,
+              sync: true,
+              singleLine: false,
+              customPrettifiers: {
+                caller: (a) => `${a}\n`,
+              },
+              destination: pino.destination({
+                sync: true,
+                mkdir: true,
+                append: false,
+                dest: `${testPath}.log`,
+              }),
+            }),
+          },
+        ])
+      ),
+      { stackAdjustment: 1, relativeTo: fileURLToPath(new URL("../../../", import.meta.url)) }
     );
 
     logger.setBindings({ currentTestName });

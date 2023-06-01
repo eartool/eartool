@@ -11,7 +11,12 @@ export function replaceAllNamesInScope(
   scope: Node,
   banNames: Set<string>
 ) {
+  const logger = replacements.logger.child({
+    primaryNode: scope,
+    methodName: replaceAllNamesInScope.name,
+  });
   for (const local of scope.getLocals()) {
+    logger.trace("Considering %s %d", local.getName(), local.getDeclarations().length);
     for (const declaration of local.getDeclarations()) {
       if (Node.isImportSpecifier(declaration)) {
         // e.g. import {} from ...

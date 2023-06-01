@@ -13,7 +13,13 @@ export class ProjectContext {
 
   addReplacement = (replacement: Replacement) => {
     this.#getReplacementsArray(replacement.filePath).push(replacement);
-    this.logger.trace("Added replacement %o", replacement);
+    this.logger.trace(
+      "Added Replacement %s:%d:%d with '%s'",
+      replacement.filePath,
+      replacement.start,
+      replacement.end,
+      replacement.newValue
+    );
   };
 
   addReplacementForNode = (node: Node, newValue: string) => {

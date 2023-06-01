@@ -20,6 +20,7 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
+    "@eartool/utils": "workspace:*",
     "@pnpm/filter-workspace-packages": "7.0.8",
     "@pnpm/find-workspace-packages": "^6.0.8",
     "@pnpm/workspace.pkgs-graph": "^2.0.4",
@@ -31,6 +32,7 @@
     "p-queue": "^7.3.4",
     "pino": "^8.14.1",
     "pino-pretty": "^10.0.0",
+    "pino-caller": "^3.4.0",
     "prettier": "^2.8.8",
     "ts-morph": "^18.0.0",
     "tslib": "^2.5.0",

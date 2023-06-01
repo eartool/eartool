@@ -30,7 +30,7 @@ const cases: {
 
             export type Thing = string;
 
-            export interface Props {
+            export interface OtherThing {
               what: Thing;
             }
           }
@@ -64,7 +64,7 @@ const cases: {
     inputs: {
       "foo.tsx": `
           export namespace Foo {
-            export interface Props {
+            export interface Thing {
               what: Thing;
             }
           }
@@ -96,6 +96,23 @@ const cases: {
   },
   {
     name: "function invoke within namespace",
+    inputs: {
+      "foo.tsx": `
+          export namespace Foo {
+            export function bar() {
+              baz();
+            }
+
+            export function baz() {
+              return 5;
+            }
+          }
+          export function Foo() {}
+        `,
+    },
+  },
+  {
+    name: "function invoke within namespace exclusive",
     inputs: {
       "foo.tsx": `
           export namespace Foo {
@@ -180,11 +197,55 @@ const cases: {
           // Foo
           export const fourthWithComment = 555;
         }
+        export function Wat(){}
         `,
     },
   },
   {
-    name: "rename in other file",
+    name: "simple exclusive",
+    inputs: {
+      "foo.ts": `
+        const foo = 5;
+        
+        export namespace Wat {
+          export const aasdf = 3;
+          export const second = 5;
+
+          export const thirdSpaced = 56;
+
+          // Foo
+          export const fourthWithComment = 555;
+        }
+        `,
+    },
+  },
+  {
+    name: "rename in other file non-exclusive",
+    inputs: {
+      "wat.ts": `
+          export namespace Wat {
+            export const key = 3;
+            export function f() { return 5; }
+
+            export class Foo {}
+
+            export type Baz = string;
+          }
+          export function Wat() {}
+        `,
+
+      "refWat.ts": `
+          import {Wat} from "./wat";
+
+          console.log(Wat.key);
+          console.log(Wat.f());
+          console.log(new Wat.Foo());
+          const f: Wat.Baz = "hi";
+        `,
+    },
+  },
+  {
+    name: "rename in other file exclusive",
     inputs: {
       "wat.ts": `
           export namespace Wat {
@@ -208,13 +269,53 @@ const cases: {
     },
   },
   {
-    name: "Conflicting imports work",
+    name: "Conflicting imports work non-exclusive",
     inputs: {
       "foo.ts": `
           export namespace Foo { export type Props = { hi: "mom" }}
+          export function Foo() {}
       `,
       "bar.ts": `
           export namespace Bar { export type Props = { hi: "mom" }}
+          export function Bar() {}
+      `,
+      "baz.ts": `
+          import {Foo} from "./foo";
+          import {Bar} from "./bar";
+          export type Props = Foo.Props & Bar.Props;
+
+      `,
+    },
+  },
+  {
+    name: "Conflicting imports work exclusive",
+    inputs: {
+      "foo.ts": `
+          export namespace Foo { export type Props = { hi: "mom" }}
+
+      `,
+      "bar.ts": `
+          export namespace Bar { export type Props = { hi: "mom" }}
+
+      `,
+      "baz.ts": `
+          import {Foo} from "./foo";
+          import {Bar} from "./bar";
+          export type Props = Foo.Props & Bar.Props;
+
+      `,
+    },
+  },
+  {
+    name: "Conflicting imports work mixed",
+    inputs: {
+      "foo.ts": `
+          export namespace Foo { export type Props = { hi: "mom" }}
+          export function Foo() {}
+      `,
+      "bar.ts": `
+          export namespace Bar { export type Props = { hi: "mom" }}
+
       `,
       "baz.ts": `
           import {Foo} from "./foo";
@@ -255,6 +356,10 @@ const cases: {
           
             export type Props<T extends MapElement> = OwnProps<T> & StoreProps & NectarProps;
           }
+
+          export function MapElementViewerProperties() {
+
+          }
       `,
       "bar.ts": `
           import {MapElementViewerProperties} from "./foo";
@@ -284,6 +389,8 @@ const cases: {
           
             export type Props<T extends MapElement> = OwnProps<T> & StoreProps & NectarProps;
           }
+
+          export function MapElementViewerProperties() {}
       `,
       "bar.ts": `
           import {MapElementViewerProperties} from "./foo";
@@ -313,6 +420,38 @@ const cases: {
             return 6;
           }
         } as const;
+      `,
+      "bar.ts": `
+        import {Foo} from "./foo";
+
+        console.log(Foo.bar());
+        console.log(Foo.baz());
+      `,
+      "alias.ts": `
+        import {Foo as Bar} from "./foo";
+
+        console.log(Bar.bar());
+        console.log(Bar.baz());
+      `,
+    },
+  },
+  {
+    name: "Handles namespace like faux namespace when possible",
+    inputs: {
+      "index.ts": `
+        export {Foo} from "./foo";
+      `,
+      "foo.ts": `
+        export namespace Foo {
+          // direct function
+          export function baz() {
+            return 5; 
+          }
+
+          export const bar = () => {
+            return 6;
+          }
+        } 
       `,
       "bar.ts": `
         import {Foo} from "./foo";
@@ -580,6 +719,7 @@ describe("processProject", () => {
           export namespace Foo {
             export type Props = {};
           }
+          export function Foo(){}
       `,
       "index.ts": `
           export {Foo} from "./foo";

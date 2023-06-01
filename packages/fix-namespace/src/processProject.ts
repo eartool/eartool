@@ -81,14 +81,15 @@ export async function processProject(
   });
 
   for (const sf of project.getSourceFiles()) {
+    const replacements = new ReplacementsWrapper(context);
+
     if (removeNamespaces) {
-      calculateNamespaceRemovals(sf, context);
+      calculateNamespaceRemovals(sf, context, replacements);
       completedWorkUnits++;
       updateState({ totalWorkUnits, completedWorkUnits, stage: "analyzing" });
     }
 
     if (removeFauxNamespaces) {
-      const replacements = new ReplacementsWrapper(context);
       calculateNamespaceLikeRemovals(sf, replacements);
       completedWorkUnits++;
       updateState({ totalWorkUnits, completedWorkUnits, stage: "analyzing" });
