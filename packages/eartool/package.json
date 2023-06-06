@@ -21,7 +21,8 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
-    "@eartool/fix-namespace": "workspace:*",
+    "@eartool/command-fix-namespace": "workspace:*",
+    "@eartool/command-foo": "workspace:*",
     "@eartool/replacements": "workspace:*",
     "@eartool/test-utils": "workspace:*",
     "@eartool/utils": "workspace:*",

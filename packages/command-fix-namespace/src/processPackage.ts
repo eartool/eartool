@@ -1,7 +1,5 @@
-import * as path from "node:path";
-import * as fs from "node:fs";
-import { Project } from "ts-morph";
 import { processProject, type ProcessProjectOpts } from "./processProject.js";
+import { maybeLoadProject } from "@eartool/utils";
 
 /*
     Goal: lets get const / function / class / statement out of namespaces
@@ -17,19 +15,12 @@ import { processProject, type ProcessProjectOpts } from "./processProject.js";
 
 */
 export async function processPackage(packagePath: string, opts: ProcessProjectOpts) {
-  const tsconfigPath = path.join(packagePath, "tsconfig.json");
+  const project = maybeLoadProject(packagePath);
 
-  try {
-    await fs.promises.stat(tsconfigPath);
-  } catch (err) {
+  if (!project) {
     opts.logger.warn(`Skipping package due to missing tsconfig: ${packagePath}`);
     return Promise.resolve({ exportedRenames: [] });
   }
-
-  const project = new Project({
-    tsConfigFilePath: tsconfigPath,
-    skipLoadingLibFiles: true,
-  });
 
   return await processProject(project, opts);
 }

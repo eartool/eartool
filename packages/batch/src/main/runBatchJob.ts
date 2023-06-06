@@ -8,29 +8,31 @@ import type { JobDef } from "../shared/JobDef.js";
 import type { Progress } from "./progress/Progress.js";
 import { NoopProgress } from "./progress/NoopProgress.js";
 import { RealProgress } from "./progress/RealProgress.js";
-import type { Level } from "pino";
+import type { Level, Logger } from "pino";
 
-interface JobInfo {
+export interface JobInfo {
   packageName: string;
   packagePath: string;
   isInStartGroup: boolean;
 }
 
-interface JobSpec<T, R> {
+export interface JobSpec<T, R> {
   workerUrl: URL;
   getJobArgs: (info: JobInfo) => T | Promise<T>;
-  onComplete?: (jobInfo: JobInfo, result: R) => void | Promise<void>;
+  onComplete?: (jobInfo: JobInfo, extra: { logger: Logger; result: R }) => void | Promise<void>;
   skipJobAndReturnResult?: (jobInfo: JobInfo) => R | undefined | Promise<R | undefined>;
 }
 
+export interface BatchJobOptions {
+  workspaceDir: string;
+  startPackageNames: string[]; // todo support glob?
+  logDir: string;
+  dryRun: boolean;
+  progress: boolean;
+}
+
 export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
-  opts: {
-    workspaceDir: string;
-    startPackageNames: string[]; // todo support glob?
-    logDir: string;
-    dryRun: boolean;
-    progress: boolean;
-  },
+  opts: BatchJobOptions,
   jobSpec: JobSpec<Q["__ArgsType"], Q["__ResultType"]>
 ) {
   const { workspaceDir } = opts;
@@ -67,7 +69,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
 
     if (jobSpec.onComplete) {
       logger.debug("Calling onComplete for %s %o", packageName);
-      await jobSpec.onComplete(jobInfo, result);
+      await jobSpec.onComplete(jobInfo, { logger, result });
     }
 
     progress.completeProject(packageName);

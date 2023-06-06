@@ -13,3 +13,4 @@ export type { NamespaceLike, NamespaceLikeVariableDeclaration } from "./tsmorph/
 export { isRootExport } from "./tsmorph/isRootExport.js";
 export { organizeImportsOnFiles } from "./tsmorph/organizeImportsOnFiles.js";
 export { getSimplifiedNodeInfo, getSimplifiedNodeInfoAsString } from "./getSimplifiedNodeInfo.js";
+export { maybeLoadProject } from "./maybeLoadProject.js";

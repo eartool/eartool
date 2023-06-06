@@ -26,11 +26,13 @@ const baseConfig = {
 module.exports = {
   ...baseConfig,
 
-  projects: ["fix-namespace", "utils", "test-utils", "replacements"].map((displayName) => [
-    {
-      ...baseConfig,
-      displayName,
-      rootDir: `<rootDir>/packages/${displayName}`,
-    },
-  ]),
+  projects: ["command-foo", "command-fix-namespace", "utils", "test-utils", "replacements"].map(
+    (displayName) => [
+      {
+        ...baseConfig,
+        displayName,
+        rootDir: `<rootDir>/packages/${displayName}`,
+      },
+    ]
+  ),
 };
