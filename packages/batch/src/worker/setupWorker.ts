@@ -12,6 +12,7 @@ export interface BaseWorkerData<T> {
   packageName: string;
   packagePath: string;
   dryRun: boolean;
+  workspaceDir: string;
 }
 
 export interface WireWorkerData<T> extends BaseWorkerData<T> {

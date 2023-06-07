@@ -13,7 +13,7 @@ export const fooBatchCommand = makeBatchCommand(
         string: true,
       },
     },
-    cliMain: (args) => {
+    cliMain: async (args) => {
       return {
         workerUrl: new URL(import.meta.url),
         getJobArgs() {

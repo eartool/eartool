@@ -1,0 +1,59 @@
+{
+  "name": "@eartool/command-refactor",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf lib tsconfig.tsbuildinfo",
+    "deepClean": "rm -rf lib tsconfig.tsbuildinfo",
+    "fixAll": "pnpm fixFormatting && pnpm fixLint",
+    "fixFormatting": "prettier --write .",
+    "fixLint": "eslint --fix src",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+  },
+  "dependencies": {
+    "@eartool/batch": "workspace:*",
+    "@eartool/replacements": "workspace:*",
+    "@eartool/test-utils": "workspace:*",
+    "@eartool/utils": "workspace:*",
+    "@pnpm/filter-workspace-packages": "7.0.8",
+    "@pnpm/find-workspace-packages": "^6.0.8",
+    "@pnpm/workspace.pkgs-graph": "^2.0.4",
+    "@reduxjs/toolkit": "^2.0.0-alpha.6",
+    "@teppeis/multimaps": "^3.0.0",
+    "@types/pino-pretty": "^5.0.0",
+    "chalk": "^5.2.0",
+    "cli-progress": "^3.12.0",
+    "p-queue": "^7.3.4",
+    "pino": "^8.14.1",
+    "pino-pretty": "^10.0.0",
+    "prettier": "^2.8.8",
+    "ts-morph": "^18.0.0",
+    "tslib": "^2.5.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.5.0",
+    "@types/cli-progress": "^3.11.0",
+    "@types/node": "^20.1.3",
+    "@types/prettier": "^2.7.2",
+    "@types/yargs": "^17.0.24",
+    "@typescript-eslint/eslint-plugin": "^5.59.6",
+    "@typescript-eslint/parser": "^5.59.6",
+    "babel-jest": "^29.5.0",
+    "eslint": "^8.40.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  },
+  "keywords": []
+}

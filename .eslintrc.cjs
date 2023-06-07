@@ -21,6 +21,7 @@ module.exports = {
     "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
     "no-console": "error",
+    "@typescript-eslint/ban-types": "off", // terribly obnoxious since we need Symbol from ts-morph
   },
   reportUnusedDisableDirectives: true,
 };

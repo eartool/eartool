@@ -1,8 +1,7 @@
 import type { SourceFile } from "ts-morph";
 import { Project } from "ts-morph";
 import { createTestLogger } from "@eartool/test-utils";
-import { ReplacementsWrapperForContext } from "./ReplacementsWrapper.js";
-import { ProjectContext } from "./Context.js";
+import { SimpleReplacements } from "./ReplacementsWrapper.js";
 import { processReplacements } from "./processReplacements.js";
 import type { Replacements } from "./Replacements.js";
 import { format } from "prettier";
@@ -19,8 +18,8 @@ export class TestBuilder {
     });
 
     const logger = createTestLogger();
-    const projectContext = new ProjectContext(this.#project, logger);
-    this.#replacements = new ReplacementsWrapperForContext(projectContext);
+
+    this.#replacements = new SimpleReplacements(logger);
   }
 
   get project() {
@@ -58,6 +57,7 @@ export class TestBuilder {
     ];
 
     return {
+      project: this.project,
       changedFiles,
       output: changedFiles
         .map(

@@ -1,53 +1,60 @@
 import { SyntaxKind, type ImportSpecifier } from "ts-morph";
 import type { PackageExportRename } from "./PackageExportRename.js";
 import { findEntireQualifiedNameTree } from "@eartool/utils";
-import type { Identifier } from "ts-morph";
+import type { Identifier, ExportSpecifier } from "ts-morph";
 import * as Assert from "assert";
 import type { Replacements } from "./Replacements.js";
 
 export function accumulateRenamesForImportedIdentifier(
-  importedIdentifier: Identifier,
+  importedOrExportedIdentifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements
 ): void;
 export function accumulateRenamesForImportedIdentifier(
-  importedIdentifier: Identifier,
+  importedOrExportedIdentifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements,
-  addedImportSet: Set<unknown>,
-  importSpec: ImportSpecifier
+  alreadyProcessed: Set<unknown>,
+  specifier: ImportSpecifier | ExportSpecifier
 ): void;
 export function accumulateRenamesForImportedIdentifier(
-  importedIdentifier: Identifier,
+  identifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements,
   // in this case we can skip the add
-  addedImportSet?: Set<unknown> | undefined,
-  importSpec?: ImportSpecifier | undefined
+  alreadyProcessed?: Set<unknown> | undefined,
+  specifier?: ImportSpecifier | ExportSpecifier | undefined
 ) {
   Assert.ok(
-    (addedImportSet == null && importSpec == null) || (addedImportSet != null && importSpec != null)
+    (alreadyProcessed == null && specifier == null) ||
+      (alreadyProcessed != null && specifier != null)
   );
-  for (const refNode of importedIdentifier.findReferencesAsNodes()) {
-    if (refNode === importedIdentifier) continue; // I hate this edge case of tsmorph
-    if (refNode.getSourceFile() !== importedIdentifier.getSourceFile()) continue;
+  for (const refNode of identifier.findReferencesAsNodes()) {
+    const maybeExportSpecifier = refNode.getParentIfKind(SyntaxKind.ExportSpecifier);
+
+    if (!maybeExportSpecifier && refNode === identifier) continue; // I hate this edge case of tsmorph
+    if (refNode.getSourceFile() !== identifier.getSourceFile()) continue;
 
     for (const packageExportRename of packageExportRenames) {
       const fullyQualifiedInstance = findEntireQualifiedNameTree(refNode, packageExportRename.from);
       if (!fullyQualifiedInstance) continue;
 
-      if (importSpec && addedImportSet && !addedImportSet.has(packageExportRename)) {
-        addedImportSet.add(packageExportRename);
-        replacements.insertBefore(importSpec, `${packageExportRename.to[0]},`);
+      if (specifier && alreadyProcessed && !alreadyProcessed.has(packageExportRename)) {
+        alreadyProcessed.add(packageExportRename);
+        if (packageExportRename.to[0] != packageExportRename.from[0]) {
+          replacements.insertBefore(specifier, `${packageExportRename.to[0]},`);
+        }
       }
 
       replacements.replaceNode(fullyQualifiedInstance, packageExportRename.to.join("."));
 
       if (packageExportRename.toFileOrModule) {
         replacements.replaceNode(
-          importedIdentifier
-            .getFirstAncestorByKindOrThrow(SyntaxKind.ImportDeclaration)
-            .getModuleSpecifier(),
+          identifier
+            .getFirstAncestorByKindOrThrow(
+              maybeExportSpecifier ? SyntaxKind.ExportDeclaration : SyntaxKind.ImportDeclaration
+            )
+            .getModuleSpecifier()!,
           `"${packageExportRename.toFileOrModule}"`
         );
       }

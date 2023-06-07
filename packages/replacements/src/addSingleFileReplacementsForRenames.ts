@@ -41,4 +41,33 @@ export function addSingleFileReplacementsForRenames(
       throw e;
     }
   }
+
+  for (const exportDecl of sf.getExportDeclarations()) {
+    const renamesForPackage = renames.get(exportDecl.getModuleSpecifier()!.getLiteralText());
+    if (!renamesForPackage) continue;
+
+    for (const exportSpec of exportDecl.getNamedExports()) {
+      accumulateRenamesForImportedIdentifier(
+        exportSpec.getAliasNode() ?? exportSpec.getNameNode(),
+        renamesForPackage,
+        replacements,
+        alreadyAdded,
+        exportSpec
+      );
+    }
+
+    const maybeNamespaceExport = exportDecl.getNamespaceExport();
+    if (maybeNamespaceExport) {
+      const modifiedRenames = renamesForPackage.map<PackageExportRename>((a) => ({
+        from: [maybeNamespaceExport.getText(), ...a.from],
+        to: [maybeNamespaceExport.getText(), ...a.to],
+      }));
+
+      accumulateRenamesForImportedIdentifier(
+        maybeNamespaceExport.getNameNode(),
+        modifiedRenames,
+        replacements
+      );
+    }
+  }
 }

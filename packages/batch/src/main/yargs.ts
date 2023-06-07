@@ -62,7 +62,7 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
     options: O;
     cliMain: (
       args: yargs.ArgumentsCamelCase<yargs.InferredOptionTypes<O>> & StandardBatchArgs
-    ) => JobSpec<W, R>;
+    ) => Promise<JobSpec<W, R>>;
   },
   workerMain: () => Promise<{
     default: (workerArgs: WorkerData<W>, port: MessagePort) => Promise<R>;
@@ -75,7 +75,7 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
         description,
         (yargs) => yargs.options({ ...standardBatchYargsOptions, ...options }).strict(),
         async (args) => {
-          const q = cliMain(args as any);
+          const q = await cliMain(args as any);
 
           await runBatchJob<JobDef<W, R>>(getBatchJobOptionsFromYargs(args), {
             ...q,

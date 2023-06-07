@@ -8,6 +8,9 @@
       "path": "./packages/command-foo"
     },
     {
+      "path": "./packages/command-refactor"
+    },
+    {
       "path": "./packages/test-utils"
     },
     {

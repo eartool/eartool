@@ -5,7 +5,12 @@ const tsJestBase = {
 
 const swcBase = {
   transform: {
-    "^.+\\.(t|j)sx?$": ["@swc/jest"],
+    "^.+\\.(t|j)sx?$": [
+      "@swc/jest",
+      {
+        sourceMaps: true,
+      },
+    ],
   },
   extensionsToTreatAsEsm: [".ts", ".tsx"],
 };
@@ -26,13 +31,18 @@ const baseConfig = {
 module.exports = {
   ...baseConfig,
 
-  projects: ["command-foo", "command-fix-namespace", "utils", "test-utils", "replacements"].map(
-    (displayName) => [
-      {
-        ...baseConfig,
-        displayName,
-        rootDir: `<rootDir>/packages/${displayName}`,
-      },
-    ]
-  ),
+  projects: [
+    "command-refactor",
+    "command-foo",
+    "command-fix-namespace",
+    "utils",
+    "test-utils",
+    "replacements",
+  ].map((displayName) => [
+    {
+      ...baseConfig,
+      displayName,
+      rootDir: `<rootDir>/packages/${displayName}`,
+    },
+  ]),
 };

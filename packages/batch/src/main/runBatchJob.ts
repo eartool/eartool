@@ -14,6 +14,7 @@ export interface JobInfo {
   packageName: string;
   packagePath: string;
   isInStartGroup: boolean;
+  workspaceDir: string;
 }
 
 export interface JobSpec<T, R> {
@@ -56,7 +57,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
   await workspace.runTasksInOrder(startNodeLookups, async ({ packageName, packagePath }) => {
     const isInStartGroup =
       startNodeLookups.length === 0 || startNodeLookups.some((a) => a.name === packageName);
-    const jobInfo: JobInfo = { packageName, packagePath, isInStartGroup };
+    const jobInfo: JobInfo = { packageName, packagePath, isInStartGroup, workspaceDir };
 
     progress.addProject(packageName);
 
@@ -79,10 +80,11 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
   progress.stop();
 
   async function runInWorker(jobInfo: Readonly<JobInfo>) {
-    const { packageName, packagePath } = jobInfo;
+    const { packageName, packagePath, workspaceDir } = jobInfo;
     const workerData: WireWorkerData<Q["__ArgsType"]> = {
       logDir: path.join(opts.logDir, "per-package", packageName),
       packageName,
+      workspaceDir,
       packagePath,
       dryRun: opts.dryRun,
       jobArgs: await jobSpec.getJobArgs(jobInfo),

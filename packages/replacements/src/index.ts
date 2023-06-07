@@ -8,3 +8,6 @@ export { autorenameIdentifierAndReferences } from "./autorenameIdentifierAndRefe
 export { ProjectContext, NamespaceContext } from "./Context.js";
 export { processReplacements } from "./processReplacements.js";
 export { addSingleFileReplacementsForRenames } from "./addSingleFileReplacementsForRenames.js";
+
+// TODO Move this to its own file
+export { TestBuilder } from "./TestBuilder.js";

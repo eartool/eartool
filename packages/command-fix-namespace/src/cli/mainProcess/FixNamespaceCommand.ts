@@ -25,7 +25,7 @@ export default makeBatchCommand(
     name: "fix-namespaces",
     description: "Removes real and faux namespaces from the codebase",
     options,
-    cliMain: ({
+    cliMain: async ({
       fauxNamespaces: removeFauxNamespaces,
       namespaces: removeNamespaces,
       organizeImports,
