@@ -1,12 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { format } from "prettier";
-import { Project } from "ts-morph";
 import { processProject, type ProcessProjectOpts } from "./processProject.js";
-import { createTestLogger } from "@eartool/test-utils";
-
-function formatTestTypescript(src: string) {
-  return format(src, { parser: "typescript", tabWidth: 2, useTabs: false });
-}
+import { createTestLogger, createProjectForTest, formatTestTypescript } from "@eartool/test-utils";
 
 const cases: {
   name: string;
@@ -737,15 +731,3 @@ describe("processProject", () => {
     expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Props"], to: ["FooProps"] });
   });
 });
-
-function createProjectForTest(inputs: Record<string, string>) {
-  const project = new Project({
-    useInMemoryFileSystem: true,
-    skipAddingFilesFromTsConfig: true,
-  });
-  for (const [name, contents] of Object.entries(inputs)) {
-    project.createSourceFile(name, formatTestTypescript(contents));
-  }
-  project.saveSync();
-  return project;
-}

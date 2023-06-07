@@ -3,6 +3,7 @@ import { Project } from "ts-morph";
 import { getReplacementsForRenames } from "./getReplacementsForRenames.js";
 import type { Replacement } from "./Replacement.js";
 import { createConsoleLogger } from "@eartool/utils";
+import { SimpleReplacements } from "./ReplacementsWrapper.js";
 
 describe(getReplacementsForRenames, () => {
   it("records renames from root", async () => {
@@ -20,13 +21,15 @@ describe(getReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = getReplacementsForRenames(
+    const replacements = new SimpleReplacements(createConsoleLogger("error"));
+
+    getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
-      createConsoleLogger("error")
+      replacements
     );
 
-    expect(r).toEqual([
+    expect(replacements.getReplacementsArray()).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "FooProps"),
     ]);
@@ -45,13 +48,17 @@ describe(getReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = getReplacementsForRenames(
+    const replacements = new SimpleReplacements(createConsoleLogger("error"));
+
+    getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
-      createConsoleLogger("error")
+      replacements
     );
 
-    expect(r).toEqual([createReplacement("/index.ts", indexFileParts, 2, 3, "Bar.FooProps")]);
+    expect(replacements.getReplacementsArray()).toEqual([
+      createReplacement("/index.ts", indexFileParts, 2, 3, "Bar.FooProps"),
+    ]);
   });
 
   it("handles star imprts property access", async () => {
@@ -67,13 +74,17 @@ describe(getReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = getReplacementsForRenames(
+    const replacements = new SimpleReplacements(createConsoleLogger("error"));
+
+    getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
-      createConsoleLogger("error")
+      replacements
     );
 
-    expect(r).toEqual([createReplacement("/index.ts", indexFileParts, 2, 3, "Bar.FooProps")]);
+    expect(replacements.getReplacementsArray()).toEqual([
+      createReplacement("/index.ts", indexFileParts, 2, 3, "Bar.FooProps"),
+    ]);
   });
 
   it("does property access", async () => {
@@ -91,13 +102,15 @@ describe(getReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = getReplacementsForRenames(
+    const replacements = new SimpleReplacements(createConsoleLogger("error"));
+
+    getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
-      createConsoleLogger("error")
+      replacements
     );
 
-    expect(r).toEqual([
+    expect(replacements.getReplacementsArray()).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "FooProps"),
     ]);
@@ -118,13 +131,15 @@ describe(getReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = getReplacementsForRenames(
+    const replacements = new SimpleReplacements(createConsoleLogger("error"));
+
+    getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["Baz", "Other"] }]]]),
-      createConsoleLogger("error")
+      replacements
     );
 
-    expect(r).toEqual([
+    expect(replacements.getReplacementsArray()).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "Baz,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "Baz.Other"),
     ]);
@@ -148,13 +163,15 @@ describe(getReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = getReplacementsForRenames(
+    const replacements = new SimpleReplacements(createConsoleLogger("error"));
+
+    getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
-      createConsoleLogger("error")
+      replacements
     );
 
-    expect(r).toEqual([
+    expect(replacements.getReplacementsArray()).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "FooProps"),
       createReplacement("/index.ts", indexFileParts, 7, 8, "FooProps"),
@@ -179,13 +196,15 @@ describe(getReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = getReplacementsForRenames(
+    const replacements = new SimpleReplacements(createConsoleLogger("error"));
+
+    getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["Merp", "Other"] }]]]),
-      createConsoleLogger("error")
+      replacements
     );
 
-    expect(r).toEqual([
+    expect(replacements.getReplacementsArray()).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "Merp,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "Merp.Other"),
       createReplacement("/index.ts", indexFileParts, 7, 8, "Merp.Other"),
@@ -210,7 +229,9 @@ describe(getReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = getReplacementsForRenames(
+    const replacements = new SimpleReplacements(createConsoleLogger("error"));
+
+    getReplacementsForRenames(
       project,
       new Map([
         [
@@ -221,10 +242,10 @@ describe(getReplacementsForRenames, () => {
           ],
         ],
       ]),
-      createConsoleLogger("error")
+      replacements
     );
 
-    expect(r).toEqual([
+    expect(replacements.getReplacementsArray()).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "FooProps"),
       createReplacement("/index.ts", indexFileParts, 1, 1, "FooState,"),
@@ -250,7 +271,9 @@ describe(getReplacementsForRenames, () => {
       "index.ts": indexFileContents,
     });
 
-    const r = getReplacementsForRenames(
+    const replacements = new SimpleReplacements(createConsoleLogger("error"));
+
+    getReplacementsForRenames(
       project,
       new Map([
         [
@@ -261,10 +284,10 @@ describe(getReplacementsForRenames, () => {
           ],
         ],
       ]),
-      createConsoleLogger("error")
+      replacements
     );
 
-    expect(r).toEqual([
+    expect(replacements.getReplacementsArray()).toEqual([
       createReplacement("/index.ts", indexFileParts, 1, 1, "Baz,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "Baz.Other"),
       createReplacement("/index.ts", indexFileParts, 1, 1, "Bar,"),
@@ -312,7 +335,9 @@ describe(getReplacementsForRenames, () => {
       "lib.ts": libFooParts,
     });
 
-    const r = getReplacementsForRenames(
+    const replacements = new SimpleReplacements(createConsoleLogger("error"));
+
+    getReplacementsForRenames(
       project,
       new Map([
         [
@@ -330,10 +355,10 @@ describe(getReplacementsForRenames, () => {
           ],
         ],
       ]),
-      createConsoleLogger("error")
+      replacements
     );
 
-    expect(r).toEqual([
+    expect(replacements.getReplacementsArray()).toEqual([
       createReplacement("/foo.ts", indexFileParts, 1, 1, "FooProps,"),
       createReplacement("/foo.ts", indexFileParts, 4, 5, "FooProps"),
       createReplacement("/foo.ts", indexFileParts, 1, 1, "FooState,"),

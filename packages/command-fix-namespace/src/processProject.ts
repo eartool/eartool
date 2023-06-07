@@ -1,12 +1,12 @@
 import type { Project } from "ts-morph";
 import { calculateNamespaceRemovals } from "./calculateNamespaceRemovals.js";
 import type { Logger } from "pino";
-import { ProjectContext } from "@eartool/replacements";
+import { ProjectContext, SimpleReplacements } from "@eartool/replacements";
 import { processReplacements, addSingleFileReplacementsForRenames } from "@eartool/replacements";
 import { dropDtsFiles, organizeImportsOnFiles } from "@eartool/utils";
 import type { PackageName } from "@eartool/utils";
-import type { Replacement, PackageExportRename } from "@eartool/replacements";
-import { ReplacementsWrapper } from "@eartool/replacements";
+import type { PackageExportRename } from "@eartool/replacements";
+import { ReplacementsWrapperForContext } from "@eartool/replacements";
 import { calculateNamespaceLikeRemovals } from "./calculateNamespaceLikeRemovals.js";
 
 export interface Status {
@@ -81,7 +81,7 @@ export async function processProject(
   });
 
   for (const sf of project.getSourceFiles()) {
-    const replacements = new ReplacementsWrapper(context);
+    const replacements = new ReplacementsWrapperForContext(context);
 
     if (removeNamespaces) {
       calculateNamespaceRemovals(sf, context, replacements);
@@ -96,9 +96,9 @@ export async function processProject(
     }
 
     if (additionalRenames) {
-      const replacements: Replacement[] = [];
-      addSingleFileReplacementsForRenames(sf, additionalRenames, replacements, logger);
-      for (const r of replacements) {
+      const replacements = new SimpleReplacements(logger);
+      addSingleFileReplacementsForRenames(sf, additionalRenames, replacements);
+      for (const r of replacements.getReplacementsArray()) {
         context.addReplacement(r);
       }
       completedWorkUnits++;

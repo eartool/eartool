@@ -1,17 +1,13 @@
-import type { ImportSpecifier, SourceFile } from "ts-morph";
+import type { SourceFile } from "ts-morph";
 import type { PackageExportRename } from "./PackageExportRename.js";
 import type { PackageName } from "@eartool/utils";
-import type { Replacement } from "./Replacement.js";
-import { findEntireQualifiedNameTree } from "@eartool/utils";
-import type { Logger } from "pino";
-import type { Identifier } from "ts-morph";
-import * as Assert from "assert";
+import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
+import type { Replacements } from "./Replacements.js";
 
 export function addSingleFileReplacementsForRenames(
   sf: SourceFile,
   renames: Map<PackageName, PackageExportRename[]>,
-  replacements: Replacement[],
-  logger: Logger
+  replacements: Replacements
 ) {
   const alreadyAdded = new Set();
 
@@ -32,7 +28,7 @@ export function addSingleFileReplacementsForRenames(
 
       const maybeNamepsaceImport = importDecl.getNamespaceImport();
       if (maybeNamepsaceImport) {
-        const modifiedRenames = renamesForPackage.map((a) => ({
+        const modifiedRenames = renamesForPackage.map<PackageExportRename>((a) => ({
           from: [maybeNamepsaceImport.getText(), ...a.from],
           to: [maybeNamepsaceImport.getText(), ...a.to],
         }));
@@ -40,60 +36,9 @@ export function addSingleFileReplacementsForRenames(
         accumulateRenamesForImportedIdentifier(maybeNamepsaceImport, modifiedRenames, replacements);
       }
     } catch (e) {
-      logger.fatal(e);
-      logger.flush();
+      replacements.logger.fatal(e);
+      replacements.logger.flush();
       throw e;
-    }
-  }
-}
-
-function accumulateRenamesForImportedIdentifier(
-  importedIdentifier: Identifier,
-  packageExportRenames: PackageExportRename[],
-  replacements: Replacement[]
-): void;
-function accumulateRenamesForImportedIdentifier(
-  importedIdentifier: Identifier,
-  packageExportRenames: PackageExportRename[],
-  replacements: Replacement[],
-  addedImportSet: Set<unknown>,
-  importSpec: ImportSpecifier
-): void;
-function accumulateRenamesForImportedIdentifier(
-  importedIdentifier: Identifier,
-  packageExportRenames: PackageExportRename[],
-  replacements: Replacement[],
-  // in this case we can skip the add
-  addedImportSet?: Set<unknown> | undefined,
-  importSpec?: ImportSpecifier | undefined
-) {
-  Assert.ok(
-    (addedImportSet == null && importSpec == null) || (addedImportSet != null && importSpec != null)
-  );
-  for (const refNode of importedIdentifier.findReferencesAsNodes()) {
-    if (refNode === importedIdentifier) continue; // I hate this edge case of tsmorph
-    if (refNode.getSourceFile() !== importedIdentifier.getSourceFile()) continue;
-
-    for (const packageExportRename of packageExportRenames) {
-      const fullyQualifiedInstance = findEntireQualifiedNameTree(refNode, packageExportRename.from);
-      if (!fullyQualifiedInstance) continue;
-
-      if (importSpec && addedImportSet && !addedImportSet.has(packageExportRename)) {
-        addedImportSet.add(packageExportRename);
-        replacements.push({
-          start: importSpec.getStart(),
-          end: importSpec.getStart(),
-          newValue: `${packageExportRename.to[0]},`,
-          filePath: refNode.getSourceFile().getFilePath(),
-        });
-      }
-
-      replacements.push({
-        start: fullyQualifiedInstance.getStart(),
-        end: fullyQualifiedInstance.getEnd(),
-        newValue: packageExportRename.to.join("."),
-        filePath: refNode.getSourceFile().getFilePath(),
-      });
     }
   }
 }

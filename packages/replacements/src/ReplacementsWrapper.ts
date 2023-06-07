@@ -3,10 +3,47 @@ import { SyntaxKind, type SourceFile } from "ts-morph";
 import type { ProjectContext } from "./Context.js";
 import type { Replacement } from "./Replacement.js";
 import type { Replacements } from "./Replacements.js";
+import type { Logger } from "pino";
 
-export class ReplacementsWrapper implements Replacements {
+export abstract class AbstractReplacementsWrapper implements Replacements {
+  abstract get logger(): Logger;
+
+  abstract addReplacement(
+    filePath: string | Node,
+    start: number,
+    end: number,
+    newValue: string
+  ): void;
+
+  abstract getReplacementsMap(): Map<string, Replacement[]>;
+
+  remove(filePath: string | SourceFile, start: number, end: number): void {
+    this.addReplacement(filePath, start, end, "");
+  }
+
+  replaceNode(node: Node, newValue: string): void {
+    this.addReplacement(node, node.getStart(), node.getEnd(), newValue);
+  }
+
+  insertBefore(node: Node, newValue: string): void {
+    this.addReplacement(node, node.getStart(), node.getStart(), newValue);
+  }
+
+  removeNextSiblingIfComma(q: Node) {
+    const sib = q.getNextSibling();
+    if (sib?.isKind(SyntaxKind.CommaToken)) {
+      this.addReplacement(q.getSourceFile(), sib.getStart(), sib.getEnd(), "");
+    }
+  }
+}
+export class ReplacementsWrapperForContext
+  extends AbstractReplacementsWrapper
+  implements Replacements
+{
   #context: ProjectContext;
+
   constructor(context: ProjectContext) {
+    super();
     this.#context = context;
   }
 
@@ -29,27 +66,45 @@ export class ReplacementsWrapper implements Replacements {
     });
   }
 
-  remove(filePath: string | SourceFile, start: number, end: number): void {
-    this.addReplacement(filePath, start, end, "");
+  getReplacementsMap(): Map<string, Replacement[]> {
+    return this.#context.getReplacements();
+  }
+}
+
+export class SimpleReplacements extends AbstractReplacementsWrapper implements Replacements {
+  #logger: Logger;
+  #replacements: Replacement[] = [];
+
+  constructor(logger: Logger) {
+    super();
+    this.#logger = logger;
   }
 
-  replaceNode(node: Node, newValue: string): void {
-    this.addReplacement(node, node.getStart(), node.getEnd(), newValue);
+  get logger() {
+    return this.#logger;
   }
 
-  insertBefore(node: Node, newValue: string): void {
-    this.addReplacement(node, node.getStart(), node.getStart(), newValue);
-  }
-
-  removeNextSiblingIfComma(q: Node) {
-    const sib = q.getNextSibling();
-    if (sib?.isKind(SyntaxKind.CommaToken)) {
-      this.addReplacement(q.getSourceFile(), sib.getStart(), sib.getEnd(), "");
-    }
+  addReplacement(filePath: string | Node, start: number, end: number, newValue: string): void {
+    this.#replacements.push({
+      filePath: getFilePath(filePath),
+      start,
+      end,
+      newValue,
+    });
   }
 
   getReplacementsMap(): Map<string, Replacement[]> {
-    return this.#context.getReplacements();
+    return this.#replacements.reduce((map, a) => {
+      const rs = map.get(a.filePath) ?? [];
+      if (!map.has(a.filePath)) map.set(a.filePath, rs);
+      rs.push(a);
+
+      return map;
+    }, new Map<string, Replacement[]>());
+  }
+
+  getReplacementsArray() {
+    return this.#replacements;
   }
 }
 

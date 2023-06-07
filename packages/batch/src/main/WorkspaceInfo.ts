@@ -107,8 +107,11 @@ export class Workspace {
     }
   }
 
-  async runTasksInOrder(lookup: (Node | PackageLookupCriteria)[], performTask: RunTaskCallback) {
-    const startNodes = [...this.nodesFor(lookup)];
+  async runTasksInOrder(
+    lookup: undefined | (Node | PackageLookupCriteria)[],
+    performTask: RunTaskCallback
+  ) {
+    const startNodes = lookup ? [...this.nodesFor(lookup)] : [];
 
     const statuses = new Map<Node, "skipped" | "scheduled" | "complete" | "todo">();
 
