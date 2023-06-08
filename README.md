@@ -1,5 +1,11 @@
 # TODO
 
+## refactor
+
+when you move into a package, your imports need to be updated that refer to that package
+
+## faux-namespaces
+
 For the faux-namespaces, we need to handle this case:
 
 // no other imports. No type declaration

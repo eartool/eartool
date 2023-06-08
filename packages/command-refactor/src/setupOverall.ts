@@ -1,13 +1,15 @@
 import type { DependencyDirection, Workspace } from "@eartool/batch";
 import type { PackageExportRename } from "@eartool/replacements";
+import type { FilePath, PackageJson } from "@eartool/utils";
+import { readPackageJson } from "@eartool/utils";
+import * as Assert from "node:assert";
+import type { Logger } from "pino";
+import type { FileSystemHost, Project } from "ts-morph";
+import { mergePackageJsonDeps, type PackageJsonDepsRequired } from "./PackageJsonDepsRequired.js";
 import type { PackageName } from "./PackageName.js";
 import { calculatePackageExportRenamesForFileMoves } from "./calculatePackageExportRenamesForFileMoves.js";
 import { getFileContentsRelatively } from "./getFileContentsRelatively.js";
-import * as Assert from "assert";
-import type { Project } from "ts-morph";
-import type { FilePath } from "@eartool/utils";
 import { mapFilesByPackageName } from "./mapFilesByPackageName.js";
-import type { Logger } from "pino";
 
 export type TsMorphProjectLoader = (packagePath: string) => Project | undefined;
 
@@ -20,6 +22,9 @@ export async function setupOverall(
 ): Promise<{
   rootExportsToMove: Map<PackageName, PackageExportRename[]>;
   fileContents: Map<FilePath, string>;
+  packageJsonDepsRequired: PackageJsonDepsRequired;
+  direction: DependencyDirection;
+  primaryPackages: Set<PackageName>;
 }> {
   // Throws if we can't predict the package
   const packageNameToFilesToMove = mapFilesByPackageName(workspace, filesToMove);
@@ -44,8 +49,13 @@ export async function setupOverall(
   const rootExportsToMove = new Map<PackageName, PackageExportRename[]>();
   const fileContents = new Map</* relPath */ FilePath, string>();
 
+  const packageJsonDepsRequired: PackageJsonDepsRequired = {
+    dependencies: new Map(),
+    devDependencies: new Map(),
+  };
+
   for (const [packageName, files] of packageNameToFilesToMove.asMap()) {
-    logger.trace("setupOverall for %s", packageName);
+    logger.debug("setupOverall for %s", packageName);
     const packagePath = workspace.getPackageByNameOrThrow(packageName)!.packagePath;
     const project = projectLoader(packagePath);
     Assert.ok(project);
@@ -58,11 +68,21 @@ export async function setupOverall(
         destinationModule,
         direction
       );
-    logger.trace(
+
+    logger.debug(
       "packageExportRenames: %o",
       packageExportRenames.map((a) => `${a.from} to package ${a.toFileOrModule}`).join("\n")
     );
-    logger.trace("allFilesToMove: %o", [...allFilesToMove]);
+    logger.debug("allFilesToMove: %o", [...allFilesToMove]);
+    logger.debug("requiredPackages: %o", [...requiredPackages]);
+
+    const versions = getPackageVersions(
+      project.getFileSystem(),
+      packagePath,
+      requiredPackages,
+      logger
+    );
+    mergePackageJsonDeps({ from: versions, into: packageJsonDepsRequired });
 
     if (packageExportRenames?.length > 0) {
       rootExportsToMove.set(packageName, packageExportRenames);
@@ -80,7 +100,50 @@ export async function setupOverall(
     }
   }
 
+  const primaryPackages = new Set([...packageNameToFilesToMove.keys(), destinationModule]);
+
   // await workspace.runTasksInOrder([], async ({ packageName, packagePath }) => {});
 
-  return { rootExportsToMove, fileContents };
+  return { rootExportsToMove, fileContents, packageJsonDepsRequired, direction, primaryPackages };
+}
+
+function getPackageVersions(
+  fileSystem: FileSystemHost,
+  packagePath: string,
+  requiredPackages: Set<PackageName>,
+  logger: Logger
+) {
+  const packageFile: PackageJson = readPackageJson(fileSystem, packagePath);
+
+  const ret = {
+    dependencies: new Map<PackageName, string>(),
+    devDependencies: new Map<PackageName, string>(),
+  };
+
+  for (const depName of requiredPackages) {
+    let success = false;
+    for (const depType of ["dependencies", "devDependencies"] as const) {
+      if (assignDepVersion(packageFile, depType, depName, ret)) success = true;
+      if (assignDepVersion(packageFile, depType, `@types/${depName}`, ret)) success = true;
+    }
+    if (!success) {
+      logger.warn("Failed to find a dependency version for `%s`", depName);
+    }
+  }
+
+  return ret;
+}
+function assignDepVersion(
+  packageFile: PackageJson,
+  depType: "dependencies" | "devDependencies",
+  depName: PackageName,
+  ret: { dependencies: Map<PackageName, string>; devDependencies: Map<PackageName, string> }
+) {
+  const maybeVersion = packageFile[depType]?.[depName];
+
+  if (maybeVersion) {
+    ret[depType].set(depName, maybeVersion);
+    return true;
+  }
+  return false;
 }

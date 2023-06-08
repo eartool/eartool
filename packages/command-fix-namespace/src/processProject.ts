@@ -97,7 +97,7 @@ export async function processProject(
 
     if (additionalRenames) {
       const replacements = new SimpleReplacements(logger);
-      addSingleFileReplacementsForRenames(sf, additionalRenames, replacements);
+      addSingleFileReplacementsForRenames(sf, additionalRenames, replacements, dryRun);
       for (const r of replacements.getReplacementsArray()) {
         context.addReplacement(r);
       }

@@ -15,7 +15,8 @@ describe(addSingleFileReplacementsForRenames, () => {
         addSingleFileReplacementsForRenames(
           files.get("/index.ts")!,
           new Map([["./bar", [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }]]]),
-          replacements
+          replacements,
+          false
         );
       })
       .build();
@@ -28,7 +29,7 @@ describe(addSingleFileReplacementsForRenames, () => {
 
       export { bar } from "baz";
       export {} from "./bar";
-      
+
 
       //
       // <//index.ts>
@@ -51,7 +52,8 @@ describe(addSingleFileReplacementsForRenames, () => {
         addSingleFileReplacementsForRenames(
           files.get("/index.ts")!,
           new Map([["./bar", [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }]]]),
-          replacements
+          replacements,
+          false
         );
       })
       .build();

@@ -26,7 +26,8 @@ describe(getReplacementsForRenames, () => {
     getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
-      replacements
+      replacements,
+      false
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -53,7 +54,8 @@ describe(getReplacementsForRenames, () => {
     getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
-      replacements
+      replacements,
+      false
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -79,7 +81,8 @@ describe(getReplacementsForRenames, () => {
     getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
-      replacements
+      replacements,
+      false
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -107,7 +110,8 @@ describe(getReplacementsForRenames, () => {
     getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
-      replacements
+      replacements,
+      false
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -136,7 +140,8 @@ describe(getReplacementsForRenames, () => {
     getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["Baz", "Other"] }]]]),
-      replacements
+      replacements,
+      false
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -168,7 +173,8 @@ describe(getReplacementsForRenames, () => {
     getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
-      replacements
+      replacements,
+      false
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -201,7 +207,8 @@ describe(getReplacementsForRenames, () => {
     getReplacementsForRenames(
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["Merp", "Other"] }]]]),
-      replacements
+      replacements,
+      false
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -242,7 +249,8 @@ describe(getReplacementsForRenames, () => {
           ],
         ],
       ]),
-      replacements
+      replacements,
+      false
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -284,7 +292,8 @@ describe(getReplacementsForRenames, () => {
           ],
         ],
       ]),
-      replacements
+      replacements,
+      false
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -355,7 +364,8 @@ describe(getReplacementsForRenames, () => {
           ],
         ],
       ]),
-      replacements
+      replacements,
+      false
     );
 
     expect(replacements.getReplacementsArray()).toEqual([

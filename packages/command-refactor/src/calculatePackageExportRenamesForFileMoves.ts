@@ -1,9 +1,11 @@
 import type { DependencyDirection } from "@eartool/batch";
 import type { PackageExportRename } from "@eartool/replacements";
-import type { FilePath } from "@eartool/utils";
-import * as Assert from "assert";
+import type { FilePath, PackageName } from "@eartool/utils";
+import * as Assert from "node:assert";
 import type { Project, SourceFile } from "ts-morph";
 import { getConsumedExports as getConsumedImportsAndExports } from "./getConsumedExports.js";
+
+const packageNameRegex = /^((@[a-zA-Z0-9_-]+\/)?[a-zA-Z0-9_-]+)/;
 
 /**
  * Ignores files that aren't in the project
@@ -17,11 +19,12 @@ import { getConsumedExports as getConsumedImportsAndExports } from "./getConsume
 export function calculatePackageExportRenamesForFileMoves(
   project: Project,
   filesToMove: Iterable<FilePath>,
-  packagePath: string,
-  destinationModule: string,
+  packagePath: FilePath,
+  destinationModule: PackageName,
   direction: DependencyDirection
 ) {
   const packageExportRenames: PackageExportRename[] = [];
+  const requiredPackages = new Set<PackageName>();
 
   const visitedFiles = new Set<FilePath>();
   const toVisit = [...filesToMove];
@@ -38,9 +41,15 @@ export function calculatePackageExportRenamesForFileMoves(
     // in project only;
     addRenamesForRootExport(sf, packagePath, packageExportRenames, destinationModule);
 
-    if (direction == "downstream" || direction == "sideways") {
-      // This should mean that we are planning to move the files downstream
-      // aka a -> b -> c, files in c move to b or a.
+    for (const literal of sf.getImportStringLiterals()) {
+      if (literal.getLiteralText().startsWith(".")) continue;
+      const depName = packageNameRegex.exec(literal.getLiteralText())?.[0];
+      if (!depName) continue;
+      requiredPackages.add(depName);
+    }
+
+    if (direction == "upstream" || direction == "sideways") {
+      // aka a -> b -> c, files in a move to b or c
 
       for (const q of sf.getImportDeclarations()) {
         if (q.getModuleSpecifierValue().startsWith(".")) {
@@ -52,7 +61,7 @@ export function calculatePackageExportRenamesForFileMoves(
     }
   }
 
-  return { allFilesToMove: visitedFiles, packageExportRenames };
+  return { allFilesToMove: visitedFiles, packageExportRenames, requiredPackages };
 }
 function addRenamesForRootExport(
   sf: SourceFile,

@@ -9,12 +9,14 @@ import type { Replacements } from "./Replacements.js";
 export function accumulateRenamesForImportedIdentifier(
   importedOrExportedIdentifier: Identifier,
   packageExportRenames: PackageExportRename[],
-  replacements: Replacements
+  replacements: Replacements,
+  dryRun: boolean
 ): void;
 export function accumulateRenamesForImportedIdentifier(
   importedOrExportedIdentifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements,
+  dryRun: boolean,
   alreadyProcessed: Set<unknown>,
   specifier: ImportSpecifier | ExportSpecifier
 ): void;
@@ -22,6 +24,7 @@ export function accumulateRenamesForImportedIdentifier(
   identifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements,
+  dryRun: boolean,
   // in this case we can skip the add
   alreadyProcessed?: Set<unknown> | undefined,
   specifier?: ImportSpecifier | ExportSpecifier | undefined
@@ -45,7 +48,8 @@ export function accumulateRenamesForImportedIdentifier(
           replacements,
           specifier,
           packageExportRename.to?.[0],
-          packageExportRename.toFileOrModule
+          packageExportRename.toFileOrModule,
+          dryRun
         );
       } else {
         if (packageExportRename.to != undefined) {
@@ -56,18 +60,44 @@ export function accumulateRenamesForImportedIdentifier(
             packageExportRename.to[0] != packageExportRename.from[0]
           ) {
             alreadyProcessed.add(packageExportRename);
+
+            replacements.logger[dryRun ? "info" : "trace"](
+              "DRYRUN: Would be adding `%s` to `%s` in %s",
+              packageExportRename.to[0],
+              specifier.getText(),
+              specifier.getSourceFile().getFilePath()
+            );
+
             replacements.insertBefore(specifier, `${packageExportRename.to[0]},`);
           }
-          replacements.replaceNode(fullyQualifiedInstance, packageExportRename.to.join("."));
+
+          const fullReplacement = packageExportRename.to.join(".");
+
+          replacements.logger[dryRun ? "info" : "trace"](
+            "DRYRUN: Would be replacing `%s` with `%s` in %s",
+            fullyQualifiedInstance.getText(),
+            fullReplacement,
+            fullyQualifiedInstance.getSourceFile().getFilePath()
+          );
+
+          replacements.replaceNode(fullyQualifiedInstance, fullReplacement);
         }
 
         if (packageExportRename.toFileOrModule) {
+          const decl = identifier.getFirstAncestorByKindOrThrow(
+            maybeExportSpecifier ? SyntaxKind.ExportDeclaration : SyntaxKind.ImportDeclaration
+          );
+
+          replacements.logger[dryRun ? "info" : "trace"](
+            'DRYRUN: Would be replacing `"%s"` with `"%s"` in %s',
+            decl.getModuleSpecifier()!.getText(),
+            `"${packageExportRename.toFileOrModule}"`,
+            fullyQualifiedInstance.getSourceFile().getFilePath()
+          );
+
+          // This is broken i am positive FIXME
           replacements.replaceNode(
-            identifier
-              .getFirstAncestorByKindOrThrow(
-                maybeExportSpecifier ? SyntaxKind.ExportDeclaration : SyntaxKind.ImportDeclaration
-              )
-              .getModuleSpecifier()!,
+            decl.getModuleSpecifier()!,
             `"${packageExportRename.toFileOrModule}"`
           );
         }
@@ -80,7 +110,8 @@ function addImportOrExport(
   replacements: Replacements,
   specifier: ImportSpecifier | ExportSpecifier,
   newSymbolName: string | undefined,
-  newModuleSpecifier: string
+  newModuleSpecifier: string,
+  dryRun: boolean
 ) {
   const keyword = specifier.isKind(SyntaxKind.ExportSpecifier) ? "export" : "import";
   const decl = specifier.getFirstAncestorByKindOrThrow(
@@ -90,8 +121,20 @@ function addImportOrExport(
   );
 
   const symbolName = newSymbolName ?? specifier.getName();
+  const importLine = `${keyword} { ${symbolName} } from "${newModuleSpecifier}";`;
 
-  replacements.insertBefore(decl, `${keyword} { ${symbolName} } from "${newModuleSpecifier}";\n`);
+  replacements.logger[dryRun ? "info" : "trace"](
+    "Adding import `%s` to %s",
+    importLine,
+    decl.getSourceFile().getFilePath()
+  );
+  replacements.logger[dryRun ? "info" : "trace"](
+    "Deleting `%s` from `%s` in %s",
+    specifier.getNameNode().getText(),
+    decl.getText(),
+    specifier.getSourceFile().getFilePath()
+  );
+  replacements.insertBefore(decl, `${importLine}\n`);
   replacements.replaceNode(specifier.getNameNode(), "");
   replacements.removeNextSiblingIfComma(specifier);
 }

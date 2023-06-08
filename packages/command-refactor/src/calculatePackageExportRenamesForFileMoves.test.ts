@@ -27,13 +27,13 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
       new Set(["/workspace/foo/src/foo.ts"]),
       "/workspace/foo/",
       "baz",
-      "downstream"
+      "upstream"
     );
 
     const expected: ReturnType<typeof calculatePackageExportRenamesForFileMoves> = {
       packageExportRenames: [{ from: ["foo"], toFileOrModule: "baz" }],
       allFilesToMove: new Set(["/workspace/foo/src/foo.ts"]),
-      requiredPackages: new Map(),
+      requiredPackages: new Set(),
     };
 
     expect(result).toEqual(expected);
@@ -71,13 +71,13 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
       new Set(["/workspace/foo/src/foo.ts"]),
       "/workspace/foo/",
       "baz",
-      "downstream"
+      "upstream"
     );
 
     const expected: ReturnType<typeof calculatePackageExportRenamesForFileMoves> = {
       packageExportRenames: [{ from: ["foo"], toFileOrModule: "baz" }],
       allFilesToMove: new Set(["/workspace/foo/src/foo.ts", "/workspace/foo/src/bar.ts"]),
-      requiredPackages: new Map(),
+      requiredPackages: new Set(),
     };
 
     expect(result).toEqual(expected);
@@ -90,7 +90,8 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
           "src/foo.ts",
           `
           import {bar} from "./bar";
-          export const foo = bar;
+          import {runAlgo} from "algolib";
+          export const foo = runAlgo(bar);
         `
         )
           .addFile(
@@ -116,7 +117,7 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
       new Set(["/workspace/foo/src/foo.ts"]),
       "/workspace/foo/",
       "baz",
-      "downstream"
+      "upstream"
     );
 
     const expected: ReturnType<typeof calculatePackageExportRenamesForFileMoves> = {
@@ -125,7 +126,7 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
         { from: ["bar"], toFileOrModule: "baz" },
       ],
       allFilesToMove: new Set(["/workspace/foo/src/foo.ts", "/workspace/foo/src/bar.ts"]),
-      requiredPackages: new Map(),
+      requiredPackages: new Set(["algolib"]),
     };
 
     expect(result).toEqual(expected);

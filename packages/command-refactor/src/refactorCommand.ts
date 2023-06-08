@@ -10,13 +10,18 @@ import {
   dropDtsFiles,
   maybeLoadProject,
   organizeImportsOnFiles,
+  readPackageJson,
   type PackageName,
+  writePackageJson,
+  type PackageJson,
 } from "@eartool/utils";
 import * as path from "node:path";
 import type { Logger } from "pino";
 import type { Project } from "ts-morph";
 import { removeFilesIfInProject } from "./removeFilesIfInProject.js";
 import { setupOverall } from "./setupOverall.js";
+import type { PackageJsonDepsRequired } from "./PackageJsonDepsRequired.js";
+import * as fs from "node:fs";
 
 /*
 There are a lot of scenarios I want to be able to do easily.
@@ -92,8 +97,15 @@ export const refactorCommand = makeBatchCommand(
       },
     },
     cliMain: async (args) => {
-      const { fileContents, rootExportsToMove } = await setupOverall(
-        await createWorkspaceFromDisk(args.workspace),
+      const workspace = await createWorkspaceFromDisk(args.workspace);
+      const {
+        fileContents,
+        rootExportsToMove,
+        packageJsonDepsRequired,
+        direction,
+        primaryPackages,
+      } = await setupOverall(
+        workspace,
         maybeLoadProject,
         new Set(args.files),
         args.destination,
@@ -106,12 +118,33 @@ export const refactorCommand = makeBatchCommand(
         workerUrl: new URL(import.meta.url),
         getJobArgs({ packageName }) {
           return {
+            packageJsonDepsRequired:
+              packageName === args.destination ? packageJsonDepsRequired : undefined,
             filesToAdd: packageName === args.destination ? fileContents : new Map<string, string>(),
             rootExportsToMove,
             filesToMove: args.files,
             destination: args.destination,
+            primaryPackages,
             shouldOrganizeImports: false, // fixme
           };
+        },
+        skipJobAndReturnResult(jobInfo) {
+          if (primaryPackages.has(jobInfo.packageName)) return undefined;
+
+          const packageJson: PackageJson = JSON.parse(
+            fs.readFileSync(path.join(jobInfo.packagePath, "package.json"), "utf-8")
+          );
+
+          const depNames = [
+            ...Object.keys(packageJson.dependencies ?? {}),
+            ...Object.keys(packageJson.devDependencies ?? {}),
+          ];
+          if (depNames.some((a) => primaryPackages.has(a))) {
+            return undefined;
+          }
+
+          // SKIP
+          return {};
         },
         onComplete() {
           // extra.logger.info(extra.result);
@@ -125,7 +158,13 @@ export const refactorCommand = makeBatchCommand(
         packagePath,
         logger,
         dryRun,
-        jobArgs: { filesToAdd, filesToMove, rootExportsToMove, shouldOrganizeImports },
+        jobArgs: {
+          filesToAdd,
+          filesToMove,
+          rootExportsToMove,
+          shouldOrganizeImports,
+          packageJsonDepsRequired,
+        },
       }) => {
         const project = maybeLoadProject(packagePath);
         if (!project) {
@@ -134,13 +173,18 @@ export const refactorCommand = makeBatchCommand(
 
         dropDtsFiles(project);
 
+        if (packageJsonDepsRequired) {
+          assignDependencyVersions(project, packagePath, packageJsonDepsRequired, logger, dryRun);
+        }
+
         const changedFiles = await doTheWork(
           filesToMove,
           project,
           filesToAdd,
           packagePath,
           logger,
-          rootExportsToMove
+          rootExportsToMove,
+          dryRun
         );
 
         if (shouldOrganizeImports) {
@@ -159,24 +203,65 @@ export const refactorCommand = makeBatchCommand(
   }
 );
 
+function assignDependencyVersions(
+  project: Project,
+  packagePath: string,
+  packageJsonDepsRequired: PackageJsonDepsRequired,
+  logger: Logger,
+  dryRun: boolean
+) {
+  const packageJson = readPackageJson(project.getFileSystem(), packagePath);
+  for (const type of ["dependencies", "devDependencies"] as const) {
+    if (packageJsonDepsRequired[type].size > 0) {
+      const typeObj = packageJson[type] ?? {};
+      packageJson[type] = typeObj;
+
+      for (const [depName, depVersion] of packageJsonDepsRequired[type]) {
+        if (typeObj[depName]) {
+          if (typeObj[depName] != depVersion) {
+            logger.warn(
+              "Overwritting dependency version for '%s': '%s' with version '%s'",
+              depName,
+              typeObj[depName],
+              depVersion
+            );
+          }
+        }
+        logger[dryRun ? "info" : "trace"](
+          "Setting dependency version '%s': '%s'",
+          depName,
+          depVersion
+        );
+        typeObj[depName] = depVersion;
+      }
+    }
+  }
+  if (!dryRun) {
+    writePackageJson(project.getFileSystem(), packagePath, packageJson);
+  }
+}
+
 async function doTheWork(
   filesToMove: string[],
   project: Project,
   filesToAdd: Map<string, string>,
   packagePath: string,
   logger: Logger,
-  rootExportsToMove: Map<PackageName, PackageExportRename[]>
+  rootExportsToMove: Map<PackageName, PackageExportRename[]>,
+  dryRun: boolean
 ) {
-  removeFilesIfInProject(filesToMove, project);
+  removeFilesIfInProject(filesToMove, project, logger, dryRun);
 
   for (const [relPath, contents] of filesToAdd) {
-    project.createSourceFile(path.resolve(packagePath, relPath), contents);
+    const fullpath = path.resolve(packagePath, relPath);
+    logger[dryRun ? "info" : "trace"]("Adding file '%s'", fullpath);
+    project.createSourceFile(fullpath, contents);
   }
 
   const replacements = new SimpleReplacements(logger);
 
   for (const sf of project.getSourceFiles()) {
-    addSingleFileReplacementsForRenames(sf, rootExportsToMove, replacements);
+    addSingleFileReplacementsForRenames(sf, rootExportsToMove, replacements, dryRun);
   }
 
   // actually updates files in project!

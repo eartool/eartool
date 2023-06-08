@@ -57,7 +57,7 @@ function getBatchJobOptionsFromYargs(args: StandardBatchArgs): BatchJobOptions {
   };
 }
 
-export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, R>(
+export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, R extends {}>(
   {
     name,
     description,

@@ -26,7 +26,7 @@ describe(setupOverall, () => {
     it("pushes down stream", async () => {
       const { workspace, projectLoader } = createInitialWorkspaceBuilder().build();
 
-      const { fileContents, rootExportsToMove } = await setupOverall(
+      const { fileContents, rootExportsToMove, packageJsonDepsRequired } = await setupOverall(
         workspace,
         projectLoader,
         new Set(["/workspace/api/src/doThingWithState.ts"]),
@@ -41,6 +41,7 @@ describe(setupOverall, () => {
       );
 
       expect([...fileContents.keys()]).toEqual(["src/doThingWithState.ts"]);
+      expect(packageJsonDepsRequired.dependencies).toEqual(new Map([["util", "workspace:*"]]));
     });
   });
 
@@ -89,6 +90,14 @@ function createInitialWorkspaceBuilder() {
           `
       );
     })
+    .createProject("util", (p) => {
+      p.addFile(
+        "src/index.ts",
+        `
+        export function identity(a: any){ return a; }
+      `
+      );
+    })
     .createProject("api", (p) => {
       p.addFile(
         "src/index.ts",
@@ -114,10 +123,12 @@ function createInitialWorkspaceBuilder() {
         .addFile(
           "src/doThingWithState.ts",
           `
-            export function doThingWithState(state: State) { return state.foo; }
+            import {identity} from "util";
+            export function doThingWithState(state: State) { return identity(state.foo); }
           `
         )
-        .addDependency("state");
+        .addDependency("state")
+        .addDependency("util");
       //
     })
     .createProject("app", (p) => {

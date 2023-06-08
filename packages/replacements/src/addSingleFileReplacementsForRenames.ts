@@ -7,7 +7,8 @@ import type { Replacements } from "./Replacements.js";
 export function addSingleFileReplacementsForRenames(
   sf: SourceFile,
   renames: Map<PackageName, PackageExportRename[]>,
-  replacements: Replacements
+  replacements: Replacements,
+  dryRun: boolean
 ) {
   const alreadyAdded = new Set();
 
@@ -21,6 +22,7 @@ export function addSingleFileReplacementsForRenames(
           importSpec.getAliasNode() ?? importSpec.getNameNode(),
           renamesForPackage,
           replacements,
+          dryRun,
           alreadyAdded,
           importSpec
         );
@@ -31,7 +33,8 @@ export function addSingleFileReplacementsForRenames(
         accumulateRenamesForImportedIdentifier(
           maybeNamepsaceImport,
           prependRenames(renamesForPackage, maybeNamepsaceImport),
-          replacements
+          replacements,
+          dryRun
         );
       }
     } catch (e) {
@@ -54,6 +57,7 @@ export function addSingleFileReplacementsForRenames(
         exportSpec.getAliasNode() ?? exportSpec.getNameNode(),
         renamesForPackage,
         replacements,
+        dryRun,
         alreadyAdded,
         exportSpec
       );
@@ -64,7 +68,8 @@ export function addSingleFileReplacementsForRenames(
       accumulateRenamesForImportedIdentifier(
         maybeNamespaceExport.getNameNode(),
         prependRenames(renamesForPackage, maybeNamespaceExport),
-        replacements
+        replacements,
+        dryRun
       );
     }
   }

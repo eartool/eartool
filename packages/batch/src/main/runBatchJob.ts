@@ -41,8 +41,6 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
   // we have at least 11 under a normal run on my mac. it doesn't grow, we arent leaking
   process.setMaxListeners(20);
 
-  logger.trace("Creating workspace object");
-
   const progress: Progress = opts.progress ? new RealProgress() : new NoopProgress();
 
   const workspace = await createWorkspaceFromDisk(workspaceDir);
@@ -60,18 +58,18 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
 
     const maybeSkipWithResult = await jobSpec.skipJobAndReturnResult?.(jobInfo);
     if (maybeSkipWithResult) {
-      logger.debug("Skipping with result for %s", packageName);
+      logger.trace("Skipping with result for %s", packageName);
     }
 
     const result = maybeSkipWithResult ?? (await runInWorker(jobInfo));
 
     if (jobSpec.onComplete) {
-      logger.debug("Calling onComplete for %s %o", packageName);
+      logger.trace("Calling onComplete for %s %o", packageName);
       await jobSpec.onComplete(jobInfo, { logger, result });
     }
 
     progress.completeProject(packageName);
-    logger.info("Done with %s", packageName);
+    logger.trace("Done with %s", packageName);
   });
 
   progress.stop();
@@ -87,7 +85,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
       jobArgs: await jobSpec.getJobArgs(jobInfo),
     };
 
-    logger.info("Forking worker for %s", packageName);
+    logger.debug("Forking worker for %s", packageName);
     const worker = new Worker(jobSpec.workerUrl, { workerData });
 
     const { port1: myPort, port2: theirPort } = new MessageChannel();

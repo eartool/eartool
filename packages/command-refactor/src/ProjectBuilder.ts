@@ -40,6 +40,7 @@ export class ProjectBuilder {
 
   addDependency(packageName: string) {
     this.#workspace.addDependency(this.#packageName, packageName);
+    return this;
   }
 
   get project() {

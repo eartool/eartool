@@ -1,6 +1,6 @@
 import { Workspace } from "@eartool/batch";
 import { createTestLogger } from "@eartool/test-utils";
-import type { FilePath, PackageName } from "@eartool/utils";
+import { writePackageJson, type FilePath, type PackageName, readPackageJson } from "@eartool/utils";
 import * as path from "node:path";
 import type { Logger } from "pino";
 import type { Project } from "ts-morph";
@@ -41,6 +41,8 @@ export class WorkspaceBuilder {
       JSON.stringify({ packageName, dependencies: {} })
     );
 
+    writePackageJson(this.#fs, packagePath, { name: packageName });
+
     const builder = new ProjectBuilder(packageName, packagePath, this);
     callback(builder);
     builder.project.saveSync();
@@ -55,13 +57,29 @@ export class WorkspaceBuilder {
     const toPackage = this.#workspace.getPackageBy({ name: to });
 
     if (fromPackage && toPackage) {
-      fromPackage.addDependency(toPackage);
+      this.#actuallyAddDependency(from, to);
     } else {
       this.#deferredDependency.push([from, to]);
     }
   }
 
+  #actuallyAddDependency(from: PackageName, to: PackageName) {
+    const fromPackage = this.#workspace.getPackageByNameOrThrow(from);
+    const toPackage = this.#workspace.getPackageByNameOrThrow(to);
+
+    fromPackage.addDependency(toPackage);
+    const packageJson = readPackageJson(this.#fs, fromPackage.packagePath);
+    if (!packageJson.dependencies) {
+      packageJson.dependencies = {};
+    }
+    packageJson.dependencies[to] = "workspace:*";
+    writePackageJson(this.#fs, fromPackage.packagePath, packageJson);
+  }
+
   build() {
+    for (const [from, to] of this.#deferredDependency) {
+      this.#actuallyAddDependency(from, to);
+    }
     return {
       workspace: this.#workspace,
       projectLoader: (packagePath: FilePath) => {

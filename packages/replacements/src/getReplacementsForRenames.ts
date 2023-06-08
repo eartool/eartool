@@ -8,9 +8,10 @@ import type { Replacements } from "./Replacements.js";
 export function getReplacementsForRenames(
   project: Project,
   renames: Map<PackageName, PackageExportRename[]>,
-  replacements: Replacements
+  replacements: Replacements,
+  dryRun: boolean
 ): void {
   for (const sf of project.getSourceFiles()) {
-    addSingleFileReplacementsForRenames(sf, renames, replacements);
+    addSingleFileReplacementsForRenames(sf, renames, replacements, dryRun);
   }
 }

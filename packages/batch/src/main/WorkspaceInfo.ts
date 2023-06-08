@@ -143,7 +143,7 @@ export class Workspace {
     const visitedNames = new Set<PackageName>();
     const toVisit = [from];
 
-    const subField = direction === "downstream" ? "depsByName" : "inverseDepsByName";
+    const subField = direction === "upstream" ? "depsByName" : "inverseDepsByName";
 
     while (toVisit.length > 0) {
       const p = toVisit.shift()!;
