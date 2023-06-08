@@ -4,6 +4,7 @@ import type { FilePath, PackageName } from "@eartool/utils";
 import * as Assert from "node:assert";
 import type { Project, SourceFile } from "ts-morph";
 import { getConsumedExports as getConsumedImportsAndExports } from "./getConsumedExports.js";
+import type { Logger } from "pino";
 
 const packageNameRegex = /^((@[a-zA-Z0-9_-]+\/)?[a-zA-Z0-9_-]+)/;
 
@@ -21,7 +22,8 @@ export function calculatePackageExportRenamesForFileMoves(
   filesToMove: Iterable<FilePath>,
   packagePath: FilePath,
   destinationModule: PackageName,
-  direction: DependencyDirection
+  direction: DependencyDirection,
+  logger: Logger
 ) {
   const packageExportRenames: PackageExportRename[] = [];
   const requiredPackages = new Set<PackageName>();
@@ -39,7 +41,7 @@ export function calculatePackageExportRenamesForFileMoves(
     const sf = project.getSourceFile(curFilePath);
     if (!sf) continue;
     // in project only;
-    addRenamesForRootExport(sf, packagePath, packageExportRenames, destinationModule);
+    addRenamesForRootExport(sf, packagePath, packageExportRenames, destinationModule, logger);
 
     for (const literal of sf.getImportStringLiterals()) {
       if (literal.getLiteralText().startsWith(".")) continue;
@@ -63,11 +65,13 @@ export function calculatePackageExportRenamesForFileMoves(
 
   return { allFilesToMove: visitedFiles, packageExportRenames, requiredPackages };
 }
+
 function addRenamesForRootExport(
   sf: SourceFile,
   packagePath: FilePath,
   packageExportRenames: PackageExportRename[],
-  destinationModule: string
+  destinationModule: string,
+  logger: Logger
 ) {
   const consumed = getConsumedImportsAndExports(sf);
 
@@ -79,7 +83,7 @@ function addRenamesForRootExport(
     .find((a) => a != null);
 
   if (rootFile == null) {
-    console.warn("Couldnt find root file for package: " + packagePath);
+    logger.error("Couldnt find root file for package: " + packagePath);
     return;
   }
 

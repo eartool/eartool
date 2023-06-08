@@ -66,7 +66,8 @@ export async function setupOverall(
         files,
         packagePath,
         destinationModule,
-        direction
+        direction,
+        logger
       );
 
     logger.debug(

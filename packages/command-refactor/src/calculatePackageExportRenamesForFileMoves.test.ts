@@ -1,6 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import { calculatePackageExportRenamesForFileMoves } from "./calculatePackageExportRenamesForFileMoves.js";
 import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
+import { createTestLogger } from "@eartool/test-utils";
 
 describe(calculatePackageExportRenamesForFileMoves, () => {
   it("handles a named import module specifier ", () => {
@@ -27,7 +28,8 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
       new Set(["/workspace/foo/src/foo.ts"]),
       "/workspace/foo/",
       "baz",
-      "upstream"
+      "upstream",
+      createTestLogger()
     );
 
     const expected: ReturnType<typeof calculatePackageExportRenamesForFileMoves> = {
@@ -71,7 +73,8 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
       new Set(["/workspace/foo/src/foo.ts"]),
       "/workspace/foo/",
       "baz",
-      "upstream"
+      "upstream",
+      createTestLogger()
     );
 
     const expected: ReturnType<typeof calculatePackageExportRenamesForFileMoves> = {
@@ -117,7 +120,8 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
       new Set(["/workspace/foo/src/foo.ts"]),
       "/workspace/foo/",
       "baz",
-      "upstream"
+      "upstream",
+      createTestLogger()
     );
 
     const expected: ReturnType<typeof calculatePackageExportRenamesForFileMoves> = {
