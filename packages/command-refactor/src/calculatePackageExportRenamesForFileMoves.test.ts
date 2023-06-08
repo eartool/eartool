@@ -7,12 +7,12 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
     const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
       .createProject("foo", (p) => {
         p.addFile(
-          "/src/foo.ts",
+          "src/foo.ts",
           `
             export const foo = 5;
           `
         ).addFile(
-          "/src/index.ts",
+          "src/index.ts",
           `
             export {foo} from "./foo";
           `
@@ -20,19 +20,20 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
       })
       .build();
 
-    const project = projectLoader(workspace.getPackageBy({ name: "foo" })!.packagePath)!;
+    const project = projectLoader(workspace.getPackageByNameOrThrow("foo").packagePath)!;
 
     const result = calculatePackageExportRenamesForFileMoves(
       project,
-      new Set(["/src/foo.ts"]),
-      "/",
+      new Set(["/workspace/foo/src/foo.ts"]),
+      "/workspace/foo/",
       "baz",
       "downstream"
     );
 
     const expected: ReturnType<typeof calculatePackageExportRenamesForFileMoves> = {
       packageExportRenames: [{ from: ["foo"], toFileOrModule: "baz" }],
-      allFilesToMove: new Set(["/src/foo.ts"]),
+      allFilesToMove: new Set(["/workspace/foo/src/foo.ts"]),
+      requiredPackages: new Map(),
     };
 
     expect(result).toEqual(expected);
@@ -42,40 +43,41 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
     const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
       .createProject("foo", (p) => {
         p.addFile(
-          "/src/foo.ts",
+          "src/foo.ts",
           `
-          import {bar} from "./bar";
-          export const foo = bar;
-        `
+            import {bar} from "./bar";
+            export const foo = bar;
+          `
         )
           .addFile(
-            "/src/bar.ts",
+            "src/bar.ts",
             `
-          export const bar = 5;
-        `
+              export const bar = 5;
+            `
           )
           .addFile(
-            "/src/index.ts",
+            "src/index.ts",
             `
-          export {foo} from "./foo";
-        `
+              export {foo} from "./foo";
+            `
           );
       })
       .build();
 
-    const project = projectLoader(workspace.getPackageBy({ name: "foo" })!.packagePath)!;
+    const project = projectLoader(workspace.getPackageByNameOrThrow("foo").packagePath)!;
 
     const result = calculatePackageExportRenamesForFileMoves(
       project,
-      new Set(["/src/foo.ts"]),
-      "/",
+      new Set(["/workspace/foo/src/foo.ts"]),
+      "/workspace/foo/",
       "baz",
       "downstream"
     );
 
     const expected: ReturnType<typeof calculatePackageExportRenamesForFileMoves> = {
       packageExportRenames: [{ from: ["foo"], toFileOrModule: "baz" }],
-      allFilesToMove: new Set(["/src/foo.ts", "/src/bar.ts"]),
+      allFilesToMove: new Set(["/workspace/foo/src/foo.ts", "/workspace/foo/src/bar.ts"]),
+      requiredPackages: new Map(),
     };
 
     expect(result).toEqual(expected);
@@ -85,20 +87,20 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
     const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
       .createProject("foo", (p) => {
         p.addFile(
-          "/src/foo.ts",
+          "src/foo.ts",
           `
           import {bar} from "./bar";
           export const foo = bar;
         `
         )
           .addFile(
-            "/src/bar.ts",
+            "src/bar.ts",
             `
           export const bar = 5;
         `
           )
           .addFile(
-            "/src/index.ts",
+            "src/index.ts",
             `
           export {foo} from "./foo";
           export {bar} from "./bar";
@@ -107,12 +109,12 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
       })
       .build();
 
-    const project = projectLoader(workspace.getPackageBy({ name: "foo" })!.packagePath)!;
+    const project = projectLoader(workspace.getPackageByNameOrThrow("foo").packagePath)!;
 
     const result = calculatePackageExportRenamesForFileMoves(
       project,
-      new Set(["/src/foo.ts"]),
-      "/",
+      new Set(["/workspace/foo/src/foo.ts"]),
+      "/workspace/foo/",
       "baz",
       "downstream"
     );
@@ -122,7 +124,8 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
         { from: ["foo"], toFileOrModule: "baz" },
         { from: ["bar"], toFileOrModule: "baz" },
       ],
-      allFilesToMove: new Set(["/src/foo.ts", "/src/bar.ts"]),
+      allFilesToMove: new Set(["/workspace/foo/src/foo.ts", "/workspace/foo/src/bar.ts"]),
+      requiredPackages: new Map(),
     };
 
     expect(result).toEqual(expected);

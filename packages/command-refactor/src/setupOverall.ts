@@ -36,7 +36,7 @@ export async function setupOverall(
 
   // Dealing with an ANY here FIXME
   const direction: DependencyDirection = destinationDirections.values().next().value;
-  logger.trace("Direction %s", direction);
+  logger.trace("Direction to move: %s", direction);
 
   // Supposing a -> b -> c, where `->` means "depends on"
   // We can move b to c, but we need to update a to depend on c
@@ -45,22 +45,30 @@ export async function setupOverall(
   const fileContents = new Map</* relPath */ FilePath, string>();
 
   for (const [packageName, files] of packageNameToFilesToMove.asMap()) {
-    const packagePath = workspace.getPackageBy({ name: packageName })!.packagePath;
+    logger.trace("setupOverall for %s", packageName);
+    const packagePath = workspace.getPackageByNameOrThrow(packageName)!.packagePath;
     const project = projectLoader(packagePath);
     Assert.ok(project);
 
-    const { packageExportRenames, allFilesToMove } = calculatePackageExportRenamesForFileMoves(
-      project,
-      files,
-      packagePath,
-      destinationModule,
-      direction
+    const { packageExportRenames, allFilesToMove, requiredPackages } =
+      calculatePackageExportRenamesForFileMoves(
+        project,
+        files,
+        packagePath,
+        destinationModule,
+        direction
+      );
+    logger.trace(
+      "packageExportRenames: %o",
+      packageExportRenames.map((a) => `${a.from} to package ${a.toFileOrModule}`).join("\n")
     );
+    logger.trace("allFilesToMove: %o", [...allFilesToMove]);
 
     if (packageExportRenames?.length > 0) {
       rootExportsToMove.set(packageName, packageExportRenames);
     }
 
+    // TODO this is overkill now that we group by package
     for (const [relPath, contents] of getFileContentsRelatively(
       project,
       packagePath,

@@ -7,32 +7,32 @@ import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
 describe(getConsumedExports, () => {
   it("idk", () => {
     const project = createProjectForTest({
-      "/index.ts": `
+      "index.ts": `
         export {foo} from "./foo";
       `,
-      "/foo.ts": `
+      "foo.ts": `
         export const foo = 5;
       `,
-      "/importFrom.ts": `
+      "importFrom.ts": `
         import {foo} from "./foo";
       `,
-      "/reexportAs.ts": `
+      "reexportAs.ts": `
         export {foo as baz} from "./foo";
       `,
-      "/reexportAsDefault.ts": `
+      "reexportAsDefault.ts": `
         export {foo as default} from "./foo";
       `,
-      "/importFromIndirection.ts": `
+      "importFromIndirection.ts": `
         import fooByAnotherName from "./reexportAsDefault"
       `,
-      "/reassignThenExport.ts": `
+      "reassignThenExport.ts": `
         import {foo} from "./foo";
 
         export const baz = foo;
       `,
     });
 
-    const result = getConsumedExports(project.getSourceFileOrThrow("/foo.ts"));
+    const result = getConsumedExports(project.getSourceFileOrThrow("foo.ts"));
 
     expect(result).toEqual(
       new Map(
@@ -82,29 +82,29 @@ describe(getConsumedExports, () => {
     const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
       .createProject("foo", (p) => {
         p.addFile(
-          "/foo.ts",
+          "src/foo.ts",
           `
           export const foo = 5;
       `
         ).addFile(
-          "/index.ts",
+          "src/index.ts",
           `
         export {foo} from "./foo";
       `
         );
       })
       .build();
-    const project = projectLoader(workspace.getPackageBy({ name: "foo" })!.packagePath)!;
+    const project = projectLoader(workspace.getPackageByNameOrThrow("foo").packagePath)!;
 
-    const q = getConsumedExports(project.getSourceFile("/index.ts")!);
+    const q = getConsumedExports(project.getSourceFileOrThrow("/workspace/foo/src/index.ts"));
 
     expect(q).toEqual(
       new Map(
         Object.entries<Metadata>({
-          "/index.ts": {
+          "/workspace/foo/src/index.ts": {
             imports: new Set(),
             reexports: new Set(),
-            reexportsFrom: new Map([["foo", "/foo.ts"]]),
+            reexportsFrom: new Map([["foo", "/workspace/foo/src/foo.ts"]]),
           },
         })
       )

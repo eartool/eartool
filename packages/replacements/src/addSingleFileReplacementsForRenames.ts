@@ -1,6 +1,6 @@
 import type { Identifier, NamespaceExport, SourceFile } from "ts-morph";
 import type { PackageExportRename } from "./PackageExportRename.js";
-import type { PackageName } from "@eartool/utils";
+import { getSimplifiedNodeInfoAsString, type PackageName } from "@eartool/utils";
 import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
 import type { Replacements } from "./Replacements.js";
 
@@ -42,6 +42,10 @@ export function addSingleFileReplacementsForRenames(
   }
 
   for (const exportDecl of sf.getExportDeclarations()) {
+    // Handle the index.ts file that just has `export {};`
+    const moduleSpecifier = exportDecl.getModuleSpecifier();
+    if (!moduleSpecifier) continue;
+
     const renamesForPackage = renames.get(exportDecl.getModuleSpecifier()!.getLiteralText());
     if (!renamesForPackage) continue;
 

@@ -77,6 +77,12 @@ export class Workspace {
     }
   }
 
+  public getPackageByNameOrThrow(name: PackageName) {
+    const ret = this.#nameToNode.get(name);
+    Assert.ok(ret);
+    return ret;
+  }
+
   public *nodesFor(lookups: (PackageInfo | PackageLookupCriteria)[]) {
     for (const lookup of lookups) {
       const s = lookup instanceof PackageInfo ? lookup : this.getPackageBy(lookup);

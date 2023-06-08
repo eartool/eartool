@@ -149,7 +149,7 @@ export const refactorCommand = makeBatchCommand(
         }
 
         if (dryRun) {
-          logger.info("DRY RUN");
+          logger.trace("DRY RUN");
         } else {
           logger.info("Saving");
           await project.save();

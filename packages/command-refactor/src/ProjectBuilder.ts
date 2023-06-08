@@ -1,7 +1,7 @@
 import type { FilePath, PackageName } from "@eartool/utils";
 import * as path from "node:path";
 import { Project } from "ts-morph";
-import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
+import type { WorkspaceBuilder } from "./WorkspaceBuilder.js";
 
 export class ProjectBuilder {
   #project: Project;
@@ -28,6 +28,9 @@ export class ProjectBuilder {
    * @returns
    */
   addFile(relativeFilePath: string, contents: string) {
+    if (relativeFilePath.startsWith("/")) {
+      throw new Error(`File path must be relative: ${relativeFilePath}`);
+    }
     const filePath = path.resolve(this.#packagePath, relativeFilePath);
     const sf = this.#project.createSourceFile(filePath, contents);
     sf.saveSync();

@@ -34,6 +34,12 @@ export class WorkspaceBuilder {
     callback: (projectBuilder: ProjectBuilder) => void
   ) => {
     const packagePath = path.resolve(this.#workspacePath, packageName);
+    this.#fs.mkdirSync(packagePath);
+    this.#fs.mkdirSync(path.join(packagePath, "src"));
+    this.#fs.writeFileSync(
+      path.join(packagePath, "package.json"),
+      JSON.stringify({ packageName, dependencies: {} })
+    );
 
     const builder = new ProjectBuilder(packageName, packagePath, this);
     callback(builder);
