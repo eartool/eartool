@@ -14,6 +14,7 @@ import {
   type PackageName,
   writePackageJson,
   type PackageJson,
+  type FilePath,
 } from "@eartool/utils";
 import * as path from "node:path";
 import type { Logger } from "pino";
@@ -156,6 +157,7 @@ export const refactorCommand = makeBatchCommand(
     return {
       default: async ({
         packagePath,
+        packageName,
         logger,
         dryRun,
         jobArgs: {
@@ -174,7 +176,14 @@ export const refactorCommand = makeBatchCommand(
         dropDtsFiles(project);
 
         if (packageJsonDepsRequired) {
-          assignDependencyVersions(project, packagePath, packageJsonDepsRequired, logger, dryRun);
+          assignDependencyVersions(
+            project,
+            packagePath,
+            packageName,
+            packageJsonDepsRequired,
+            logger,
+            dryRun
+          );
         }
 
         const changedFiles = await doTheWork(
@@ -205,7 +214,8 @@ export const refactorCommand = makeBatchCommand(
 
 function assignDependencyVersions(
   project: Project,
-  packagePath: string,
+  packagePath: FilePath,
+  packageName: PackageName,
   packageJsonDepsRequired: PackageJsonDepsRequired,
   logger: Logger,
   dryRun: boolean
@@ -217,6 +227,7 @@ function assignDependencyVersions(
       packageJson[type] = typeObj;
 
       for (const [depName, depVersion] of packageJsonDepsRequired[type]) {
+        if (depName == packageName) continue; // don't depend on self!
         if (typeObj[depName]) {
           if (typeObj[depName] != depVersion) {
             logger.warn(
