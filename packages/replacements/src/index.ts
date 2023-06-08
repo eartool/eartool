@@ -10,4 +10,4 @@ export { processReplacements } from "./processReplacements.js";
 export { addSingleFileReplacementsForRenames } from "./addSingleFileReplacementsForRenames.js";
 
 // TODO Move this to its own file
-export { TestBuilder } from "./TestBuilder.js";
+// export { TestBuilder } from "./TestBuilder.js";

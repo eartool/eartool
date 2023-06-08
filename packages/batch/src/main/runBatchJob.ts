@@ -1,4 +1,4 @@
-import { createWorkspaceInfo } from "./WorkspaceInfo.js";
+import { createWorkspaceFromDisk } from "./createWorkspaceFromDisk.js";
 import * as path from "node:path";
 import { createLogger } from "../shared/createLogger.js";
 import { Worker } from "node:worker_threads";
@@ -34,21 +34,18 @@ export interface BatchJobOptions {
 
 export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
   opts: BatchJobOptions,
+  logger: Logger,
   jobSpec: JobSpec<Q["__ArgsType"], Q["__ResultType"]>
 ) {
   const { workspaceDir } = opts;
   // we have at least 11 under a normal run on my mac. it doesn't grow, we arent leaking
   process.setMaxListeners(20);
 
-  const logger = createLogger(path.join(opts.logDir, "main"), {
-    level: "trace",
-    consoleLevel: opts.progress ? "silent" : "info",
-  });
   logger.trace("Creating workspace object");
 
   const progress: Progress = opts.progress ? new RealProgress() : new NoopProgress();
 
-  const workspace = await createWorkspaceInfo(workspaceDir);
+  const workspace = await createWorkspaceFromDisk(workspaceDir);
   const startNodeLookups = opts.startPackageNames.map((name) => ({ name }));
   const downStreamProjects = [...workspace.walkTreeDownstreamFrom(...startNodeLookups)];
 

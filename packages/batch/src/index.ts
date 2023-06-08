@@ -6,4 +6,6 @@ export type { JobDef } from "./shared/JobDef.js";
 export { makeBatchCommand } from "./main/yargs.js";
 
 // TODO: Move to own package?
-export { createWorkspaceInfo } from "./main/WorkspaceInfo.js";
+export { createWorkspaceFromDisk } from "./main/createWorkspaceFromDisk.js";
+export type { DependencyDirection } from "./main/WorkspaceInfo.js";
+export { Workspace } from "./main/WorkspaceInfo.js";

@@ -1,4 +1,4 @@
-import type { SourceFile } from "ts-morph";
+import type { Identifier, NamespaceExport, SourceFile } from "ts-morph";
 import type { PackageExportRename } from "./PackageExportRename.js";
 import type { PackageName } from "@eartool/utils";
 import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
@@ -28,12 +28,11 @@ export function addSingleFileReplacementsForRenames(
 
       const maybeNamepsaceImport = importDecl.getNamespaceImport();
       if (maybeNamepsaceImport) {
-        const modifiedRenames = renamesForPackage.map<PackageExportRename>((a) => ({
-          from: [maybeNamepsaceImport.getText(), ...a.from],
-          to: [maybeNamepsaceImport.getText(), ...a.to],
-        }));
-
-        accumulateRenamesForImportedIdentifier(maybeNamepsaceImport, modifiedRenames, replacements);
+        accumulateRenamesForImportedIdentifier(
+          maybeNamepsaceImport,
+          prependRenames(renamesForPackage, maybeNamepsaceImport),
+          replacements
+        );
       }
     } catch (e) {
       replacements.logger.fatal(e);
@@ -58,16 +57,25 @@ export function addSingleFileReplacementsForRenames(
 
     const maybeNamespaceExport = exportDecl.getNamespaceExport();
     if (maybeNamespaceExport) {
-      const modifiedRenames = renamesForPackage.map<PackageExportRename>((a) => ({
-        from: [maybeNamespaceExport.getText(), ...a.from],
-        to: [maybeNamespaceExport.getText(), ...a.to],
-      }));
-
       accumulateRenamesForImportedIdentifier(
         maybeNamespaceExport.getNameNode(),
-        modifiedRenames,
+        prependRenames(renamesForPackage, maybeNamespaceExport),
         replacements
       );
     }
   }
+}
+
+function prependRenames(
+  renamesForPackage: PackageExportRename[],
+  maybeNamepsaceImport: Identifier | NamespaceExport
+) {
+  return renamesForPackage.map<PackageExportRename>(
+    (a) =>
+      ({
+        from: [maybeNamepsaceImport.getText(), ...a.from],
+        to: a.to ? [maybeNamepsaceImport.getText(), ...a.to] : undefined,
+        toFileOrModule: a.toFileOrModule,
+      } as PackageExportRename)
+  );
 }

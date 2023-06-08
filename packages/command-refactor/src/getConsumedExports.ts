@@ -1,7 +1,6 @@
 import type { ReferenceFindableNode, Symbol } from "ts-morph";
-import { SyntaxKind, type SourceFile, Node } from "ts-morph";
-import type { FilePath } from "./FilePath.js";
-import { getSimplifiedNodeInfoAsString } from "@eartool/utils";
+import { Node, SyntaxKind, type SourceFile } from "ts-morph";
+import { getSimplifiedNodeInfoAsString, type FilePath } from "@eartool/utils";
 
 export interface Metadata {
   reexports: Set<string>; // exported name to files that re-export

@@ -25,7 +25,7 @@ export function createLogger(
   const streams: (StreamEntry | DestinationStream)[] = [];
   if (consoleLevel != "silent") {
     streams.push({
-      level: "info" as const,
+      level: consoleLevel,
       stream: pinoPretty.default({
         messageFormat: (a) => `[${chalk.gray(a.packageName ?? "MAIN")}] ${a.msg}`,
         ignore: "packageName,pid,hostame",

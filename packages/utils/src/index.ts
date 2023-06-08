@@ -1,5 +1,6 @@
 export type { Flavored } from "./Flavored.js";
 export type { PackageName } from "./PackageName.js";
+export type { FilePath } from "./FilePath.js";
 export { createConsoleLogger } from "./createConsoleLogger.js";
 export { findNewNameInScope } from "./findNewNameInScope.js";
 export { dropDtsFiles } from "./tsmorph/dropDtsFiles.js";

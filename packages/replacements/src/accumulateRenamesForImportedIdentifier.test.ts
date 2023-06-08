@@ -22,7 +22,7 @@ describe(accumulateRenamesForImportedIdentifier, () => {
 
         accumulateRenamesForImportedIdentifier(
           node.getAliasNode() ?? node.getNameNode(),
-          [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }],
+          [{ from: ["bar"], toFileOrModule: "baz" }],
           replacements
         );
       })
@@ -63,7 +63,7 @@ describe(accumulateRenamesForImportedIdentifier, () => {
           .getDefaultImport();
         accumulateRenamesForImportedIdentifier(
           node!,
-          [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }],
+          [{ from: ["bar"], toFileOrModule: "baz" }],
           replacements
         );
       })
@@ -105,7 +105,7 @@ describe(accumulateRenamesForImportedIdentifier, () => {
 
         accumulateRenamesForImportedIdentifier(
           node!,
-          [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }],
+          [{ from: ["bar"], toFileOrModule: "baz" }],
           replacements
         );
       })

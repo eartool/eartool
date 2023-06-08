@@ -2,7 +2,7 @@ import { describe, it } from "@jest/globals";
 import { expect } from "@jest/globals";
 import { getConsumedExports, type Metadata } from "./getConsumedExports.js";
 import { createProjectForTest } from "@eartool/test-utils";
-import { TestBuilder } from "@eartool/replacements";
+import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
 
 describe(getConsumedExports, () => {
   it("idk", () => {
@@ -79,20 +79,22 @@ describe(getConsumedExports, () => {
   });
 
   it("renames a named import module specifier ", () => {
-    const { project } = new TestBuilder()
-      .addFile(
-        "/foo.ts",
-        `
+    const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
+      .createProject("foo", (p) => {
+        p.addFile(
+          "/foo.ts",
+          `
           export const foo = 5;
       `
-      )
-      .addFile(
-        "/index.ts",
-        `
+        ).addFile(
+          "/index.ts",
+          `
         export {foo} from "./foo";
       `
-      )
+        );
+      })
       .build();
+    const project = projectLoader(workspace.getPackageBy({ name: "foo" })!.packagePath)!;
 
     const q = getConsumedExports(project.getSourceFile("/index.ts")!);
 

@@ -52,6 +52,9 @@ importers:
 
   packages/batch:
     dependencies:
+      '@eartool/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@pnpm/filter-workspace-packages':
         specifier: 7.0.8
         version: 7.0.8(@pnpm/logger@5.0.0)
@@ -434,6 +437,9 @@ importers:
       '@eartool/command-foo':
         specifier: workspace:*
         version: link:../command-foo
+      '@eartool/command-refactor':
+        specifier: workspace:*
+        version: link:../command-refactor
       '@eartool/replacements':
         specifier: workspace:*
         version: link:../replacements

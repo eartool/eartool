@@ -44,20 +44,23 @@ export function accumulateRenamesForImportedIdentifier(
         addImportOrExport(
           replacements,
           specifier,
-          packageExportRename.to[0],
+          packageExportRename.to?.[0],
           packageExportRename.toFileOrModule
         );
       } else {
-        if (
-          specifier &&
-          alreadyProcessed &&
-          !alreadyProcessed.has(packageExportRename) &&
-          packageExportRename.to[0] != packageExportRename.from[0]
-        ) {
-          alreadyProcessed.add(packageExportRename);
-          replacements.insertBefore(specifier, `${packageExportRename.to[0]},`);
+        if (packageExportRename.to != undefined) {
+          if (
+            specifier &&
+            alreadyProcessed &&
+            !alreadyProcessed.has(packageExportRename) &&
+            packageExportRename.to[0] != packageExportRename.from[0]
+          ) {
+            alreadyProcessed.add(packageExportRename);
+            replacements.insertBefore(specifier, `${packageExportRename.to[0]},`);
+          }
+          replacements.replaceNode(fullyQualifiedInstance, packageExportRename.to.join("."));
         }
-        replacements.replaceNode(fullyQualifiedInstance, packageExportRename.to.join("."));
+
         if (packageExportRename.toFileOrModule) {
           replacements.replaceNode(
             identifier
@@ -76,7 +79,7 @@ export function accumulateRenamesForImportedIdentifier(
 function addImportOrExport(
   replacements: Replacements,
   specifier: ImportSpecifier | ExportSpecifier,
-  symbolName: string,
+  newSymbolName: string | undefined,
   newModuleSpecifier: string
 ) {
   const keyword = specifier.isKind(SyntaxKind.ExportSpecifier) ? "export" : "import";
@@ -85,6 +88,8 @@ function addImportOrExport(
       ? SyntaxKind.ExportDeclaration
       : SyntaxKind.ImportDeclaration
   );
+
+  const symbolName = newSymbolName ?? specifier.getName();
 
   replacements.insertBefore(decl, `${keyword} { ${symbolName} } from "${newModuleSpecifier}";\n`);
   replacements.replaceNode(specifier.getNameNode(), "");

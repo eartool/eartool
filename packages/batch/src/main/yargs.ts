@@ -5,6 +5,8 @@ import type * as yargs from "yargs";
 import type { JobDef } from "../shared/JobDef.js";
 import { setupWorker, type WorkerData } from "../worker/setupWorker.js";
 import { runBatchJob, type BatchJobOptions, type JobSpec } from "./runBatchJob.js";
+import { createLogger } from "../shared/createLogger.js";
+import type { Logger } from "pino";
 
 const standardBatchYargsOptions = {
   workspace: {
@@ -32,6 +34,11 @@ const standardBatchYargsOptions = {
     describe: "Whether to run without saving changes",
     type: "boolean",
     default: false,
+  },
+  verbose: {
+    alias: "v",
+    boolean: true,
+    count: true,
   },
 } as const satisfies { [key: string]: yargs.Options };
 
@@ -61,7 +68,8 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
     description: string;
     options: O;
     cliMain: (
-      args: yargs.ArgumentsCamelCase<yargs.InferredOptionTypes<O>> & StandardBatchArgs
+      args: yargs.ArgumentsCamelCase<yargs.InferredOptionTypes<O>> &
+        StandardBatchArgs & { logger: Logger }
     ) => Promise<JobSpec<W, R>>;
   },
   workerMain: () => Promise<{
@@ -75,9 +83,28 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
         description,
         (yargs) => yargs.options({ ...standardBatchYargsOptions, ...options }).strict(),
         async (args) => {
-          const q = await cliMain(args as any);
+          const batchJobOpts = getBatchJobOptionsFromYargs(args);
 
-          await runBatchJob<JobDef<W, R>>(getBatchJobOptionsFromYargs(args), {
+          const consoleLevel = args.progress
+            ? "silent"
+            : args.verbose >= 2
+            ? "trace"
+            : args.verbose >= 1
+            ? "debug"
+            : "info";
+
+          console.log(consoleLevel, args.verbose);
+
+          const logger = createLogger(path.join(batchJobOpts.logDir, "main"), {
+            level: "trace",
+            consoleLevel,
+          });
+
+          logger.trace("Test");
+
+          const q = await cliMain({ ...args, logger } as any);
+
+          await runBatchJob<JobDef<W, R>>(getBatchJobOptionsFromYargs(args), logger, {
             ...q,
             getJobArgs(info) {
               return {

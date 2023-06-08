@@ -1,14 +1,22 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
-import { makeBatchCommand } from "@eartool/batch";
-import { dropDtsFiles, maybeLoadProject, organizeImportsOnFiles } from "@eartool/utils";
+import { createWorkspaceFromDisk, makeBatchCommand } from "@eartool/batch";
 import {
   addSingleFileReplacementsForRenames,
   processReplacements,
   SimpleReplacements,
+  type PackageExportRename,
 } from "@eartool/replacements";
-import { setupOverall } from "./setupOverall.js";
+import {
+  dropDtsFiles,
+  maybeLoadProject,
+  organizeImportsOnFiles,
+  type PackageName,
+} from "@eartool/utils";
 import * as path from "node:path";
+import type { Logger } from "pino";
+import type { Project } from "ts-morph";
 import { removeFilesIfInProject } from "./removeFilesIfInProject.js";
+import { setupOverall } from "./setupOverall.js";
 
 /*
 There are a lot of scenarios I want to be able to do easily.
@@ -23,20 +31,22 @@ We may want to:
   - Pull code DOWN from cool-app-base to cool-app-redux
   - Or maybe even some mix
 
+  // All this wording is broken
+
 Concrete Example: PUSH DOWN stream
   - cool-app-redux/src/foo.ts to cool-app
   - cool-app-redux/src/moo.ts has a dependency in package on ./foo.ts
   - cool-app-redux/src/foo.ts has a dependency in package on ./bar.ts
   - We can either also pull bar.ts up OR we can make sure its values are exported
-  - We MUST pull ./moo.ts up also
+  - We MUST push down ./moo.ts up also
   - If ./index.ts re-exports the contents, then we need to update all downstream to
     ensure they also depend on cool-app and re-export from there too!
 
 Concrete Example: PULL UP stream
-  - cool-app-redux/src/foo.ts to cool-app-api (which is down)
+  - cool-app-redux/src/foo.ts to cool-app-api
   - cool-app-redux/src/moo.ts has a dependency in package on ./foo.ts
   - cool-app-redux/src/foo.ts has a dependency in package on ./bar.ts
-  - We would be required to also push ./bar.ts down. 
+  - We would be required to also push ./bar.ts up. 
   - If ./index.ts re-exports, then we need to update all upstream to
     ensure they also depend on cool-app-api and reexport
 
@@ -71,7 +81,7 @@ export const refactorCommand = makeBatchCommand(
     description: "refactor description",
     options: {
       destination: {
-        alias: "destination",
+        description: "The package name to end on",
         string: true,
         demandOption: true,
       },
@@ -83,9 +93,11 @@ export const refactorCommand = makeBatchCommand(
     },
     cliMain: async (args) => {
       const { fileContents, rootExportsToMove } = await setupOverall(
-        args.workspace,
+        await createWorkspaceFromDisk(args.workspace),
+        maybeLoadProject,
         new Set(args.files),
-        args.destination
+        args.destination,
+        args.logger
       );
 
       // Delete old files and create new ones before running the job
@@ -94,7 +106,7 @@ export const refactorCommand = makeBatchCommand(
         workerUrl: new URL(import.meta.url),
         getJobArgs({ packageName }) {
           return {
-            filesToAdd: packageName === args.destination ? fileContents : new Map(),
+            filesToAdd: packageName === args.destination ? fileContents : new Map<string, string>(),
             rootExportsToMove,
             filesToMove: args.files,
             destination: args.destination,
@@ -122,20 +134,14 @@ export const refactorCommand = makeBatchCommand(
 
         dropDtsFiles(project);
 
-        removeFilesIfInProject(filesToMove, project);
-
-        for (const [relPath, contents] of filesToAdd) {
-          project.createSourceFile(path.resolve(packagePath, relPath), contents);
-        }
-
-        const replacements = new SimpleReplacements(logger);
-
-        for (const sf of project.getSourceFiles()) {
-          addSingleFileReplacementsForRenames(sf, rootExportsToMove, replacements);
-        }
-
-        // actually updates files in project!
-        const changedFiles = [...processReplacements(project, replacements.getReplacementsMap())];
+        const changedFiles = await doTheWork(
+          filesToMove,
+          project,
+          filesToAdd,
+          packagePath,
+          logger,
+          rootExportsToMove
+        );
 
         if (shouldOrganizeImports) {
           logger.debug("Organizing imports");
@@ -152,3 +158,27 @@ export const refactorCommand = makeBatchCommand(
     };
   }
 );
+
+async function doTheWork(
+  filesToMove: string[],
+  project: Project,
+  filesToAdd: Map<string, string>,
+  packagePath: string,
+  logger: Logger,
+  rootExportsToMove: Map<PackageName, PackageExportRename[]>
+) {
+  removeFilesIfInProject(filesToMove, project);
+
+  for (const [relPath, contents] of filesToAdd) {
+    project.createSourceFile(path.resolve(packagePath, relPath), contents);
+  }
+
+  const replacements = new SimpleReplacements(logger);
+
+  for (const sf of project.getSourceFiles()) {
+    addSingleFileReplacementsForRenames(sf, rootExportsToMove, replacements);
+  }
+
+  // actually updates files in project!
+  return [...processReplacements(project, replacements.getReplacementsMap())];
+}

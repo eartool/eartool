@@ -16,6 +16,9 @@
       "path": "../command-foo"
     },
     {
+      "path": "../command-refactor"
+    },
+    {
       "path": "../replacements"
     },
     {

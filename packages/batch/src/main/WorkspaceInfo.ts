@@ -1,26 +1,27 @@
-import { filterPkgsBySelectorObjects } from "@pnpm/filter-workspace-packages";
 import PQueue from "p-queue";
-import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
 import * as Assert from "assert";
+import type { FilePath, PackageName } from "@eartool/utils";
 
-export class Node {
-  name: string;
-  packagePath: string;
-  depsByName = new Map<string, Node>();
-  depsByPath = new Map<string, Node>();
+export type DependencyDirection = "downstream" | "upstream" | "sideways";
 
-  inverseDepsByName = new Map<string, Node>();
-  inverseDepsByPath = new Map<string, Node>();
+export class PackageInfo {
+  name: PackageName;
+  packagePath: FilePath;
+  depsByName = new Map<PackageName, PackageInfo>();
+  depsByPath = new Map<FilePath, PackageInfo>();
+
+  inverseDepsByName = new Map<PackageName, PackageInfo>();
+  inverseDepsByPath = new Map<FilePath, PackageInfo>();
 
   #workspace: Workspace;
 
-  constructor(workspace: Workspace, name: string, packagePath: string) {
+  constructor(workspace: Workspace, name: PackageName, packagePath: FilePath) {
     this.name = name;
     this.packagePath = packagePath;
     this.#workspace = workspace;
   }
 
-  addDependency = (node: Node) => {
+  addDependency = (node: PackageInfo) => {
     this.depsByName.set(node.name, node);
     this.depsByPath.set(node.packagePath, node);
 
@@ -31,32 +32,32 @@ export class Node {
 
 type PackageLookupCriteria =
   | {
-      name: string;
+      name: PackageName;
       packagePath?: never;
     }
   | {
       name?: never;
-      packagePath: string;
+      packagePath: FilePath;
     }
   | {
-      name: string;
-      packagePath: string;
+      name: PackageName;
+      packagePath: FilePath;
     };
 
 export type RunTaskCallback = (args: {
-  packagePath: string;
-  packageName: string;
+  packagePath: FilePath;
+  packageName: PackageName;
 }) => Promise<unknown>;
 
 export class Workspace {
-  #pathToNode = new Map<string, Node>();
-  #nameToNode = new Map<string, Node>();
+  #pathToNode = new Map<FilePath, PackageInfo>();
+  #nameToNode = new Map<PackageName, PackageInfo>();
 
-  public addPackage(name: string, packagePath: string) {
+  public addPackage(name: PackageName, packagePath: FilePath) {
     const maybe = this.getPackageBy({ name, packagePath });
     if (maybe) return maybe;
 
-    const node = new Node(this, name, packagePath);
+    const node = new PackageInfo(this, name, packagePath);
     this.#pathToNode.set(packagePath, node);
     this.#nameToNode.set(name, node);
     return node;
@@ -76,17 +77,17 @@ export class Workspace {
     }
   }
 
-  public *nodesFor(lookups: (Node | PackageLookupCriteria)[]) {
+  public *nodesFor(lookups: (PackageInfo | PackageLookupCriteria)[]) {
     for (const lookup of lookups) {
-      const s = lookup instanceof Node ? lookup : this.getPackageBy(lookup);
+      const s = lookup instanceof PackageInfo ? lookup : this.getPackageBy(lookup);
       if (!s) throw new Error("Invalid package");
       yield s;
     }
   }
 
-  public *walkTreeDownstreamFrom(...lookups: (Node | PackageLookupCriteria)[]) {
-    const visited = new Set<Node>();
-    const toVisit: Node[] = [];
+  public *walkTreeDownstreamFrom(...lookups: (PackageInfo | PackageLookupCriteria)[]) {
+    const visited = new Set<PackageInfo>();
+    const toVisit: PackageInfo[] = [];
 
     if (lookups.length > 0) {
       toVisit.push(...this.nodesFor(lookups));
@@ -107,13 +108,55 @@ export class Workspace {
     }
   }
 
+  public getPackageDirToNameMap(): ReadonlyMap<FilePath, PackageName> {
+    // TODO cache this?
+    return new Map([...this.walkTreeDownstreamFrom()].map((a) => [a.packagePath, a.name] as const));
+  }
+
+  public getPackageDirection(fromName: PackageName, toName: PackageName): DependencyDirection {
+    const from = this.#nameToNode.get(fromName);
+    const to = this.#nameToNode.get(toName);
+
+    Assert.ok(from != null);
+    Assert.ok(to != null);
+
+    for (const dir of ["downstream", "upstream"] as const) {
+      for (const p of this.walk(fromName, dir)) {
+        if (p.name === toName) {
+          return dir;
+        }
+      }
+    }
+
+    return "sideways";
+  }
+
+  public *walk(fromName: PackageName, direction: "downstream" | "upstream" = "downstream") {
+    const from = this.#nameToNode.get(fromName);
+    Assert.ok(from != null);
+    const visitedNames = new Set<PackageName>();
+    const toVisit = [from];
+
+    const subField = direction === "downstream" ? "depsByName" : "inverseDepsByName";
+
+    while (toVisit.length > 0) {
+      const p = toVisit.shift()!;
+      visitedNames.add(p.name);
+      yield p;
+
+      for (const [name] of p[subField]) {
+        if (!visitedNames.has(name)) toVisit.push(this.#nameToNode.get(name)!);
+      }
+    }
+  }
+
   async runTasksInOrder(
-    lookup: undefined | (Node | PackageLookupCriteria)[],
+    lookup: undefined | (PackageInfo | PackageLookupCriteria)[],
     performTask: RunTaskCallback
   ) {
     const startNodes = lookup ? [...this.nodesFor(lookup)] : [];
 
-    const statuses = new Map<Node, "skipped" | "scheduled" | "complete" | "todo">();
+    const statuses = new Map<PackageInfo, "skipped" | "scheduled" | "complete" | "todo">();
 
     const queue = new PQueue({ autoStart: true, concurrency: 6 });
 
@@ -147,7 +190,7 @@ export class Workspace {
       }
     }
 
-    function createTask(node: Node) {
+    function createTask(node: PackageInfo) {
       statuses.set(node, "scheduled");
       return async () => {
         await performTask({
@@ -161,13 +204,13 @@ export class Workspace {
       };
     }
 
-    function createTaskIfReady(dependentNode: Node) {
+    function createTaskIfReady(dependentNode: PackageInfo) {
       if (statuses.get(dependentNode) === "todo" && allDepsOfPackagePathSatisified(dependentNode)) {
         queue.add(createTask(dependentNode));
       }
     }
 
-    function allDepsOfPackagePathSatisified(node: Node) {
+    function allDepsOfPackagePathSatisified(node: PackageInfo) {
       for (const q of node.depsByName.values()) {
         const status = statuses.get(q);
         if (status !== "complete" && status !== "skipped") {
@@ -179,30 +222,13 @@ export class Workspace {
   }
 }
 
-function getNames(toVisit: Node[] | Set<Node> | IterableIterator<Node>): any {
+function getNames(toVisit: PackageInfo[] | Set<PackageInfo> | IterableIterator<PackageInfo>): any {
   return [...toVisit].map((a) => a.name);
 }
 
-function debugPrintStatuses(statuses: Map<Node, "skipped" | "scheduled" | "complete" | "todo">) {
+function debugPrintStatuses(
+  statuses: Map<PackageInfo, "skipped" | "scheduled" | "complete" | "todo">
+) {
   // eslint-disable-next-line no-console
   console.log([...statuses.entries()].map((a) => [a[0].name, a[1]]));
-}
-
-export async function createWorkspaceInfo(workspaceDir: string) {
-  const allProjects = await findWorkspacePackagesNoCheck(workspaceDir);
-  const { allProjectsGraph } = await filterPkgsBySelectorObjects(allProjects, [], { workspaceDir });
-
-  const workspace = new Workspace();
-  const nodes = allProjects.map((p) => workspace.addPackage(p.manifest.name!, p.dir));
-
-  for (const node of nodes) {
-    for (const dep of allProjectsGraph[node.packagePath]!.dependencies) {
-      const depNode = workspace.getPackageBy({ packagePath: dep });
-      Assert.ok(depNode);
-
-      node.addDependency(depNode);
-    }
-  }
-
-  return workspace;
 }

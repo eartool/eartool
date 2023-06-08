@@ -5,7 +5,7 @@
   "license": "ISC",
   "scripts": {
     "cloc": "cloc --exclude-ext=yaml --exclude-ext=log --exclude-ext=txt --exclude-ext=json --match-d='src' --fullpath --not-match-d='node_modules|lib'  . ",
-    "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest",
+    "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings --enable-source-maps' jest",
     "lint": "eslint packages/*/src",
     "fixFormatting": "prettier --write ."
   },

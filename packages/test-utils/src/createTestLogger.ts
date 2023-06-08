@@ -1,11 +1,11 @@
+import { getSimplifiedNodeInfoAsString } from "@eartool/utils";
 import { expect } from "@jest/globals";
-import { Node } from "ts-morph";
-import { pino, type Logger } from "pino";
-import pinoPretty from "pino-pretty";
 import * as Assert from "node:assert";
-import { getSimplifiedNodeInfo, getSimplifiedNodeInfoAsString } from "@eartool/utils";
-import pinoCaller from "pino-caller";
 import { fileURLToPath } from "node:url";
+import { pino, type Logger } from "pino";
+import pinoCaller from "pino-caller";
+import pinoPretty from "pino-pretty";
+import { Node } from "ts-morph";
 
 let lastCreated: Logger | undefined;
 let lastCreatedTestPath: string | undefined;

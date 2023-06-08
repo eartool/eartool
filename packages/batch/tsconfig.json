@@ -8,5 +8,9 @@
     "node_modules",
     "lib"
   ],
-  "references": []
+  "references": [
+    {
+      "path": "../utils"
+    }
+  ]
 }

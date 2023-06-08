@@ -1,12 +1,16 @@
 import { describe, it, expect } from "@jest/globals";
-import { TestBuilder } from "@eartool/replacements";
 import { getFileContentsRelatively } from "./getFileContentsRelatively.js";
+import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
 
 describe(getFileContentsRelatively, () => {
   it("asdf a named import module specifier ", () => {
-    const { project } = new TestBuilder()
-      .addFile("/packages/merp/src/foo.ts", `export const foo = 5;`)
+    const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
+      .createProject("foo", (p) => {
+        p.addFile("/packages/merp/src/foo.ts", `export const foo = 5;`);
+      })
       .build();
+
+    const project = projectLoader(workspace.getPackageBy({ name: "foo" })!.packagePath)!;
 
     const r = getFileContentsRelatively(
       project,

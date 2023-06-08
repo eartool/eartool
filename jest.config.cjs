@@ -25,6 +25,9 @@ const baseConfig = {
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
+
+  cache: false,
+  collectCoverage: false,
 };
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */

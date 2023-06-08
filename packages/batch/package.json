@@ -20,6 +20,7 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
+    "@eartool/utils": "workspace:*",
     "@pnpm/filter-workspace-packages": "7.0.8",
     "@pnpm/find-workspace-packages": "^6.0.8",
     "@reduxjs/toolkit": "^2.0.0-alpha.6",

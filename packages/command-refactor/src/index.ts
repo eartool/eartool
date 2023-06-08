@@ -1,1 +1,1 @@
-export { refactorCommand } from "./cli/mainProcess/refactorCommand.js";
+export { refactorCommand } from "./refactorCommand.js";
