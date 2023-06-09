@@ -23,6 +23,7 @@ import { removeFilesIfInProject } from "./removeFilesIfInProject.js";
 import { setupOverall } from "./setupOverall.js";
 import type { PackageJsonDepsRequired } from "./PackageJsonDepsRequired.js";
 import * as fs from "node:fs";
+import { cleanupMovedFile } from "./cleanupMovedFile.js";
 
 /*
 There are a lot of scenarios I want to be able to do easily.
@@ -191,6 +192,7 @@ export const refactorCommand = makeBatchCommand(
           project,
           filesToAdd,
           packagePath,
+          packageName,
           logger,
           rootExportsToMove,
           dryRun
@@ -253,24 +255,30 @@ function assignDependencyVersions(
 }
 
 async function doTheWork(
-  filesToMove: string[],
+  filesToMove: FilePath[],
   project: Project,
-  filesToAdd: Map<string, string>,
-  packagePath: string,
+  filesToAdd: Map<FilePath, string>,
+  packagePath: FilePath,
+  packageName: PackageName,
   logger: Logger,
   rootExportsToMove: Map<PackageName, PackageExportRename[]>,
   dryRun: boolean
 ) {
+  // FIXME this should be much better now that we pre-grouped above
   removeFilesIfInProject(filesToMove, project, logger, dryRun);
+
+  const replacements = new SimpleReplacements(logger);
 
   for (const [relPath, contents] of filesToAdd) {
     const fullpath = path.resolve(packagePath, relPath);
     logger[dryRun ? "info" : "trace"]("Adding file '%s'", fullpath);
-    project.createSourceFile(fullpath, contents);
+    const sf = project.createSourceFile(fullpath, contents);
+
+    // Gotta clean up the files we added
+    cleanupMovedFile(sf, packageName, replacements, dryRun);
   }
 
-  const replacements = new SimpleReplacements(logger);
-
+  // Simple renames
   for (const sf of project.getSourceFiles()) {
     addSingleFileReplacementsForRenames(sf, rootExportsToMove, replacements, dryRun);
   }

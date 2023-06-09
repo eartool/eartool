@@ -5,8 +5,7 @@ export function processReplacements(project: Project, replacementsMap: Map<strin
   for (const [filePath, unsortedReplacements] of replacementsMap) {
     const sortedReplacements = [...unsortedReplacements].sort((a, b) => a.start - b.start);
 
-    const fs = project.getFileSystem();
-    const original = fs.readFileSync(filePath);
+    const original = project.getSourceFileOrThrow(filePath).getFullText(); //.readFileSync(filePath); // We need to save this contents earlier
 
     const parts = [];
     let q = 0;

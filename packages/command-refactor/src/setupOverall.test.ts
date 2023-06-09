@@ -41,7 +41,12 @@ describe(setupOverall, () => {
       );
 
       expect([...fileContents.keys()]).toEqual(["src/doThingWithState.ts"]);
-      expect(packageJsonDepsRequired.dependencies).toEqual(new Map([["util", "workspace:*"]]));
+      expect(packageJsonDepsRequired.dependencies).toEqual(
+        new Map([
+          ["state", "workspace:*"],
+          ["util", "workspace:*"],
+        ])
+      );
     });
   });
 
@@ -124,6 +129,7 @@ function createInitialWorkspaceBuilder() {
           "src/doThingWithState.ts",
           `
             import {identity} from "util";
+            import {State} from "state";
             export function doThingWithState(state: State) { return identity(state.foo); }
           `
         )

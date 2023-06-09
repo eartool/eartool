@@ -49,7 +49,8 @@ export function accumulateRenamesForImportedIdentifier(
           specifier,
           packageExportRename.to?.[0],
           packageExportRename.toFileOrModule,
-          dryRun
+          dryRun,
+          true
         );
       } else {
         if (packageExportRename.to != undefined) {
@@ -106,12 +107,13 @@ export function accumulateRenamesForImportedIdentifier(
   }
 }
 
-function addImportOrExport(
+export function addImportOrExport(
   replacements: Replacements,
   specifier: ImportSpecifier | ExportSpecifier,
   newSymbolName: string | undefined,
   newModuleSpecifier: string,
-  dryRun: boolean
+  dryRun: boolean,
+  cleanup: boolean
 ) {
   const keyword = specifier.isKind(SyntaxKind.ExportSpecifier) ? "export" : "import";
   const decl = specifier.getFirstAncestorByKindOrThrow(
@@ -135,6 +137,8 @@ function addImportOrExport(
     specifier.getSourceFile().getFilePath()
   );
   replacements.insertBefore(decl, `${importLine}\n`);
-  replacements.replaceNode(specifier.getNameNode(), "");
-  replacements.removeNextSiblingIfComma(specifier);
+  if (cleanup) {
+    replacements.replaceNode(specifier.getNameNode(), "");
+    replacements.removeNextSiblingIfComma(specifier);
+  }
 }
