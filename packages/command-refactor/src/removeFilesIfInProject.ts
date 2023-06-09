@@ -15,6 +15,6 @@ export function removeFilesIfInProject(
       logger.info("DRYRUN: Would be deleting %s.", path);
     }
 
-    project.removeSourceFile(sf);
+    sf.delete();
   }
 }

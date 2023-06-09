@@ -5,6 +5,7 @@ import * as Assert from "node:assert";
 import type { Project, SourceFile } from "ts-morph";
 import { getConsumedExports as getConsumedImportsAndExports } from "./getConsumedExports.js";
 import type { Logger } from "pino";
+import { getRootFile } from "./getRootFile.js";
 
 const packageNameRegex = /^((@[a-zA-Z0-9_-]+\/)?[a-zA-Z0-9_-]+)/;
 
@@ -43,6 +44,19 @@ export function calculatePackageExportRenamesForFileMoves(
     // in project only;
     addRenamesForRootExport(sf, packagePath, packageExportRenames, destinationModule, logger);
 
+    // FIXME TODO future we also need to deal with submodule imports
+    // We need to deal with all the places that we import something from the destination
+    for (const decl of sf
+      .getImportDeclarations()
+      .filter((a) => a.getModuleSpecifierValue() === destinationModule)) {
+      if (decl.getNamespaceImport()) {
+        throw new Error(
+          `We don't currently handle namespace imports. See file: ${sf.getFilePath()}`
+        );
+      }
+    }
+
+    // Update packages we need
     for (const literal of sf.getImportStringLiterals()) {
       if (literal.getLiteralText().startsWith(".")) continue;
       const depName = packageNameRegex.exec(literal.getLiteralText())?.[0];
@@ -50,6 +64,7 @@ export function calculatePackageExportRenamesForFileMoves(
       requiredPackages.add(depName);
     }
 
+    // accumulate extra work
     if (direction == "upstream" || direction == "sideways") {
       // aka a -> b -> c, files in a move to b or c
 
@@ -76,11 +91,7 @@ function addRenamesForRootExport(
   const consumed = getConsumedImportsAndExports(sf);
 
   // We should use the package.json for this TODO
-  const rootFile = sf
-    .getProject()
-    .getRootDirectories()
-    .flatMap((d) => [d.getSourceFile("index.ts"), d.getSourceFile("index.tsx")])
-    .find((a) => a != null);
+  const rootFile = getRootFile(sf.getProject());
 
   if (rootFile == null) {
     logger.error("Couldnt find root file for package: " + packagePath);
