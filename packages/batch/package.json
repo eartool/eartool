@@ -1,9 +1,9 @@
 {
   "name": "@eartool/batch",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
@@ -11,6 +11,10 @@
       "import": "./lib/index.js"
     }
   },
+  "files": [
+    "bin",
+    "lib"
+  ],
   "scripts": {
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "deepClean": "rm -rf lib tsconfig.tsbuildinfo",

@@ -23,6 +23,7 @@ export default {
               import: "./lib/index.js",
             },
           },
+          files: ["bin", "lib"],
         },
       },
     }),
