@@ -17,8 +17,9 @@ const swcBase = {
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 const baseConfig = {
-  ...(false ? swcBase : tsJestBase),
+  ...(true ? swcBase : tsJestBase),
 
+  testMatch: ["<rootDir>/src/**/?(*.)+(spec|test).[t]s?(x)"],
   testPathIgnorePatterns: ["node_modules", "lib"],
   watchPathIgnorePatterns: ["lib", "log"],
 
@@ -27,7 +28,6 @@ const baseConfig = {
   },
 
   cache: false,
-  collectCoverage: false,
 };
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */

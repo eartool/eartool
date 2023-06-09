@@ -41,3 +41,4 @@ isEmpty,
 # Future Ideas
 
 - Renames real selectors selectFoo instead of getFoo across code base
+- Drop unused exports

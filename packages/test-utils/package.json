@@ -31,7 +31,6 @@
     "cli-progress": "^3.12.0",
     "p-queue": "^7.3.4",
     "pino": "^8.14.1",
-    "pino-caller": "^3.4.0",
     "pino-pretty": "^10.0.0",
     "prettier": "^2.8.8",
     "ts-morph": "^18.0.0",
