@@ -5,10 +5,10 @@ import { createTestLogger } from "@eartool/test-utils";
 
 describe(setupOverall, () => {
   describe("simple cases", () => {
-    it("pulls up stream", async () => {
+    it("pulls upstream", async () => {
       const { workspace, projectLoader } = createInitialWorkspaceBuilder().build();
 
-      const { fileContents, rootExportsToMove } = await setupOverall(
+      const result = await setupOverall(
         workspace,
         projectLoader,
         new Set(["/workspace/api/src/doThingWithState.ts"]),
@@ -16,37 +16,100 @@ describe(setupOverall, () => {
         createTestLogger()
       );
 
-      expect(rootExportsToMove).toEqual(
-        objToMap({
-          api: [{ from: ["doThingWithState"], toFileOrModule: "state" }],
-        })
-      );
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "direction": "upstream",
+          "filesToRemove": Set {
+            "/workspace/api/src/doThingWithState.ts",
+          },
+          "packageExportRenamesMap": Map {
+            "api" => [
+              {
+                "from": [
+                  "doThingWithState",
+                ],
+                "toFileOrModule": "state",
+              },
+            ],
+          },
+          "packageJsonDepsRequired": {
+            "dependencies": Map {
+              "util" => "workspace:*",
+              "state" => "workspace:*",
+            },
+            "devDependencies": Map {},
+          },
+          "primaryPackages": Set {
+            "api",
+            "state",
+          },
+          "relativeFileInfoMap": Map {
+            "src/doThingWithState.ts" => {
+              "fileContents": "
+                    import {identity} from "util";
+                    import {State} from "state";
+                    export function doThingWithState(state: State) { return identity(state.foo); }
+                  ",
+              "rootExports": Map {
+                "doThingWithState" => "doThingWithState",
+              },
+            },
+          },
+        }
+      `);
     });
 
-    it("pushes down stream", async () => {
+    it("pushes downstream", async () => {
       const { workspace, projectLoader } = createInitialWorkspaceBuilder().build();
 
-      const { fileContents, rootExportsToMove, packageJsonDepsRequired } = await setupOverall(
+      const result = await setupOverall(
         workspace,
         projectLoader,
         new Set(["/workspace/api/src/doThingWithState.ts"]),
         "app",
         createTestLogger()
       );
-
-      expect(rootExportsToMove).toEqual(
-        objToMap({
-          api: [{ from: ["doThingWithState"], toFileOrModule: "app" }],
-        })
-      );
-
-      expect([...fileContents.keys()]).toEqual(["src/doThingWithState.ts"]);
-      expect(packageJsonDepsRequired.dependencies).toEqual(
-        new Map([
-          ["state", "workspace:*"],
-          ["util", "workspace:*"],
-        ])
-      );
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "direction": "downstream",
+          "filesToRemove": Set {
+            "/workspace/api/src/doThingWithState.ts",
+          },
+          "packageExportRenamesMap": Map {
+            "api" => [
+              {
+                "from": [
+                  "doThingWithState",
+                ],
+                "toFileOrModule": "app",
+              },
+            ],
+          },
+          "packageJsonDepsRequired": {
+            "dependencies": Map {
+              "util" => "workspace:*",
+              "state" => "workspace:*",
+            },
+            "devDependencies": Map {},
+          },
+          "primaryPackages": Set {
+            "api",
+            "app",
+          },
+          "relativeFileInfoMap": Map {
+            "src/doThingWithState.ts" => {
+              "fileContents": "
+                    import {identity} from "util";
+                    import {State} from "state";
+                    export function doThingWithState(state: State) { return identity(state.foo); }
+                  ",
+              "rootExports": Map {
+                "doThingWithState" => "doThingWithState",
+              },
+            },
+          },
+        }
+      `);
     });
   });
 
@@ -54,7 +117,7 @@ describe(setupOverall, () => {
     it("pulls up stream", async () => {
       const { workspace, projectLoader } = createInitialWorkspaceBuilder().build();
 
-      const { fileContents, rootExportsToMove } = await setupOverall(
+      const result = await setupOverall(
         workspace,
         projectLoader,
         new Set(["/workspace/api/src/doThingWithBaz.ts"]),
@@ -62,16 +125,58 @@ describe(setupOverall, () => {
         createTestLogger()
       );
 
-      expect(rootExportsToMove).toEqual(
-        objToMap({
-          api: [
-            { from: ["doThingWithBaz"], toFileOrModule: "state" },
-            { from: ["Baz"], toFileOrModule: "state" },
-          ],
-        })
-      );
-
-      expect([...fileContents.keys()]).toEqual(["src/doThingWithBaz.ts", "src/Baz.ts"]);
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "direction": "upstream",
+          "filesToRemove": Set {
+            "/workspace/api/src/doThingWithBaz.ts",
+            "/workspace/api/src/Baz.ts",
+          },
+          "packageExportRenamesMap": Map {
+            "api" => [
+              {
+                "from": [
+                  "doThingWithBaz",
+                ],
+                "toFileOrModule": "state",
+              },
+              {
+                "from": [
+                  "Baz",
+                ],
+                "toFileOrModule": "state",
+              },
+            ],
+          },
+          "packageJsonDepsRequired": {
+            "dependencies": Map {},
+            "devDependencies": Map {},
+          },
+          "primaryPackages": Set {
+            "api",
+            "state",
+          },
+          "relativeFileInfoMap": Map {
+            "src/doThingWithBaz.ts" => {
+              "fileContents": "
+                    import {Baz} from "./Baz";
+                    export function doThingWithBaz(baz: Baz) { return baz.value; }
+                  ",
+              "rootExports": Map {
+                "doThingWithBaz" => "doThingWithBaz",
+              },
+            },
+            "src/Baz.ts" => {
+              "fileContents": "
+                      export interface Baz { value: string }
+                    ",
+              "rootExports": Map {
+                "Baz" => "Baz",
+              },
+            },
+          },
+        }
+      `);
     });
   });
 });
@@ -146,7 +251,9 @@ function createInitialWorkspaceBuilder() {
 
             print(doThingWithState({foo : 5}));
           `
-      );
+      )
+        .addDependency("state")
+        .addDependency("api");
     });
 }
 

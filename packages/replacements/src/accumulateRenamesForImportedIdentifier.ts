@@ -9,14 +9,12 @@ import type { Replacements } from "./Replacements.js";
 export function accumulateRenamesForImportedIdentifier(
   importedOrExportedIdentifier: Identifier,
   packageExportRenames: PackageExportRename[],
-  replacements: Replacements,
-  dryRun: boolean
+  replacements: Replacements
 ): void;
 export function accumulateRenamesForImportedIdentifier(
   importedOrExportedIdentifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements,
-  dryRun: boolean,
   alreadyProcessed: Set<unknown>,
   specifier: ImportSpecifier | ExportSpecifier
 ): void;
@@ -24,7 +22,6 @@ export function accumulateRenamesForImportedIdentifier(
   identifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements,
-  dryRun: boolean,
   // in this case we can skip the add
   alreadyProcessed?: Set<unknown> | undefined,
   specifier?: ImportSpecifier | ExportSpecifier | undefined
@@ -44,12 +41,12 @@ export function accumulateRenamesForImportedIdentifier(
       if (!fullyQualifiedInstance) continue;
 
       if (packageExportRename.toFileOrModule && specifier) {
+        // TODO: This code causes an import to retain an empty set of braces
         addImportOrExport(
           replacements,
           specifier,
           packageExportRename.to?.[0],
           packageExportRename.toFileOrModule,
-          dryRun,
           true
         );
       } else {
@@ -62,8 +59,8 @@ export function accumulateRenamesForImportedIdentifier(
           ) {
             alreadyProcessed.add(packageExportRename);
 
-            replacements.logger[dryRun ? "info" : "trace"](
-              "DRYRUN: Would be adding `%s` to `%s` in %s",
+            replacements.logger.trace(
+              "Adding `%s` to `%s` in %s",
               packageExportRename.to[0],
               specifier.getText(),
               specifier.getSourceFile().getFilePath()
@@ -74,8 +71,8 @@ export function accumulateRenamesForImportedIdentifier(
 
           const fullReplacement = packageExportRename.to.join(".");
 
-          replacements.logger[dryRun ? "info" : "trace"](
-            "DRYRUN: Would be replacing `%s` with `%s` in %s",
+          replacements.logger.trace(
+            "Replacing `%s` with `%s` in %s",
             fullyQualifiedInstance.getText(),
             fullReplacement,
             fullyQualifiedInstance.getSourceFile().getFilePath()
@@ -89,8 +86,8 @@ export function accumulateRenamesForImportedIdentifier(
             maybeExportSpecifier ? SyntaxKind.ExportDeclaration : SyntaxKind.ImportDeclaration
           );
 
-          replacements.logger[dryRun ? "info" : "trace"](
-            'DRYRUN: Would be replacing `"%s"` with `"%s"` in %s',
+          replacements.logger.trace(
+            'Replacing `"%s"` with `"%s"` in %s',
             decl.getModuleSpecifier()!.getText(),
             `"${packageExportRename.toFileOrModule}"`,
             fullyQualifiedInstance.getSourceFile().getFilePath()
@@ -112,7 +109,6 @@ export function addImportOrExport(
   specifier: ImportSpecifier | ExportSpecifier,
   newSymbolName: string | undefined,
   newModuleSpecifier: string,
-  dryRun: boolean,
   cleanup: boolean
 ) {
   const keyword = specifier.isKind(SyntaxKind.ExportSpecifier) ? "export" : "import";
@@ -125,12 +121,12 @@ export function addImportOrExport(
   const symbolName = newSymbolName ?? specifier.getName();
   const importLine = `${keyword} { ${symbolName} } from "${newModuleSpecifier}";`;
 
-  replacements.logger[dryRun ? "info" : "trace"](
+  replacements.logger.trace(
     "Adding import `%s` to %s",
     importLine,
     decl.getSourceFile().getFilePath()
   );
-  replacements.logger[dryRun ? "info" : "trace"](
+  replacements.logger.trace(
     "Deleting `%s` from `%s` in %s",
     specifier.getNameNode().getText(),
     decl.getText(),

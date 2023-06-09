@@ -28,14 +28,7 @@ export function cleanupMovedFile(
 
           // console.log(newModuleSpecifier);
 
-          addImportOrExport(
-            replacements,
-            namedImport,
-            undefined,
-            newModuleSpecifier,
-            dryRun,
-            false
-          );
+          addImportOrExport(replacements, namedImport, undefined, newModuleSpecifier, false);
         }
         // console.log(getSimplifiedNodeInfoAsString(rootExportedDecl));
       }

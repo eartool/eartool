@@ -18,12 +18,13 @@ import {
 } from "@eartool/utils";
 import * as path from "node:path";
 import type { Logger } from "pino";
-import type { Project } from "ts-morph";
+import type { Project, SourceFile } from "ts-morph";
 import { removeFilesIfInProject } from "./removeFilesIfInProject.js";
-import { setupOverall } from "./setupOverall.js";
+import { setupOverall, type RelativeFileInfo } from "./setupOverall.js";
 import type { PackageJsonDepsRequired } from "./PackageJsonDepsRequired.js";
 import * as fs from "node:fs";
 import { cleanupMovedFile } from "./cleanupMovedFile.js";
+import { getRootFile } from "./getRootFile.js";
 
 /*
 There are a lot of scenarios I want to be able to do easily.
@@ -101,11 +102,12 @@ export const refactorCommand = makeBatchCommand(
     cliMain: async (args) => {
       const workspace = await createWorkspaceFromDisk(args.workspace);
       const {
-        fileContents,
-        rootExportsToMove,
         packageJsonDepsRequired,
         direction,
         primaryPackages,
+        packageExportRenamesMap,
+        relativeFileInfoMap,
+        filesToRemove,
       } = await setupOverall(
         workspace,
         maybeLoadProject,
@@ -122,11 +124,14 @@ export const refactorCommand = makeBatchCommand(
           return {
             packageJsonDepsRequired:
               packageName === args.destination ? packageJsonDepsRequired : undefined,
-            filesToAdd: packageName === args.destination ? fileContents : new Map<string, string>(),
-            rootExportsToMove,
-            filesToMove: args.files,
+            relativeFileInfoMap:
+              packageName === args.destination
+                ? relativeFileInfoMap
+                : new Map<FilePath, RelativeFileInfo>(),
+            packageExportRenamesMap,
+            filesToRemove,
             destination: args.destination,
-            primaryPackages,
+            primaryPackages, // maybe dont serialize
             shouldOrganizeImports: false, // fixme
           };
         },
@@ -162,9 +167,9 @@ export const refactorCommand = makeBatchCommand(
         logger,
         dryRun,
         jobArgs: {
-          filesToAdd,
-          filesToMove,
-          rootExportsToMove,
+          packageExportRenamesMap,
+          relativeFileInfoMap,
+          filesToRemove,
           shouldOrganizeImports,
           packageJsonDepsRequired,
         },
@@ -187,27 +192,29 @@ export const refactorCommand = makeBatchCommand(
           );
         }
 
-        const changedFiles = await doTheWork(
-          filesToMove,
+        const changedFiles = await processPackageReplacements(
+          filesToRemove,
           project,
-          filesToAdd,
+          relativeFileInfoMap,
           packagePath,
           packageName,
           logger,
-          rootExportsToMove,
+          packageExportRenamesMap,
           dryRun
         );
 
-        if (shouldOrganizeImports) {
-          logger.debug("Organizing imports");
-          organizeImportsOnFiles(project, changedFiles);
-        }
+        if (changedFiles.length > 0 || relativeFileInfoMap.size > 0) {
+          if (shouldOrganizeImports) {
+            logger.debug("Organizing imports");
+            organizeImportsOnFiles(project, changedFiles);
+          }
 
-        if (dryRun) {
-          logger.trace("DRY RUN");
-        } else {
-          logger.info("Saving");
-          await project.save();
+          if (dryRun) {
+            logger.trace("DRY RUN");
+          } else {
+            logger.info("Saving");
+            await project.save();
+          }
         }
       },
     };
@@ -240,11 +247,7 @@ function assignDependencyVersions(
             );
           }
         }
-        logger[dryRun ? "info" : "trace"](
-          "Setting dependency version '%s': '%s'",
-          depName,
-          depVersion
-        );
+        logger.trace("Setting dependency version '%s': '%s'", depName, depVersion);
         typeObj[depName] = depVersion;
       }
     }
@@ -254,35 +257,75 @@ function assignDependencyVersions(
   }
 }
 
-async function doTheWork(
-  filesToMove: FilePath[],
+async function processPackageReplacements(
+  filesToRemove: Iterable<FilePath>,
   project: Project,
-  filesToAdd: Map<FilePath, string>,
+  relativeFileInfoMap: Map<FilePath, RelativeFileInfo>,
   packagePath: FilePath,
   packageName: PackageName,
   logger: Logger,
-  rootExportsToMove: Map<PackageName, PackageExportRename[]>,
+  packageExportRenamesMap: Map<PackageName, PackageExportRename[]>,
   dryRun: boolean
 ) {
   // FIXME this should be much better now that we pre-grouped above
-  removeFilesIfInProject(filesToMove, project, logger, dryRun);
+  removeFilesIfInProject(filesToRemove, project, logger);
 
   const replacements = new SimpleReplacements(logger);
 
-  for (const [relPath, contents] of filesToAdd) {
+  for (const [relPath, { fileContents, rootExports }] of relativeFileInfoMap) {
     const fullpath = path.resolve(packagePath, relPath);
-    logger[dryRun ? "info" : "trace"]("Adding file '%s'", fullpath);
-    const sf = project.createSourceFile(fullpath, contents);
+    logger.trace("Adding file '%s'", fullpath);
+    const sf = project.createSourceFile(fullpath, fileContents);
 
     // Gotta clean up the files we added
     cleanupMovedFile(sf, packageName, replacements, dryRun);
+
+    const rootFile = getRootFile(project);
+    if (!rootFile) throw new Error("Couldnt find rootfile");
+    // FIXME need to handle namespace exports too
+    if (rootExports.size > 0) {
+      addReexports(rootExports, replacements, rootFile, fullpath);
+    }
   }
 
   // Simple renames
   for (const sf of project.getSourceFiles()) {
-    addSingleFileReplacementsForRenames(sf, rootExportsToMove, replacements, dryRun);
+    addSingleFileReplacementsForRenames(sf, packageExportRenamesMap, replacements, dryRun);
   }
 
   // actually updates files in project!
-  return [...processReplacements(project, replacements.getReplacementsMap())];
+  const changedFiles = [...processReplacements(project, replacements.getReplacementsMap())];
+
+  // Gotta clean up the mess we made
+  // TODO:
+  // - [ ] Remove empty import lines
+  // - [ ] Remove empty export lines
+  //
+  // for (const filePath of changedFiles) {
+  //   const sf = project.getSourceFile(filePath);
+  // }
+
+  return changedFiles;
+}
+
+function addReexports(
+  rootExports: Map<string, string>,
+  replacements: SimpleReplacements,
+  rootFile: SourceFile,
+  fullpath: FilePath
+) {
+  if ([...rootExports].some(([_name, alias]) => alias === "default")) {
+    throw new Error("Default alias is not currently supported");
+  }
+
+  const exportSpecifiers = [...rootExports]
+    .map(([name, alias]) => (name === alias ? name : `${name} as ${alias}`))
+    .join(", ");
+
+  replacements.addReplacement(
+    rootFile.getFilePath(),
+    rootFile.getTrailingTriviaEnd(),
+    rootFile.getTrailingTriviaEnd(),
+    `export {${exportSpecifiers}} from "${rootFile.getRelativePathAsModuleSpecifierTo(fullpath)}";`
+  );
 }

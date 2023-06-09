@@ -34,48 +34,54 @@ describe(getConsumedExports, () => {
 
     const result = getConsumedExports(project.getSourceFileOrThrow("foo.ts"));
 
-    expect(result).toEqual(
-      new Map(
-        Object.entries<Metadata>({
-          "/index.ts": {
-            reexports: new Set(["foo"]),
-            imports: new Set(),
-            reexportsFrom: new Map(),
+    expect(result).toMatchInlineSnapshot(`
+      Map {
+        "/reexportAs.ts" => {
+          "imports": Set {},
+          "reexports": Map {
+            "foo" => "baz",
           },
-
-          "/reexportAs.ts": {
-            reexports: new Set(["foo"]),
-            imports: new Set(),
-            reexportsFrom: new Map(),
+          "reexportsFrom": Map {},
+        },
+        "/reexportAsDefault.ts" => {
+          "imports": Set {},
+          "reexports": Map {
+            "foo" => "default",
           },
-
-          "/reexportAsDefault.ts": {
-            reexports: new Set(["foo"]),
-            imports: new Set(),
-            reexportsFrom: new Map(),
+          "reexportsFrom": Map {},
+        },
+        "/index.ts" => {
+          "imports": Set {},
+          "reexports": Map {
+            "foo" => "foo",
           },
-
-          "/importFrom.ts": {
-            reexports: new Set(),
-            imports: new Set(["foo"]),
-            reexportsFrom: new Map(),
+          "reexportsFrom": Map {},
+        },
+        "/importFrom.ts" => {
+          "imports": Set {
+            "foo",
           },
-
-          "/importFromIndirection.ts": {
-            reexports: new Set(),
-            imports: new Set(["foo"]),
-            reexportsFrom: new Map(),
+          "reexports": Map {},
+          "reexportsFrom": Map {},
+        },
+        "/importFromIndirection.ts" => {
+          "imports": Set {
+            "foo",
           },
-
-          "/reassignThenExport.ts": {
-            reexports: new Set(["foo"]),
-            imports: new Set(["foo"]),
-            reexportsFrom: new Map(),
+          "reexports": Map {},
+          "reexportsFrom": Map {},
+        },
+        "/reassignThenExport.ts" => {
+          "imports": Set {
+            "foo",
           },
-        })
-      )
-    );
-    //
+          "reexports": Map {
+            "foo" => "baz",
+          },
+          "reexportsFrom": Map {},
+        },
+      }
+    `);
   });
 
   it("renames a named import module specifier ", () => {
@@ -96,20 +102,18 @@ describe(getConsumedExports, () => {
       .build();
     const project = projectLoader(workspace.getPackageByNameOrThrow("foo").packagePath)!;
 
-    const q = getConsumedExports(project.getSourceFileOrThrow("/workspace/foo/src/index.ts"));
+    const result = getConsumedExports(project.getSourceFileOrThrow("/workspace/foo/src/index.ts"));
 
-    expect(q).toEqual(
-      new Map(
-        Object.entries<Metadata>({
-          "/workspace/foo/src/index.ts": {
-            imports: new Set(),
-            reexports: new Set(),
-            reexportsFrom: new Map([["foo", "/workspace/foo/src/foo.ts"]]),
+    expect(result).toMatchInlineSnapshot(`
+      Map {
+        "/workspace/foo/src/index.ts" => {
+          "imports": Set {},
+          "reexports": Map {},
+          "reexportsFrom": Map {
+            "foo" => "/workspace/foo/src/foo.ts",
           },
-        })
-      )
-    );
-
-    //
+        },
+      }
+    `);
   });
 });

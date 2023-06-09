@@ -1,6 +1,6 @@
 import type { Identifier, NamespaceExport, SourceFile } from "ts-morph";
 import type { PackageExportRename } from "./PackageExportRename.js";
-import { getSimplifiedNodeInfoAsString, type PackageName } from "@eartool/utils";
+import type { PackageName } from "@eartool/utils";
 import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
 import type { Replacements } from "./Replacements.js";
 
@@ -22,7 +22,6 @@ export function addSingleFileReplacementsForRenames(
           importSpec.getAliasNode() ?? importSpec.getNameNode(),
           renamesForPackage,
           replacements,
-          dryRun,
           alreadyAdded,
           importSpec
         );
@@ -33,8 +32,7 @@ export function addSingleFileReplacementsForRenames(
         accumulateRenamesForImportedIdentifier(
           maybeNamepsaceImport,
           prependRenames(renamesForPackage, maybeNamepsaceImport),
-          replacements,
-          dryRun
+          replacements
         );
       }
     } catch (e) {
@@ -57,7 +55,7 @@ export function addSingleFileReplacementsForRenames(
         exportSpec.getAliasNode() ?? exportSpec.getNameNode(),
         renamesForPackage,
         replacements,
-        dryRun,
+
         alreadyAdded,
         exportSpec
       );
@@ -68,8 +66,7 @@ export function addSingleFileReplacementsForRenames(
       accumulateRenamesForImportedIdentifier(
         maybeNamespaceExport.getNameNode(),
         prependRenames(renamesForPackage, maybeNamespaceExport),
-        replacements,
-        dryRun
+        replacements
       );
     }
   }

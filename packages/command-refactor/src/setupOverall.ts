@@ -13,6 +13,11 @@ import { mapFilesByPackageName } from "./mapFilesByPackageName.js";
 
 export type TsMorphProjectLoader = (packagePath: string) => Project | undefined;
 
+export type RelativeFileInfo = {
+  fileContents: string;
+  rootExports: Map<string, string>;
+};
+
 export async function setupOverall(
   workspace: Workspace,
   projectLoader: TsMorphProjectLoader,
@@ -20,14 +25,20 @@ export async function setupOverall(
   destinationModule: string,
   logger: Logger
 ): Promise<{
-  rootExportsToMove: Map<PackageName, PackageExportRename[]>;
-  fileContents: Map<FilePath, string>;
+  packageExportRenamesMap: Map<PackageName, PackageExportRename[]>;
+  relativeFileInfoMap: Map<FilePath, RelativeFileInfo>;
   packageJsonDepsRequired: PackageJsonDepsRequired;
   direction: DependencyDirection;
   primaryPackages: Set<PackageName>;
+  filesToRemove: Set<FilePath>;
 }> {
   // Throws if we can't predict the package
   const packageNameToFilesToMove = mapFilesByPackageName(workspace, filesToMove);
+
+  if (!workspace.getPackageBy({ name: destinationModule })) {
+    logger.fatal(`Cannot find package named '${destinationModule}'`);
+    throw new Error(`Cannot find package named '${destinationModule}'`);
+  }
 
   const destinationDirections = new Set(
     [...packageNameToFilesToMove.keys()].map((k) =>
@@ -46,8 +57,10 @@ export async function setupOverall(
   // Supposing a -> b -> c, where `->` means "depends on"
   // We can move b to c, but we need to update a to depend on c
 
-  const rootExportsToMove = new Map<PackageName, PackageExportRename[]>();
-  const fileContents = new Map</* relPath */ FilePath, string>();
+  const packageExportRenamesMap = new Map<PackageName, PackageExportRename[]>();
+  const relativeFileInfoMap = new Map<FilePath, RelativeFileInfo>();
+
+  const allAllFilesToMove = [];
 
   const packageJsonDepsRequired: PackageJsonDepsRequired = {
     dependencies: new Map(),
@@ -60,15 +73,19 @@ export async function setupOverall(
     const project = projectLoader(packagePath);
     Assert.ok(project);
 
-    const { packageExportRenames, allFilesToMove, requiredPackages } =
-      calculatePackageExportRenamesForFileMoves(
-        project,
-        files,
-        packagePath,
-        destinationModule,
-        direction,
-        logger
-      );
+    const {
+      packageExportRenames,
+      allFilesToMove,
+      requiredPackages,
+      rootExportsPerRelativeFilePath,
+    } = calculatePackageExportRenamesForFileMoves(
+      project,
+      files,
+      packagePath,
+      destinationModule,
+      direction,
+      logger
+    );
 
     logger.debug(
       "packageExportRenames: %o",
@@ -76,6 +93,7 @@ export async function setupOverall(
     );
     logger.debug("allFilesToMove: %o", [...allFilesToMove]);
     logger.debug("requiredPackages: %o", [...requiredPackages]);
+    logger.debug("rootExportsPerRelativeFilePath %o", [...rootExportsPerRelativeFilePath]);
 
     const versions = getPackageVersions(
       project.getFileSystem(),
@@ -86,7 +104,7 @@ export async function setupOverall(
     mergePackageJsonDeps({ from: versions, into: packageJsonDepsRequired });
 
     if (packageExportRenames?.length > 0) {
-      rootExportsToMove.set(packageName, packageExportRenames);
+      packageExportRenamesMap.set(packageName, packageExportRenames);
     }
 
     // TODO this is overkill now that we group by package
@@ -95,17 +113,28 @@ export async function setupOverall(
       packagePath,
       allFilesToMove
     )) {
-      Assert.ok(!fileContents.has(relPath));
-
-      fileContents.set(relPath, contents);
+      Assert.ok(!relativeFileInfoMap.has(relPath));
+      relativeFileInfoMap.set(relPath, {
+        fileContents: contents,
+        rootExports: rootExportsPerRelativeFilePath.get(relPath) ?? new Map(),
+      });
     }
+
+    allAllFilesToMove.push(...allFilesToMove);
   }
 
   const primaryPackages = new Set([...packageNameToFilesToMove.keys(), destinationModule]);
 
   // await workspace.runTasksInOrder([], async ({ packageName, packagePath }) => {});
 
-  return { rootExportsToMove, fileContents, packageJsonDepsRequired, direction, primaryPackages };
+  return {
+    packageExportRenamesMap,
+    relativeFileInfoMap,
+    packageJsonDepsRequired,
+    direction,
+    primaryPackages,
+    filesToRemove: new Set(allAllFilesToMove),
+  };
 }
 
 function getPackageVersions(

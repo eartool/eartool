@@ -1,19 +1,17 @@
+import type { FilePath } from "@eartool/utils";
 import type { Logger } from "pino";
 import type { Project } from "ts-morph";
 
 export function removeFilesIfInProject(
-  filesToMove: string[],
+  filesToMove: Iterable<FilePath>,
   project: Project,
-  logger: Logger,
-  dryRun: boolean
+  logger: Logger
 ) {
   for (const path of filesToMove) {
     const sf = project.getSourceFile(path);
     if (!sf) continue;
 
-    if (dryRun) {
-      logger.info("DRYRUN: Would be deleting %s.", path);
-    }
+    logger.info("Deleting %s.", path);
 
     sf.delete();
   }

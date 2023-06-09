@@ -3,7 +3,7 @@ import { Node, SyntaxKind, type SourceFile } from "ts-morph";
 import { getSimplifiedNodeInfoAsString, type FilePath } from "@eartool/utils";
 
 export interface Metadata {
-  reexports: Set<string>; // exported name to files that re-export
+  reexports: Map<string, string>; // local name to exported name
   reexportsFrom: Map<string, string>; // name to file its from
   imports: Set<string>;
 }
@@ -29,7 +29,7 @@ export function getConsumedExports(sf: SourceFile): Map<FilePath, Metadata> {
 }
 
 const createEmptyMetadata = (): Metadata => ({
-  reexports: new Set(),
+  reexports: new Map(),
   imports: new Set(),
   reexportsFrom: new Map(),
 });
@@ -54,7 +54,10 @@ function handleReferences(
       if (isReexportCase) {
         metadata.reexportsFrom.set(exportedSymbol.getName(), refNode.getSourceFile().getFilePath());
       } else {
-        metadata.reexports.add(exportedSymbol.getName());
+        metadata.reexports.set(
+          exportedSymbol.getName(),
+          parent.getAliasNode()?.getText() ?? parent.getName()
+        );
         // const q = mapGetOrInitialize(metadata.reexports, s.getName(), () => new Set());
         // q.add(refNode.getSourceFile().getFilePath());
       }
@@ -69,7 +72,7 @@ function handleReferences(
           // mapGetOrInitialize(metadata.reexports, s.getName(), () => new Set()).add(
           //   refNode.getSourceFile().getFilePath()
           // );
-          metadata.reexports.add(exportedSymbol.getName());
+          metadata.reexports.set(exportedSymbol.getName(), parent.getName());
         } else {
           metadata.reexportsFrom.set(
             exportedSymbol.getName(),

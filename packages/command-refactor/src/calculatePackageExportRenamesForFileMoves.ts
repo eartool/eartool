@@ -6,6 +6,7 @@ import type { Project, SourceFile } from "ts-morph";
 import { getConsumedExports as getConsumedImportsAndExports } from "./getConsumedExports.js";
 import type { Logger } from "pino";
 import { getRootFile } from "./getRootFile.js";
+import * as path from "node:path";
 
 const packageNameRegex = /^((@[a-zA-Z0-9_-]+\/)?[a-zA-Z0-9_-]+)/;
 
@@ -32,6 +33,8 @@ export function calculatePackageExportRenamesForFileMoves(
   const visitedFiles = new Set<FilePath>();
   const toVisit = [...filesToMove];
 
+  const rootExportsPerRelativeFilePath = new Map<FilePath, Map<string, string>>();
+
   while (toVisit.length > 0) {
     const curFilePath = toVisit.shift()!;
     if (visitedFiles.has(curFilePath)) {
@@ -42,7 +45,20 @@ export function calculatePackageExportRenamesForFileMoves(
     const sf = project.getSourceFile(curFilePath);
     if (!sf) continue;
     // in project only;
-    addRenamesForRootExport(sf, packagePath, packageExportRenames, destinationModule, logger);
+    const rootExportsForSf = addRenamesForRootExport(
+      sf,
+      packagePath,
+      packageExportRenames,
+      destinationModule,
+      logger
+    );
+
+    if (rootExportsForSf) {
+      const curRelativeFilePath = path.relative(packagePath, sf.getFilePath());
+      rootExportsPerRelativeFilePath.set(curRelativeFilePath, rootExportsForSf);
+    }
+
+    // this root export stuff is going to brea on renames FIXME
 
     // FIXME TODO future we also need to deal with submodule imports
     // We need to deal with all the places that we import something from the destination
@@ -78,9 +94,15 @@ export function calculatePackageExportRenamesForFileMoves(
     }
   }
 
-  return { allFilesToMove: visitedFiles, packageExportRenames, requiredPackages };
+  return {
+    allFilesToMove: visitedFiles,
+    packageExportRenames,
+    requiredPackages,
+    rootExportsPerRelativeFilePath,
+  };
 }
 
+// rename this
 function addRenamesForRootExport(
   sf: SourceFile,
   packagePath: FilePath,
@@ -101,14 +123,15 @@ function addRenamesForRootExport(
   const rootIndexFileExports = consumed.get(rootFile!.getFilePath())?.reexports;
 
   if (!rootIndexFileExports) {
-    // FIXME use the logger dude
-    // console.warn("File isn't re-exported! " + curFilePath);
+    logger.warn("File isn't re-exported! " + sf.getFilePath());
     return;
   }
-  for (const exportName of rootIndexFileExports) {
+  for (const [_originalName, exportedName] of rootIndexFileExports) {
     packageExportRenames.push({
-      from: [exportName],
+      from: [exportedName],
       toFileOrModule: destinationModule,
     });
   }
+
+  return rootIndexFileExports;
 }
