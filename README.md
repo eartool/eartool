@@ -7,8 +7,15 @@
 - [ ] deleting imports leaves a new line right now it seem
 - [ ] `import { a, b } from "foo"` doesn't clean up comma before if last
 - [ ] we need to handle sidestream and downstream
+- [ ] we need a way to not require ordering
 
-## faux-namespaces
+Future:
+
+- [ ] Support aborting on banned deps
+
+## fix-namespaces
+
+### faux-namespaces
 
 For the faux-namespaces, we need to handle this case:
 
@@ -30,3 +37,7 @@ asSetWithoutFragments,
 size,
 isEmpty,
 };
+
+# Future Ideas
+
+- Renames real selectors selectFoo instead of getFoo across code base
