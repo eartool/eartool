@@ -1,12 +1,12 @@
 import type { Workspace } from "@eartool/batch";
 import type { PackageName } from "./PackageName.js";
 import type { FilePath } from "@eartool/utils";
-import { ArrayMultimap } from "@teppeis/multimaps";
+import { SetMultimap } from "@teppeis/multimaps";
 
 export function mapFilesByPackageName(workspace: Workspace, files: Iterable<FilePath>) {
   const packagePathToName = workspace.getPackageDirToNameMap();
 
-  const ret = new ArrayMultimap<PackageName, FilePath>();
+  const ret = new SetMultimap<PackageName, FilePath>();
 
   // I hate how bleh this method is
   for (const f of files) {

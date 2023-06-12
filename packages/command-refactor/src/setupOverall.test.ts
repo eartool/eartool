@@ -19,9 +19,6 @@ describe(setupOverall, () => {
       expect(result).toMatchInlineSnapshot(`
         {
           "direction": "upstream",
-          "filesToRemove": Set {
-            "/workspace/api/src/doThingWithState.ts",
-          },
           "packageExportRenamesMap": Map {
             "api" => [
               {
@@ -38,6 +35,15 @@ describe(setupOverall, () => {
               "state" => "workspace:*",
             },
             "devDependencies": Map {},
+          },
+          "packageNameToFilesToMove": SetMultimap {
+            "map": Map {
+              "api" => Set {
+                "/workspace/api/src/doThingWithState.ts",
+              },
+            },
+            "operator": SetOperator {},
+            "size_": 1,
           },
           "primaryPackages": Set {
             "api",
@@ -72,9 +78,6 @@ describe(setupOverall, () => {
       expect(result).toMatchInlineSnapshot(`
         {
           "direction": "downstream",
-          "filesToRemove": Set {
-            "/workspace/api/src/doThingWithState.ts",
-          },
           "packageExportRenamesMap": Map {
             "api" => [
               {
@@ -91,6 +94,15 @@ describe(setupOverall, () => {
               "state" => "workspace:*",
             },
             "devDependencies": Map {},
+          },
+          "packageNameToFilesToMove": SetMultimap {
+            "map": Map {
+              "api" => Set {
+                "/workspace/api/src/doThingWithState.ts",
+              },
+            },
+            "operator": SetOperator {},
+            "size_": 1,
           },
           "primaryPackages": Set {
             "api",
@@ -128,10 +140,6 @@ describe(setupOverall, () => {
       expect(result).toMatchInlineSnapshot(`
         {
           "direction": "upstream",
-          "filesToRemove": Set {
-            "/workspace/api/src/doThingWithBaz.ts",
-            "/workspace/api/src/Baz.ts",
-          },
           "packageExportRenamesMap": Map {
             "api" => [
               {
@@ -147,10 +155,28 @@ describe(setupOverall, () => {
                 "toFileOrModule": "state",
               },
             ],
+            "/workspace/api/src/Baz.ts" => [
+              {
+                "from": [
+                  "Baz",
+                ],
+                "toFileOrModule": "state",
+              },
+            ],
           },
           "packageJsonDepsRequired": {
             "dependencies": Map {},
             "devDependencies": Map {},
+          },
+          "packageNameToFilesToMove": SetMultimap {
+            "map": Map {
+              "api" => Set {
+                "/workspace/api/src/doThingWithBaz.ts",
+                "/workspace/api/src/Baz.ts",
+              },
+            },
+            "operator": SetOperator {},
+            "size_": 2,
           },
           "primaryPackages": Set {
             "api",
@@ -229,6 +255,10 @@ function createInitialWorkspaceBuilder() {
             import {Baz} from "./Baz";
             export function doThingWithBaz(baz: Baz) { return baz.value; }
           `
+        )
+        .addFile(
+          "src/alsoUsesBaz.ts",
+          `import {Baz} from "./Baz"; function alsoUsesBaz(baz: Baz) { return baz.value; }`
         )
         .addFile(
           "src/doThingWithState.ts",

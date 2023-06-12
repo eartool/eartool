@@ -1,3 +1,5 @@
+import type { FilePath, PackageName } from "@eartool/utils";
+
 export type PackageExportRename = JustRename | JustMoveFile | Full;
 
 export interface Base {
@@ -19,3 +21,5 @@ export interface Full extends Base {
   to: string[];
   toFileOrModule: string;
 }
+
+export type PackageExportRenames = Map<PackageName | FilePath, PackageExportRename[]>;

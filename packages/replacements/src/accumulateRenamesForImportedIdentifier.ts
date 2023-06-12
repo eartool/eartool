@@ -1,9 +1,8 @@
-import { SyntaxKind, type ImportSpecifier } from "ts-morph";
-import type { PackageExportRename } from "./PackageExportRename.js";
 import { findEntireQualifiedNameTree } from "@eartool/utils";
-import type { ExportSpecifier } from "ts-morph";
-import type { Identifier } from "ts-morph";
 import * as Assert from "assert";
+import type { ExportSpecifier, Identifier, ImportSpecifier } from "ts-morph";
+import { SyntaxKind } from "ts-morph";
+import type { PackageExportRename } from "./PackageExportRename.js";
 import type { Replacements } from "./Replacements.js";
 
 export function accumulateRenamesForImportedIdentifier(

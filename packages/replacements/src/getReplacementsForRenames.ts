@@ -3,15 +3,17 @@ import type { PackageExportRename } from "./PackageExportRename.js";
 import type { PackageName } from "@eartool/utils";
 import { addSingleFileReplacementsForRenames } from "./addSingleFileReplacementsForRenames.js";
 import type { Replacements } from "./Replacements.js";
+import type { Logger } from "pino";
 
 // TODO This is going to be reall inefficient
 export function getReplacementsForRenames(
   project: Project,
   renames: Map<PackageName, PackageExportRename[]>,
   replacements: Replacements,
+  logger: Logger,
   dryRun: boolean
 ): void {
   for (const sf of project.getSourceFiles()) {
-    addSingleFileReplacementsForRenames(sf, renames, replacements, dryRun);
+    addSingleFileReplacementsForRenames(sf, renames, replacements, logger, dryRun);
   }
 }

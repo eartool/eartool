@@ -28,7 +28,7 @@ export function createLogger(
       level: consoleLevel,
       stream: pinoPretty.default({
         messageFormat: (a) => `[${chalk.gray(a.packageName ?? "MAIN")}] ${a.msg}`,
-        ignore: "packageName,pid,hostame",
+        ignore: "pid,hostame,packageName",
         colorize: true,
         sync: true,
       }),

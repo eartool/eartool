@@ -4,6 +4,7 @@ import { getReplacementsForRenames } from "./getReplacementsForRenames.js";
 import type { Replacement } from "./Replacement.js";
 import { createConsoleLogger } from "@eartool/utils";
 import { SimpleReplacements } from "./ReplacementsWrapper.js";
+import { createTestLogger } from "@eartool/test-utils";
 
 describe(getReplacementsForRenames, () => {
   it("records renames from root", async () => {
@@ -27,6 +28,7 @@ describe(getReplacementsForRenames, () => {
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
+      createTestLogger(),
       false
     );
 
@@ -55,6 +57,7 @@ describe(getReplacementsForRenames, () => {
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
+      createTestLogger(),
       false
     );
 
@@ -82,6 +85,7 @@ describe(getReplacementsForRenames, () => {
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
+      createTestLogger(),
       false
     );
 
@@ -111,6 +115,7 @@ describe(getReplacementsForRenames, () => {
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
+      createTestLogger(),
       false
     );
 
@@ -141,6 +146,7 @@ describe(getReplacementsForRenames, () => {
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["Baz", "Other"] }]]]),
       replacements,
+      createTestLogger(),
       false
     );
 
@@ -174,6 +180,7 @@ describe(getReplacementsForRenames, () => {
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
+      createTestLogger(),
       false
     );
 
@@ -208,6 +215,7 @@ describe(getReplacementsForRenames, () => {
       project,
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["Merp", "Other"] }]]]),
       replacements,
+      createTestLogger(),
       false
     );
 
@@ -250,6 +258,7 @@ describe(getReplacementsForRenames, () => {
         ],
       ]),
       replacements,
+      createTestLogger(),
       false
     );
 
@@ -293,6 +302,7 @@ describe(getReplacementsForRenames, () => {
         ],
       ]),
       replacements,
+      createTestLogger(),
       false
     );
 
@@ -365,6 +375,7 @@ describe(getReplacementsForRenames, () => {
         ],
       ]),
       replacements,
+      createTestLogger(),
       false
     );
 

@@ -1,5 +1,5 @@
 import type { DependencyDirection, Workspace } from "@eartool/batch";
-import type { PackageExportRename } from "@eartool/replacements";
+import type { PackageExportRename, PackageExportRenames } from "@eartool/replacements";
 import type { FilePath, PackageJson } from "@eartool/utils";
 import { readPackageJson } from "@eartool/utils";
 import * as Assert from "node:assert";
@@ -10,6 +10,8 @@ import type { PackageName } from "./PackageName.js";
 import { calculatePackageExportRenamesForFileMoves } from "./calculatePackageExportRenamesForFileMoves.js";
 import { getFileContentsRelatively } from "./getFileContentsRelatively.js";
 import { mapFilesByPackageName } from "./mapFilesByPackageName.js";
+import type { ArrayMultimap, SetMultimap } from "@teppeis/multimaps";
+import { SymbolRenames } from "./SymbolRenames.js";
 
 export type TsMorphProjectLoader = (packagePath: string) => Project | undefined;
 
@@ -25,12 +27,13 @@ export async function setupOverall(
   destinationModule: string,
   logger: Logger
 ): Promise<{
-  packageExportRenamesMap: Map<PackageName, PackageExportRename[]>;
+  packageExportRenamesMap: Map<PackageName | FilePath, PackageExportRename[]>;
+  // renames: RenamesWrapper;
   relativeFileInfoMap: Map<FilePath, RelativeFileInfo>;
   packageJsonDepsRequired: PackageJsonDepsRequired;
   direction: DependencyDirection;
   primaryPackages: Set<PackageName>;
-  filesToRemove: Set<FilePath>;
+  packageNameToFilesToMove: SetMultimap<PackageName, FilePath>;
 }> {
   // Throws if we can't predict the package
   const packageNameToFilesToMove = mapFilesByPackageName(workspace, filesToMove);
@@ -57,10 +60,9 @@ export async function setupOverall(
   // Supposing a -> b -> c, where `->` means "depends on"
   // We can move b to c, but we need to update a to depend on c
 
-  const packageExportRenamesMap = new Map<PackageName, PackageExportRename[]>();
+  // const packageExportRenamesMap: PackageExportRenames = new Map();
+  const renames = new SymbolRenames();
   const relativeFileInfoMap = new Map<FilePath, RelativeFileInfo>();
-
-  const allAllFilesToMove = [];
 
   const packageJsonDepsRequired: PackageJsonDepsRequired = {
     dependencies: new Map(),
@@ -73,27 +75,32 @@ export async function setupOverall(
     const project = projectLoader(packagePath);
     Assert.ok(project);
 
-    const {
-      packageExportRenames,
-      allFilesToMove,
-      requiredPackages,
-      rootExportsPerRelativeFilePath,
-    } = calculatePackageExportRenamesForFileMoves(
-      project,
-      files,
-      packagePath,
-      destinationModule,
-      direction,
-      logger
-    );
+    const { allFilesToMove, requiredPackages, rootExportsPerRelativeFilePath } =
+      calculatePackageExportRenamesForFileMoves(
+        project,
+        files,
+        packagePath,
+        packageName,
+        destinationModule,
+        direction,
+        renames,
+        logger
+      );
 
     logger.debug(
       "packageExportRenames: %o",
-      packageExportRenames.map((a) => `${a.from} to package ${a.toFileOrModule}`).join("\n")
+      [...renames.asRaw()].map(([filePathOrModule, renames]) =>
+        renames
+          .map((a) => `${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
+          .join("\n")
+      )
     );
     logger.debug("allFilesToMove: %o", [...allFilesToMove]);
     logger.debug("requiredPackages: %o", [...requiredPackages]);
-    logger.debug("rootExportsPerRelativeFilePath %o", [...rootExportsPerRelativeFilePath]);
+    logger.debug(
+      "rootExportsPerRelativeFilePath %o",
+      [...rootExportsPerRelativeFilePath].map(([a, b]) => [a, [...b]])
+    );
 
     const versions = getPackageVersions(
       project.getFileSystem(),
@@ -102,10 +109,6 @@ export async function setupOverall(
       logger
     );
     mergePackageJsonDeps({ from: versions, into: packageJsonDepsRequired });
-
-    if (packageExportRenames?.length > 0) {
-      packageExportRenamesMap.set(packageName, packageExportRenames);
-    }
 
     // TODO this is overkill now that we group by package
     for (const [relPath, contents] of getFileContentsRelatively(
@@ -120,7 +123,7 @@ export async function setupOverall(
       });
     }
 
-    allAllFilesToMove.push(...allFilesToMove);
+    packageNameToFilesToMove.putAll(packageName, allFilesToMove);
   }
 
   const primaryPackages = new Set([...packageNameToFilesToMove.keys(), destinationModule]);
@@ -128,12 +131,13 @@ export async function setupOverall(
   // await workspace.runTasksInOrder([], async ({ packageName, packagePath }) => {});
 
   return {
-    packageExportRenamesMap,
+    packageExportRenamesMap: renames.asRaw(),
     relativeFileInfoMap,
     packageJsonDepsRequired,
     direction,
     primaryPackages,
-    filesToRemove: new Set(allAllFilesToMove),
+
+    packageNameToFilesToMove,
   };
 }
 

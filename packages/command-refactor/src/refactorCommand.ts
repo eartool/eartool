@@ -4,7 +4,7 @@ import {
   addSingleFileReplacementsForRenames,
   processReplacements,
   SimpleReplacements,
-  type PackageExportRename,
+  type PackageExportRenames,
 } from "@eartool/replacements";
 import {
   dropDtsFiles,
@@ -25,6 +25,7 @@ import type { PackageJsonDepsRequired } from "./PackageJsonDepsRequired.js";
 import * as fs from "node:fs";
 import { cleanupMovedFile } from "./cleanupMovedFile.js";
 import { getRootFile } from "./getRootFile.js";
+import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
 
 /*
 There are a lot of scenarios I want to be able to do easily.
@@ -102,12 +103,12 @@ export const refactorCommand = makeBatchCommand(
     cliMain: async (args) => {
       const workspace = await createWorkspaceFromDisk(args.workspace);
       const {
-        packageJsonDepsRequired,
         direction,
-        primaryPackages,
         packageExportRenamesMap,
+        packageJsonDepsRequired,
+        packageNameToFilesToMove,
+        primaryPackages,
         relativeFileInfoMap,
-        filesToRemove,
       } = await setupOverall(
         workspace,
         maybeLoadProject,
@@ -129,7 +130,7 @@ export const refactorCommand = makeBatchCommand(
                 ? relativeFileInfoMap
                 : new Map<FilePath, RelativeFileInfo>(),
             packageExportRenamesMap,
-            filesToRemove,
+            filesToRemove: packageNameToFilesToMove.get(packageName),
             destination: args.destination,
             primaryPackages, // maybe dont serialize
             shouldOrganizeImports: false, // fixme
@@ -264,13 +265,24 @@ async function processPackageReplacements(
   packagePath: FilePath,
   packageName: PackageName,
   logger: Logger,
-  packageExportRenamesMap: Map<PackageName, PackageExportRename[]>,
+  packageExportRenamesMap: PackageExportRenames,
   dryRun: boolean
 ) {
-  // FIXME this should be much better now that we pre-grouped above
-  removeFilesIfInProject(filesToRemove, project, logger);
+  logger.debug("filesToRemove %o", [...filesToRemove]);
+  logger.debug(
+    "packageExportRenames:\n%s",
+    [...packageExportRenamesMap].flatMap(([filePathOrModule, renames]) =>
+      renames
+        .map((a) => `  - ${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
+        .join("\n")
+    )
+  );
 
   const replacements = new SimpleReplacements(logger);
+  addReplacementsForExportsFromRemovedFiles(project, filesToRemove, replacements, logger);
+
+  // FIXME this should be much better now that we pre-grouped above
+  removeFilesIfInProject(filesToRemove, project, logger);
 
   for (const [relPath, { fileContents, rootExports }] of relativeFileInfoMap) {
     const fullpath = path.resolve(packagePath, relPath);
@@ -290,11 +302,15 @@ async function processPackageReplacements(
 
   // Simple renames
   for (const sf of project.getSourceFiles()) {
-    addSingleFileReplacementsForRenames(sf, packageExportRenamesMap, replacements, dryRun);
+    logger.debug(sf.getFilePath());
+    addSingleFileReplacementsForRenames(sf, packageExportRenamesMap, replacements, logger, dryRun);
   }
 
   // actually updates files in project!
-  const changedFiles = [...processReplacements(project, replacements.getReplacementsMap())];
+  const changedFiles = [
+    ...processReplacements(project, replacements.getReplacementsMap()),
+    ...filesToRemove,
+  ];
 
   // Gotta clean up the mess we made
   // TODO:

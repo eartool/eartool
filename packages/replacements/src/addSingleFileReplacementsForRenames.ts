@@ -1,74 +1,128 @@
-import type { Identifier, NamespaceExport, SourceFile } from "ts-morph";
-import type { PackageExportRename } from "./PackageExportRename.js";
 import type { PackageName } from "@eartool/utils";
-import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
+import type {
+  ExportDeclaration,
+  Identifier,
+  ImportDeclaration,
+  NamespaceExport,
+  SourceFile,
+} from "ts-morph";
+import type { PackageExportRename, PackageExportRenames } from "./PackageExportRename.js";
 import type { Replacements } from "./Replacements.js";
+import { getPossibleFileLocations } from "./getPossibleFileLocations.js";
+import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
+import { getNamespaceIdentifier } from "./getNamespaceIdentifier.js";
+import { getNamedSpecifiers } from "./getNamedSpecifiers.js";
+import type { Logger } from "pino";
 
 export function addSingleFileReplacementsForRenames(
   sf: SourceFile,
-  renames: Map<PackageName, PackageExportRename[]>,
+  renames: PackageExportRenames,
   replacements: Replacements,
+  logger: Logger,
   dryRun: boolean
 ) {
   const alreadyAdded = new Set();
 
-  for (const importDecl of sf.getImportDeclarations()) {
-    try {
-      const renamesForPackage = renames.get(importDecl.getModuleSpecifier().getLiteralText());
-      if (!renamesForPackage) continue;
+  const fullFilePathRenames = new Map(
+    [...renames].filter(([packageName]) => packageName.startsWith("/"))
+  );
+  logger.debug("TOP OF FILE %s", sf.getFilePath());
+  logger.debug(
+    "Full file path renames:\n%s",
+    [...fullFilePathRenames].flatMap(([filePathOrModule, renames]) =>
+      renames
+        .map((a) => `  - ${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
+        .join("\n")
+    )
+  );
 
-      for (const importSpec of importDecl.getNamedImports()) {
-        accumulateRenamesForImportedIdentifier(
-          importSpec.getAliasNode() ?? importSpec.getNameNode(),
-          renamesForPackage,
-          replacements,
-          alreadyAdded,
-          importSpec
-        );
-      }
+  accumulateRenamesForAllDecls(
+    sf.getImportDeclarations(),
+    fullFilePathRenames,
+    sf,
+    replacements,
+    alreadyAdded,
+    renames,
+    logger
+  );
+  accumulateRenamesForAllDecls(
+    sf.getExportDeclarations(),
+    fullFilePathRenames,
+    sf,
+    replacements,
+    alreadyAdded,
+    renames,
+    logger
+  );
+}
 
-      const maybeNamepsaceImport = importDecl.getNamespaceImport();
-      if (maybeNamepsaceImport) {
-        accumulateRenamesForImportedIdentifier(
-          maybeNamepsaceImport,
-          prependRenames(renamesForPackage, maybeNamepsaceImport),
-          replacements
-        );
-      }
-    } catch (e) {
-      replacements.logger.fatal(e);
-      replacements.logger.flush();
-      throw e;
-    }
-  }
-
-  for (const exportDecl of sf.getExportDeclarations()) {
-    // Handle the index.ts file that just has `export {};`
-    const moduleSpecifier = exportDecl.getModuleSpecifier();
+function accumulateRenamesForAllDecls(
+  decls: ImportDeclaration[] | ExportDeclaration[],
+  fullFilePathRenames: PackageExportRenames,
+  sf: SourceFile,
+  replacements: Replacements,
+  alreadyAdded: Set<unknown>,
+  renames: PackageExportRenames,
+  logger: Logger
+) {
+  for (const decl of decls) {
+    const moduleSpecifier = decl.getModuleSpecifierValue();
     if (!moduleSpecifier) continue;
 
-    const renamesForPackage = renames.get(exportDecl.getModuleSpecifier()!.getLiteralText());
+    const possibleLocations = getPossibleFileLocations(sf.getProject(), moduleSpecifier);
+    // logger.debug("possibel locations: %s", possibleLocations.join(" : "));
+
+    // deal with full file path renames specially
+    for (const [fullPathToRename, renamesForPackage] of fullFilePathRenames) {
+      logger.debug("QQQQ %s", fullPathToRename);
+      const q = possibleLocations.some((l) => l == fullPathToRename);
+      if (!q) continue;
+
+      // const refinedRenames: PackageExportRename[] = [...renamesForPackage, {}];
+
+      accumulateRenamesForAllNamed(decl, renamesForPackage, replacements, alreadyAdded);
+      accumulateRenamesForNamespaceIfNeeded(decl, renamesForPackage, replacements);
+      // gotta deal with the namespace too
+    }
+
+    // console.log(getSimplifiedNodeInfoAsString(decl));
+    const renamesForPackage = renames.get(moduleSpecifier);
     if (!renamesForPackage) continue;
 
-    for (const exportSpec of exportDecl.getNamedExports()) {
-      accumulateRenamesForImportedIdentifier(
-        exportSpec.getAliasNode() ?? exportSpec.getNameNode(),
-        renamesForPackage,
-        replacements,
+    accumulateRenamesForAllNamed(decl, renamesForPackage, replacements, alreadyAdded);
+    accumulateRenamesForNamespaceIfNeeded(decl, renamesForPackage, replacements);
+  }
+}
 
-        alreadyAdded,
-        exportSpec
-      );
-    }
+function accumulateRenamesForNamespaceIfNeeded(
+  decl: ImportDeclaration | ExportDeclaration,
+  renamesForPackage: PackageExportRename[],
+  replacements: Replacements
+) {
+  const maybeNamespaceIdentifier = getNamespaceIdentifier(decl);
+  if (maybeNamespaceIdentifier) {
+    accumulateRenamesForImportedIdentifier(
+      maybeNamespaceIdentifier,
+      prependRenames(renamesForPackage, maybeNamespaceIdentifier),
+      replacements
+    );
+  }
+}
 
-    const maybeNamespaceExport = exportDecl.getNamespaceExport();
-    if (maybeNamespaceExport) {
-      accumulateRenamesForImportedIdentifier(
-        maybeNamespaceExport.getNameNode(),
-        prependRenames(renamesForPackage, maybeNamespaceExport),
-        replacements
-      );
-    }
+function accumulateRenamesForAllNamed(
+  decl: ImportDeclaration | ExportDeclaration,
+  renamesForPackage: PackageExportRename[],
+  replacements: Replacements,
+  alreadyAdded: Set<unknown>
+) {
+  for (const spec of getNamedSpecifiers(decl)) {
+    accumulateRenamesForImportedIdentifier(
+      spec.getAliasNode() ?? spec.getNameNode(),
+      renamesForPackage,
+      replacements,
+      alreadyAdded,
+      spec
+    );
   }
 }
 

@@ -5,13 +5,13 @@ import type { FilePath, PackageName } from "@eartool/utils";
 export type DependencyDirection = "downstream" | "upstream" | "sideways";
 
 export class PackageInfo {
-  name: PackageName;
-  packagePath: FilePath;
-  depsByName = new Map<PackageName, PackageInfo>();
-  depsByPath = new Map<FilePath, PackageInfo>();
+  readonly name: PackageName;
+  readonly packagePath: FilePath;
+  readonly depsByName = new Map<PackageName, PackageInfo>();
+  readonly depsByPath = new Map<FilePath, PackageInfo>();
 
-  inverseDepsByName = new Map<PackageName, PackageInfo>();
-  inverseDepsByPath = new Map<FilePath, PackageInfo>();
+  readonly inverseDepsByName = new Map<PackageName, PackageInfo>();
+  readonly inverseDepsByPath = new Map<FilePath, PackageInfo>();
 
   #workspace: Workspace;
 

@@ -3,9 +3,10 @@ import { createTestLogger, formatTestTypescript } from "@eartool/test-utils";
 import { describe, expect, it } from "@jest/globals";
 import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
 import { cleanupMovedFile } from "./cleanupMovedFile.js";
+import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
 
-describe(cleanupMovedFile, () => {
-  it("handles imports from own package", () => {
+describe(addReplacementsForExportsFromRemovedFiles, () => {
+  it("works", () => {
     const PACKAGE_NAME = "foo";
 
     const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
@@ -13,8 +14,7 @@ describe(cleanupMovedFile, () => {
         p.addFile(
           "src/foo.ts",
           `
-            import {bar} from "foo";
-            export const foo = bar;
+            export const foo = "hi";
           `
         )
           .addFile(
@@ -27,36 +27,30 @@ describe(cleanupMovedFile, () => {
             "src/index.ts",
             `
               export {bar} from "./bar";
+              export {foo} from  "./foo";
             `
           );
       })
       .build();
 
-    const project = projectLoader(workspace.getPackageByNameOrThrow("foo").packagePath)!;
+    const project = projectLoader(workspace.getPackageByNameOrThrow(PACKAGE_NAME).packagePath)!;
 
     const replacements = new SimpleReplacements(createTestLogger());
-    const sf = project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/foo.ts`);
-    cleanupMovedFile(sf, PACKAGE_NAME, replacements, true);
-
-    processReplacements(project, replacements.getReplacementsMap());
-    sf.organizeImports().saveSync();
-    const text = formatTestTypescript(sf.getText());
-    expect(text).toEqual(
-      formatTestTypescript(`
-        import { bar } from "./bar";
-
-        export const foo = bar;
-      `)
+    addReplacementsForExportsFromRemovedFiles(
+      project,
+      [`/workspace/${PACKAGE_NAME}/src/bar.ts`],
+      replacements,
+      createTestLogger()
     );
 
-    {
-      const sf = project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/index.ts`);
-      sf.organizeImports().saveSync();
+    processReplacements(project, replacements.getReplacementsMap());
 
-      expect(formatTestTypescript(sf.getText())).toMatchInlineSnapshot(`
-        "export { bar } from "./bar";
-        "
-      `);
-    }
+    const sf = project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/index.ts`);
+    sf.organizeImports().saveSync();
+    const text = formatTestTypescript(sf.getText());
+    expect(text).toMatchInlineSnapshot(`
+      "export { foo } from "./foo";
+      "
+    `);
   });
 });
