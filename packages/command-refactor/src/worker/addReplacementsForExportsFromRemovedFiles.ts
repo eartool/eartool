@@ -1,7 +1,7 @@
 import type { SimpleReplacements } from "@eartool/replacements";
 import type { FilePath } from "@eartool/utils";
 import type { Project } from "ts-morph";
-import { getRootFile } from "./getRootFile.js";
+import { getRootFile } from "../getRootFile.js";
 import type { Logger } from "pino";
 
 export function addReplacementsForExportsFromRemovedFiles(

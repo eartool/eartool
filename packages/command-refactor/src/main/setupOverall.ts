@@ -1,17 +1,20 @@
 import type { DependencyDirection, Workspace } from "@eartool/batch";
-import type { PackageExportRename, PackageExportRenames } from "@eartool/replacements";
+import type { PackageExportRename } from "@eartool/replacements";
 import type { FilePath, PackageJson } from "@eartool/utils";
 import { readPackageJson } from "@eartool/utils";
+import type { SetMultimap } from "@teppeis/multimaps";
 import * as Assert from "node:assert";
 import type { Logger } from "pino";
 import type { FileSystemHost, Project } from "ts-morph";
-import { mergePackageJsonDeps, type PackageJsonDepsRequired } from "./PackageJsonDepsRequired.js";
-import type { PackageName } from "./PackageName.js";
+import {
+  mergePackageJsonDeps,
+  type PackageJsonDepsRequired,
+} from "../shared/PackageJsonDepsRequired.js";
+import type { PackageName } from "../shared/PackageName.js";
+import { SymbolRenames } from "./SymbolRenames.js";
 import { calculatePackageExportRenamesForFileMoves } from "./calculatePackageExportRenamesForFileMoves.js";
 import { getFileContentsRelatively } from "./getFileContentsRelatively.js";
 import { mapFilesByPackageName } from "./mapFilesByPackageName.js";
-import type { ArrayMultimap, SetMultimap } from "@teppeis/multimaps";
-import { SymbolRenames } from "./SymbolRenames.js";
 
 export type TsMorphProjectLoader = (packagePath: string) => Project | undefined;
 

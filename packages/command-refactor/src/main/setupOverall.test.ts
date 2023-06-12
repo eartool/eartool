@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
+import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
 import { setupOverall } from "./setupOverall.js";
 import { createTestLogger } from "@eartool/test-utils";
 

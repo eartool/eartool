@@ -6,7 +6,7 @@ import type { Logger } from "pino";
 import type { Project, SourceFile } from "ts-morph";
 import type { SymbolRenames } from "./SymbolRenames.js";
 import { getConsumedExports as getConsumedImportsAndExports } from "./getConsumedExports.js";
-import { getRootFile } from "./getRootFile.js";
+import { getRootFile } from "../getRootFile.js";
 
 const packageNameRegex = /^((@[a-zA-Z0-9_-]+\/)?[a-zA-Z0-9_-]+)/;
 

@@ -1,7 +1,7 @@
 import { SimpleReplacements, processReplacements } from "@eartool/replacements";
 import { createTestLogger, formatTestTypescript } from "@eartool/test-utils";
 import { describe, expect, it } from "@jest/globals";
-import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
+import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
 import { cleanupMovedFile } from "./cleanupMovedFile.js";
 
 describe(cleanupMovedFile, () => {

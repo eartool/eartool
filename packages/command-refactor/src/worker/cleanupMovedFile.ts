@@ -7,7 +7,7 @@ import {
 } from "@eartool/replacements";
 import { getSimplifiedNodeInfoAsString, type PackageName } from "@eartool/utils";
 import { SyntaxKind, type SourceFile } from "ts-morph";
-import { getRootFile } from "./getRootFile.js";
+import { getRootFile } from "../getRootFile.js";
 
 export function cleanupMovedFile(
   sf: SourceFile,

@@ -1,8 +1,7 @@
-import { describe, it } from "@jest/globals";
-import { expect } from "@jest/globals";
-import { getConsumedExports, type Metadata } from "./getConsumedExports.js";
 import { createProjectForTest } from "@eartool/test-utils";
-import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
+import { describe, expect, it } from "@jest/globals";
+import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
+import { getConsumedExports } from "./getConsumedExports.js";
 
 describe(getConsumedExports, () => {
   it("idk", () => {
