@@ -23,21 +23,22 @@ export type RelativeFileInfo = {
   rootExports: Map<string, string>;
 };
 
+export interface SetupResults {
+  packageExportRenamesMap: Map<PackageName | FilePath, PackageExportRename[]>;
+  relativeFileInfoMap: Map<FilePath, RelativeFileInfo>;
+  packageJsonDepsRequired: PackageJsonDepsRequired;
+  direction: DependencyDirection;
+  primaryPackages: Set<PackageName>;
+  packageNameToFilesToMove: SetMultimap<PackageName, FilePath>;
+}
+
 export async function setupOverall(
   workspace: Workspace,
   projectLoader: TsMorphProjectLoader,
   filesToMove: Set<string>,
   destinationModule: string,
   logger: Logger
-): Promise<{
-  packageExportRenamesMap: Map<PackageName | FilePath, PackageExportRename[]>;
-  // renames: RenamesWrapper;
-  relativeFileInfoMap: Map<FilePath, RelativeFileInfo>;
-  packageJsonDepsRequired: PackageJsonDepsRequired;
-  direction: DependencyDirection;
-  primaryPackages: Set<PackageName>;
-  packageNameToFilesToMove: SetMultimap<PackageName, FilePath>;
-}> {
+): Promise<SetupResults> {
   // Throws if we can't predict the package
   const packageNameToFilesToMove = mapFilesByPackageName(workspace, filesToMove);
 

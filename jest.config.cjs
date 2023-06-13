@@ -8,7 +8,7 @@ const swcBase = {
     "^.+\\.(t|j)sx?$": [
       "@swc/jest",
       {
-        sourceMaps: true,
+        sourceMaps: "inline",
       },
     ],
   },

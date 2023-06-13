@@ -1,17 +1,17 @@
 import type { FilePath } from "@eartool/utils";
 import type { Logger } from "pino";
 import type { Project } from "ts-morph";
+import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 
 export function removeFilesIfInProject(
-  filesToRemove: Iterable<FilePath>,
-  project: Project,
-  logger: Logger
+  ctx: WorkerPackageContext,
+  filesToRemove: Iterable<FilePath>
 ) {
   for (const path of filesToRemove) {
-    const sf = project.getSourceFile(path);
+    const sf = ctx.project.getSourceFile(path);
     if (!sf) continue;
 
-    logger.info("Deleting %s.", path);
+    ctx.logger.info("Deleting %s.", path);
 
     sf.delete();
   }

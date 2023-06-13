@@ -3,6 +3,8 @@ import { dropDtsFiles, maybeLoadProject, organizeImportsOnFiles } from "@eartool
 import { processPackageReplacements } from "./processPackageReplacements.js";
 import { assignDependencyVersions } from "./assignDependencyVersions.js";
 import type { JobArgs } from "../shared/JobArgs.js";
+import type { WorkerPackageContext } from "./WorkerPackageContext.js";
+import { SimpleReplacements } from "@eartool/replacements";
 
 export default async function workerMain({
   packagePath,
@@ -24,6 +26,14 @@ export default async function workerMain({
 
   dropDtsFiles(project);
 
+  const ctx: WorkerPackageContext = {
+    logger,
+    packageName,
+    packagePath,
+    project,
+    replacements: new SimpleReplacements(logger),
+  };
+
   if (packageJsonDepsRequired) {
     assignDependencyVersions(
       project,
@@ -36,12 +46,9 @@ export default async function workerMain({
   }
 
   const changedFiles = await processPackageReplacements(
+    ctx,
     filesToRemove,
-    project,
     relativeFileInfoMap,
-    packagePath,
-    packageName,
-    logger,
     packageExportRenamesMap,
     dryRun
   );
@@ -59,5 +66,5 @@ export default async function workerMain({
       await project.save();
     }
   }
-  return {};
+  return { changedFiles };
 }

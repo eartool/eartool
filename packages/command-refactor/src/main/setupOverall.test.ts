@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
-import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
 import { setupOverall } from "./setupOverall.js";
 import { createTestLogger } from "@eartool/test-utils";
+import { createInitialWorkspaceBuilder } from "../test-utils/createInitialWorkspaceBuilder.js";
 
 describe(setupOverall, () => {
   describe("simple cases", () => {
@@ -21,6 +21,14 @@ describe(setupOverall, () => {
           "direction": "upstream",
           "packageExportRenamesMap": Map {
             "api" => [
+              {
+                "from": [
+                  "doThingWithState",
+                ],
+                "toFileOrModule": "state",
+              },
+            ],
+            "/workspace/api/src/doThingWithState.ts" => [
               {
                 "from": [
                   "doThingWithState",
@@ -80,6 +88,14 @@ describe(setupOverall, () => {
           "direction": "downstream",
           "packageExportRenamesMap": Map {
             "api" => [
+              {
+                "from": [
+                  "doThingWithState",
+                ],
+                "toFileOrModule": "app",
+              },
+            ],
+            "/workspace/api/src/doThingWithState.ts" => [
               {
                 "from": [
                   "doThingWithState",
@@ -206,86 +222,6 @@ describe(setupOverall, () => {
     });
   });
 });
-
-function createInitialWorkspaceBuilder() {
-  // app -> api -> state
-  // app -> state
-  return new WorkspaceBuilder("/workspace/")
-    .createProject("state", (p) => {
-      p.addFile(
-        "src/index.ts",
-        `
-             export {State} from "./state";
-          `
-      ).addFile(
-        "src/state.ts",
-        `
-            export interface State {
-              foo: number
-            }
-          `
-      );
-    })
-    .createProject("util", (p) => {
-      p.addFile(
-        "src/index.ts",
-        `
-        export function identity(a: any){ return a; }
-      `
-      );
-    })
-    .createProject("api", (p) => {
-      p.addFile(
-        "src/index.ts",
-        `
-            export {doThingWithBaz} from "./doThingWithBaz.ts";
-            export {doThingWithState} from "./doThingWithState.ts";
-            export {Baz} from "./Baz.ts";
-          `
-      )
-        .addFile(
-          "src/Baz.ts",
-          `
-              export interface Baz { value: string }
-            `
-        )
-        .addFile(
-          "src/doThingWithBaz.ts",
-          `
-            import {Baz} from "./Baz";
-            export function doThingWithBaz(baz: Baz) { return baz.value; }
-          `
-        )
-        .addFile(
-          "src/alsoUsesBaz.ts",
-          `import {Baz} from "./Baz"; function alsoUsesBaz(baz: Baz) { return baz.value; }`
-        )
-        .addFile(
-          "src/doThingWithState.ts",
-          `
-            import {identity} from "util";
-            import {State} from "state";
-            export function doThingWithState(state: State) { return identity(state.foo); }
-          `
-        )
-        .addDependency("state")
-        .addDependency("util");
-      //
-    })
-    .createProject("app", (p) => {
-      p.addFile(
-        "src/cli.ts",
-        `
-            import {doThingWithState} from "api";
-            import {State} from "state";
-
-            print(doThingWithState({foo : 5}));
-          `
-      )
-        .addDependency("state")
-        .addDependency("api");
-    });
-}
 
 function objToMap<K extends string, V>(a: Record<K, V>) {
   return new Map(Object.entries(a)) as Map<K, V>;

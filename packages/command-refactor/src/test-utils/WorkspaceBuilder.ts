@@ -6,6 +6,8 @@ import type { Logger } from "pino";
 import type { Project } from "ts-morph";
 import { InMemoryFileSystemHost } from "ts-morph";
 import { ProjectBuilder } from "./ProjectBuilder.js";
+import type { WorkerPackageContext } from "../worker/WorkerPackageContext.js";
+import { SimpleReplacements } from "@eartool/replacements";
 
 export class WorkspaceBuilder {
   #fs: InMemoryFileSystemHost;
@@ -80,10 +82,27 @@ export class WorkspaceBuilder {
     for (const [from, to] of this.#deferredDependency) {
       this.#actuallyAddDependency(from, to);
     }
+    const workspace = this.#workspace;
+    const projectLoader = (packagePath: FilePath) => {
+      return this.#packagePathToProject.get(packagePath);
+    };
     return {
-      workspace: this.#workspace,
-      projectLoader: (packagePath: FilePath) => {
-        return this.#packagePathToProject.get(packagePath);
+      workspace,
+      workspacePath: this.#workspacePath,
+      projectLoader,
+      getWorkerPackageContext: function getWorkerPackageContext(name: string) {
+        const packageInfo = workspace.getPackageByNameOrThrow(name);
+        const project = projectLoader(packageInfo.packagePath)!;
+        const logger = createTestLogger();
+
+        const packageContext: WorkerPackageContext = {
+          logger: createTestLogger(),
+          packageName: packageInfo.name,
+          packagePath: packageInfo.packagePath,
+          project,
+          replacements: new SimpleReplacements(logger),
+        };
+        return packageContext;
       },
     };
   }

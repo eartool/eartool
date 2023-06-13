@@ -79,7 +79,7 @@ export class Workspace {
 
   public getPackageByNameOrThrow(name: PackageName) {
     const ret = this.#nameToNode.get(name);
-    Assert.ok(ret);
+    Assert.ok(ret != null, `Expected to find a package named '${name}' but couldnt`);
     return ret;
   }
 

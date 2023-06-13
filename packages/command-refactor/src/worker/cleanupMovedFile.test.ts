@@ -1,5 +1,5 @@
-import { SimpleReplacements, processReplacements } from "@eartool/replacements";
-import { createTestLogger, formatTestTypescript } from "@eartool/test-utils";
+import { processReplacements } from "@eartool/replacements";
+import { formatTestTypescript } from "@eartool/test-utils";
 import { describe, expect, it } from "@jest/globals";
 import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
 import { cleanupMovedFile } from "./cleanupMovedFile.js";
@@ -8,7 +8,7 @@ describe(cleanupMovedFile, () => {
   it("handles imports from own package", () => {
     const PACKAGE_NAME = "foo";
 
-    const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
+    const { workspace, projectLoader, getWorkerPackageContext } = new WorkspaceBuilder("/workspace")
       .createProject(PACKAGE_NAME, (p) => {
         p.addFile(
           "src/foo.ts",
@@ -32,13 +32,11 @@ describe(cleanupMovedFile, () => {
       })
       .build();
 
-    const project = projectLoader(workspace.getPackageByNameOrThrow("foo").packagePath)!;
+    const ctx = getWorkerPackageContext(PACKAGE_NAME);
+    const sf = ctx.project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/foo.ts`);
+    cleanupMovedFile(ctx, sf);
 
-    const replacements = new SimpleReplacements(createTestLogger());
-    const sf = project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/foo.ts`);
-    cleanupMovedFile(sf, PACKAGE_NAME, replacements, true);
-
-    processReplacements(project, replacements.getReplacementsMap());
+    processReplacements(ctx.project, ctx.replacements.getReplacementsMap());
     sf.organizeImports().saveSync();
     const text = formatTestTypescript(sf.getText());
     expect(text).toEqual(
@@ -50,7 +48,7 @@ describe(cleanupMovedFile, () => {
     );
 
     {
-      const sf = project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/index.ts`);
+      const sf = ctx.project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/index.ts`);
       sf.organizeImports().saveSync();
 
       expect(formatTestTypescript(sf.getText())).toMatchInlineSnapshot(`

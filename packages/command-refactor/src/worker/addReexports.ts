@@ -1,10 +1,10 @@
-import { SimpleReplacements } from "@eartool/replacements";
-import { type FilePath } from "@eartool/utils";
+import type { Replacements } from "@eartool/replacements";
+import type { FilePath } from "@eartool/utils";
 import type { SourceFile } from "ts-morph";
 
 export function addReexports(
   rootExports: Map<string, string>,
-  replacements: SimpleReplacements,
+  replacements: Replacements,
   rootFile: SourceFile,
   fullpath: FilePath
 ) {

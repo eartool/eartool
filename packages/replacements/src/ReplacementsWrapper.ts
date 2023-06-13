@@ -22,6 +22,7 @@ export abstract class AbstractReplacementsWrapper implements Replacements {
   }
 
   replaceNode(node: Node, newValue: string): void {
+    // console.log(node.getText());
     this.addReplacement(node, node.getStart(), node.getEnd(), newValue);
   }
 

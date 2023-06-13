@@ -19,9 +19,10 @@ export function addSingleFileReplacementsForRenames(
   renames: PackageExportRenames,
   replacements: Replacements,
   logger: Logger,
-  dryRun: boolean
+  dryRun: boolean,
+  mode: "full" | "imports" | "exports" = "full"
 ) {
-  const alreadyAdded = new Set();
+  const filename = sf.getFilePath();
 
   const fullFilePathRenames = new Map(
     [...renames].filter(([packageName]) => packageName.startsWith("/"))
@@ -36,24 +37,27 @@ export function addSingleFileReplacementsForRenames(
     )
   );
 
-  accumulateRenamesForAllDecls(
-    sf.getImportDeclarations(),
-    fullFilePathRenames,
-    sf,
-    replacements,
-    alreadyAdded,
-    renames,
-    logger
-  );
-  accumulateRenamesForAllDecls(
-    sf.getExportDeclarations(),
-    fullFilePathRenames,
-    sf,
-    replacements,
-    alreadyAdded,
-    renames,
-    logger
-  );
+  if (mode === "full" || mode === "imports") {
+    accumulateRenamesForAllDecls(
+      sf.getImportDeclarations(),
+      fullFilePathRenames,
+      sf,
+      replacements,
+      renames,
+      logger
+    );
+  }
+
+  if (mode === "full" || mode === "exports") {
+    accumulateRenamesForAllDecls(
+      sf.getExportDeclarations(),
+      fullFilePathRenames,
+      sf,
+      replacements,
+      renames,
+      logger
+    );
+  }
 }
 
 function accumulateRenamesForAllDecls(
@@ -61,10 +65,11 @@ function accumulateRenamesForAllDecls(
   fullFilePathRenames: PackageExportRenames,
   sf: SourceFile,
   replacements: Replacements,
-  alreadyAdded: Set<unknown>,
+
   renames: PackageExportRenames,
   logger: Logger
 ) {
+  const alreadyAdded = new Set();
   for (const decl of decls) {
     const moduleSpecifier = decl.getModuleSpecifierValue();
     if (!moduleSpecifier) continue;

@@ -1,15 +1,14 @@
-import { SimpleReplacements, processReplacements } from "@eartool/replacements";
-import { createTestLogger, formatTestTypescript } from "@eartool/test-utils";
+import { processReplacements } from "@eartool/replacements";
+import { formatTestTypescript } from "@eartool/test-utils";
 import { describe, expect, it } from "@jest/globals";
 import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
-import { cleanupMovedFile } from "./cleanupMovedFile.js";
 import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
 
 describe(addReplacementsForExportsFromRemovedFiles, () => {
   it("works", () => {
     const PACKAGE_NAME = "foo";
 
-    const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
+    const { workspace, projectLoader, getWorkerPackageContext } = new WorkspaceBuilder("/workspace")
       .createProject(PACKAGE_NAME, (p) => {
         p.addFile(
           "src/foo.ts",
@@ -33,19 +32,15 @@ describe(addReplacementsForExportsFromRemovedFiles, () => {
       })
       .build();
 
-    const project = projectLoader(workspace.getPackageByNameOrThrow(PACKAGE_NAME).packagePath)!;
+    const name = PACKAGE_NAME;
 
-    const replacements = new SimpleReplacements(createTestLogger());
-    addReplacementsForExportsFromRemovedFiles(
-      project,
-      [`/workspace/${PACKAGE_NAME}/src/bar.ts`],
-      replacements,
-      createTestLogger()
-    );
+    const ctx = getWorkerPackageContext(name);
 
-    processReplacements(project, replacements.getReplacementsMap());
+    addReplacementsForExportsFromRemovedFiles(ctx, [`/workspace/${PACKAGE_NAME}/src/bar.ts`]);
 
-    const sf = project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/index.ts`);
+    processReplacements(ctx.project, ctx.replacements.getReplacementsMap());
+
+    const sf = ctx.project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/index.ts`);
     sf.organizeImports().saveSync();
     const text = formatTestTypescript(sf.getText());
     expect(text).toMatchInlineSnapshot(`

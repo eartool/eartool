@@ -4,29 +4,36 @@ import {
   SimpleReplacements,
   type PackageExportRenames,
 } from "@eartool/replacements";
-import type { PackageName, FilePath } from "@eartool/utils";
+import type { FilePath } from "@eartool/utils";
 import * as path from "node:path";
 import type { Logger } from "pino";
-import type { Project } from "ts-morph";
 import { removeFilesIfInProject } from "./removeFilesIfInProject.js";
 import type { RelativeFileInfo } from "../main/setupOverall.js";
 import { cleanupMovedFile } from "./cleanupMovedFile.js";
 import { getRootFile } from "../getRootFile.js";
 import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
 import { addReexports } from "./addReexports.js";
+import type { WorkerPackageContext } from "./WorkerPackageContext.js";
+import type { PackageContext } from "./PackageContext.js";
+import type { SourceFile } from "ts-morph";
+
+export interface FileContext extends PackageContext {
+  sf: SourceFile;
+}
+
+export interface WithLogger {
+  logger: Logger;
+}
 
 export async function processPackageReplacements(
+  ctx: WorkerPackageContext,
   filesToRemove: Iterable<FilePath>,
-  project: Project,
   relativeFileInfoMap: Map<FilePath, RelativeFileInfo>,
-  packagePath: FilePath,
-  packageName: PackageName,
-  logger: Logger,
   packageExportRenamesMap: PackageExportRenames,
   dryRun: boolean
 ) {
-  logger.debug("filesToRemove %o", [...filesToRemove]);
-  logger.debug(
+  ctx.logger.debug("filesToRemove %o", [...filesToRemove]);
+  ctx.logger.debug(
     "packageExportRenames:\n%s",
     [...packageExportRenamesMap].flatMap(([filePathOrModule, renames]) =>
       renames
@@ -35,37 +42,44 @@ export async function processPackageReplacements(
     )
   );
 
-  const replacements = new SimpleReplacements(logger);
-  addReplacementsForExportsFromRemovedFiles(project, filesToRemove, replacements, logger);
+  addReplacementsForExportsFromRemovedFiles(ctx, filesToRemove);
 
   // FIXME this should be much better now that we pre-grouped above
-  removeFilesIfInProject(filesToRemove, project, logger);
+  removeFilesIfInProject(ctx, filesToRemove);
 
   for (const [relPath, { fileContents, rootExports }] of relativeFileInfoMap) {
-    const fullpath = path.resolve(packagePath, relPath);
-    logger.trace("Adding file '%s'", fullpath);
-    const sf = project.createSourceFile(fullpath, fileContents);
+    const fullpath = path.resolve(ctx.packagePath, relPath);
+    ctx.logger.trace("Adding file '%s'", fullpath);
+    const sf = ctx.project.createSourceFile(fullpath, fileContents);
 
     // Gotta clean up the files we added
-    cleanupMovedFile(sf, packageName, replacements, dryRun);
+    cleanupMovedFile(ctx, sf);
 
-    const rootFile = getRootFile(project);
+    const rootFile = getRootFile(ctx.project);
     if (!rootFile) throw new Error("Couldnt find rootfile");
     // FIXME need to handle namespace exports too
     if (rootExports.size > 0) {
-      addReexports(rootExports, replacements, rootFile, fullpath);
+      addReexports(rootExports, ctx.replacements, rootFile, fullpath);
     }
   }
 
   // Simple renames
-  for (const sf of project.getSourceFiles()) {
-    logger.debug(sf.getFilePath());
-    addSingleFileReplacementsForRenames(sf, packageExportRenamesMap, replacements, logger, dryRun);
+  for (const sf of ctx.project.getSourceFiles()) {
+    // this is probably the problem. Its adding extra crap for the index.ts
+    ctx.logger.debug(sf.getFilePath());
+    addSingleFileReplacementsForRenames(
+      sf,
+      packageExportRenamesMap,
+      ctx.replacements,
+      ctx.logger,
+      dryRun,
+      getRootFile(ctx.project) === sf ? "imports" : "full"
+    );
   }
 
   // actually updates files in project!
   const changedFiles = [
-    ...processReplacements(project, replacements.getReplacementsMap()),
+    ...processReplacements(ctx.project, ctx.replacements.getReplacementsMap()),
     ...filesToRemove,
   ];
 

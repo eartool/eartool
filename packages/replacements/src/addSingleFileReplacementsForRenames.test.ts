@@ -117,6 +117,7 @@ describe(addSingleFileReplacementsForRenames, () => {
       //
 
       import { bar } from "baz";
+      import {} from "../bar";
       export const nestedFoo: string = doStuff(bar);
 
 
@@ -132,6 +133,7 @@ describe(addSingleFileReplacementsForRenames, () => {
       //
 
       export { bar } from "baz";
+      export {} from "./bar";
 
 
       //
