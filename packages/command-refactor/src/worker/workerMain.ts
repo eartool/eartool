@@ -17,6 +17,7 @@ export default async function workerMain({
     filesToRemove,
     shouldOrganizeImports,
     packageJsonDepsRequired,
+    destination,
   },
 }: WorkerData<JobArgs>) {
   const project = maybeLoadProject(packagePath);
@@ -54,6 +55,19 @@ export default async function workerMain({
   );
 
   if (changedFiles.length > 0 || relativeFileInfoMap.size > 0) {
+    // anything that changed at this point needs the new dep
+    if (destination !== packageName) {
+      // We will just assume it needs to be a regular dependency
+      assignDependencyVersions(
+        project,
+        packagePath,
+        packageName,
+        { dependencies: new Map([[destination, "workspace:*"]]), devDependencies: new Map() },
+        logger,
+        dryRun
+      );
+    }
+
     if (shouldOrganizeImports) {
       logger.debug("Organizing imports");
       organizeImportsOnFiles(project, changedFiles);

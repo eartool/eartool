@@ -115,10 +115,10 @@ export async function cliMain(
 
   // Delete old files and create new ones before running the job
   return {
-    workerUrl: new URL(import.meta.url),
+    workerUrl: new URL(import.meta.url), // FIXME get this as an arg to makeBatchCommand so this func can move
     getJobArgs({ packageName }): JobArgs {
-      const qq = getJobArgs(packageName, args, setupResults);
-      return qq;
+      const jobArgs = getJobArgs(packageName, args, setupResults);
+      return jobArgs;
     },
     skipJobAndReturnResult(jobInfo) {
       if (setupResults.primaryPackages.has(jobInfo.packageName)) return undefined;
