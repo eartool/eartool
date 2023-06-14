@@ -118,7 +118,6 @@ export async function cliMain(
     workerUrl: new URL(import.meta.url),
     getJobArgs({ packageName }): JobArgs {
       const qq = getJobArgs(packageName, args, setupResults);
-      console.log(qq);
       return qq;
     },
     skipJobAndReturnResult(jobInfo) {

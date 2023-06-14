@@ -65,8 +65,6 @@ export async function processPackageReplacements(
 
   // Simple renames
   for (const sf of ctx.project.getSourceFiles()) {
-    // this is probably the problem. Its adding extra crap for the index.ts
-    ctx.logger.debug(sf.getFilePath());
     addSingleFileReplacementsForRenames(
       sf,
       packageExportRenamesMap,

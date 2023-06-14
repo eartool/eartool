@@ -39,7 +39,6 @@ describe(processPackageReplacements, () => {
         //
 
         import { Icon } from "other";
-        import {} from "./Icon";
         export function Preview() {
           return <Icon />;
         }
@@ -100,7 +99,6 @@ describe(processPackageReplacements, () => {
         //
 
         import { doThingWithState } from "state";
-        import {} from "./doThingWithState";
 
         export function selectA(state: State) {
           return doThingWithState(state);

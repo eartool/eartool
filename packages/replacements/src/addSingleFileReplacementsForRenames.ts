@@ -15,6 +15,10 @@ import { getNamedSpecifiers } from "./getNamedSpecifiers.js";
 import type { Logger } from "pino";
 import * as path from "node:path";
 
+// FIXME: This function is way too complex now because I tried to reuse the
+// renames structure for the full file path support to deal with moved files
+// leaving the current package and going elsewhere and needing to update
+// the other files in that package. I regret this and will need to fix this.
 export function addSingleFileReplacementsForRenames(
   sf: SourceFile,
   renames: PackageExportRenames,
@@ -30,14 +34,18 @@ export function addSingleFileReplacementsForRenames(
     [...renames].filter(([packageName]) => packageName.startsWith("/"))
   );
   logger.debug("TOP OF FILE %s", filename);
-  logger.debug(
-    "Full file path renames:\n%s",
-    [...fullFilePathRenames].flatMap(([filePathOrModule, renames]) =>
-      renames
-        .map((a) => `  - ${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
-        .join("\n")
-    )
-  );
+  if (fullFilePathRenames.size > 0) {
+    logger.debug(
+      "Full file path renames:\n%s",
+      [...fullFilePathRenames].flatMap(([filePathOrModule, renames]) =>
+        renames
+          .map((a) => `  - ${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
+          .join("\n")
+      )
+    );
+  } else {
+    logger.debug("Full file path renames: NONE");
+  }
 
   if (mode === "full" || mode === "imports") {
     const importDecls = sf.getImportDeclarations();
@@ -56,27 +64,44 @@ function accumulateRenamesForAllDecls(
   replacements: Replacements,
   renames: PackageExportRenames
 ) {
-  const logger = replacements.logger;
   const alreadyAdded = new Set();
   for (const decl of decls) {
-    const moduleSpecifier = decl.getModuleSpecifierValue();
+    const moduleSpecifier = decl.getModuleSpecifier();
     if (!moduleSpecifier) continue;
 
     const possibleLocations = getPossibleFileLocations(decl);
-    // logger.debug("possibel locations: %s", possibleLocations.join(" : "));
 
     // deal with full file path renames specially
     for (const [fullPathToRename, renamesForPackage] of fullFilePathRenames) {
-      logger.debug("QQQQ %s", fullPathToRename);
-      const q = possibleLocations.some((l) => l == fullPathToRename);
-      if (!q) continue;
+      replacements.logger.debug("Huh");
+      const declMatchesPossibleFile = possibleLocations.some((l) => l == fullPathToRename);
+      if (!declMatchesPossibleFile) continue;
+      if (renamesForPackage.length === 0) continue; // Should never happen but I like assurances
 
-      accumulateRenamesForAllNamed(decl, renamesForPackage, replacements, alreadyAdded);
-      accumulateRenamesForNamespaceIfNeeded(decl, renamesForPackage, replacements);
-      // gotta deal with the namespace too
+      // We don't have to rename individual parts here for the target change as we know
+      // the whole file was part of it.
+      {
+        const expected = renamesForPackage[0]!.toFileOrModule;
+        for (const q of renamesForPackage) {
+          if (q.toFileOrModule !== expected) {
+            throw new Error("We don't support moving a file import to multiple locations!");
+          }
+        }
+      }
+
+      // FUTURE ME: One day we will probably want to rename some variables and
+      // where they come from and this logic will need to be udpated
+
+      const { toFileOrModule } = renamesForPackage[0];
+      if (toFileOrModule) {
+        replacements.replaceNode(moduleSpecifier, `"${toFileOrModule}"`);
+      } else {
+        accumulateRenamesForAllNamed(decl, renamesForPackage, replacements, alreadyAdded);
+        accumulateRenamesForNamespaceIfNeeded(decl, renamesForPackage, replacements);
+      }
     }
 
-    const renamesForPackage = renames.get(moduleSpecifier);
+    const renamesForPackage = renames.get(moduleSpecifier.getLiteralText());
     if (!renamesForPackage) continue;
 
     accumulateRenamesForAllNamed(decl, renamesForPackage, replacements, alreadyAdded);

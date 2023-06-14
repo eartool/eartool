@@ -93,14 +93,11 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
             ? "debug"
             : "info";
 
-          console.log(consoleLevel, args.verbose);
-
           const logger = createLogger(path.join(batchJobOpts.logDir, "main"), {
             level: "trace",
             consoleLevel,
           });
-
-          logger.trace("Test");
+          logger.info("Console log level set to: " + consoleLevel);
 
           const q = await cliMain({ ...args, logger } as any);
 
