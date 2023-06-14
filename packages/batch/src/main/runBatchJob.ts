@@ -22,6 +22,7 @@ export interface JobSpec<T, R> {
   getJobArgs: (info: JobInfo) => T | Promise<T>;
   onComplete?: (jobInfo: JobInfo, extra: { logger: Logger; result: R }) => void | Promise<void>;
   skipJobAndReturnResult?: (jobInfo: JobInfo) => R | undefined | Promise<R | undefined>;
+  order: "any" | "upstreamFirst";
 }
 
 export interface BatchJobOptions {
@@ -49,28 +50,32 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
 
   progress.setProjectCount(downStreamProjects.length);
 
-  await workspace.runTasksInOrder(startNodeLookups, async ({ packageName, packagePath }) => {
-    const isInStartGroup =
-      startNodeLookups.length === 0 || startNodeLookups.some((a) => a.name === packageName);
-    const jobInfo: JobInfo = { packageName, packagePath, isInStartGroup, workspaceDir };
+  await workspace.runTasks(
+    startNodeLookups,
+    jobSpec.order,
+    async ({ packageName, packagePath }) => {
+      const isInStartGroup =
+        startNodeLookups.length === 0 || startNodeLookups.some((a) => a.name === packageName);
+      const jobInfo: JobInfo = { packageName, packagePath, isInStartGroup, workspaceDir };
 
-    progress.addProject(packageName);
+      progress.addProject(packageName);
 
-    const maybeSkipWithResult = await jobSpec.skipJobAndReturnResult?.(jobInfo);
-    if (maybeSkipWithResult) {
-      logger.trace("Skipping with result for %s", packageName);
+      const maybeSkipWithResult = await jobSpec.skipJobAndReturnResult?.(jobInfo);
+      if (maybeSkipWithResult) {
+        logger.trace("Skipping with result for %s", packageName);
+      }
+
+      const result = maybeSkipWithResult ?? (await runInWorker(jobInfo));
+
+      if (jobSpec.onComplete) {
+        logger.trace("Calling onComplete for %s %o", packageName);
+        await jobSpec.onComplete(jobInfo, { logger, result });
+      }
+
+      progress.completeProject(packageName);
+      logger.trace("Done with %s", packageName);
     }
-
-    const result = maybeSkipWithResult ?? (await runInWorker(jobInfo));
-
-    if (jobSpec.onComplete) {
-      logger.trace("Calling onComplete for %s %o", packageName);
-      await jobSpec.onComplete(jobInfo, { logger, result });
-    }
-
-    progress.completeProject(packageName);
-    logger.trace("Done with %s", packageName);
-  });
+  );
 
   progress.stop();
 

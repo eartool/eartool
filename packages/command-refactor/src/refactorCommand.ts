@@ -141,5 +141,6 @@ export async function cliMain(
     onComplete() {
       //
     },
+    order: "any",
   };
 }

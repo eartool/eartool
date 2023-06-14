@@ -156,63 +156,60 @@ export class Workspace {
     }
   }
 
-  async runTasksInOrder(
+  async runTasks(
     lookup: undefined | (PackageInfo | PackageLookupCriteria)[],
+    order: "any" | "upstreamFirst",
     performTask: RunTaskCallback
   ) {
     const startNodes = lookup ? [...this.nodesFor(lookup)] : [];
-
-    const statuses = new Map<PackageInfo, "skipped" | "scheduled" | "complete" | "todo">();
+    const statuses = this.#createInitialTaskStatuses(startNodes);
 
     const queue = new PQueue({ autoStart: true, concurrency: 6 });
 
-    // we manually set todo in the skipped case
-    for (const q of this.#nameToNode.values()) {
-      statuses.set(q, startNodes.length > 0 ? "skipped" : "todo");
+    // Always do the start nodes first, regardless of ordering
+    for (const node of startNodes) {
+      createTaskIfReady(node);
     }
 
-    if (startNodes.length > 0) {
-      for (const packageDir of this.walkTreeDownstreamFrom(...startNodes)) {
-        statuses.set(packageDir, "todo");
+    // I think we can literally just do:
+    // for (const packageInfo of this.walkTreeDownstreamFrom(...startNodes)) {
+    //   // this won't schedule anything twice
+    //   createTaskIfReady(packageInfo);
+    // }
+
+    if (order === "any") {
+      // just add everything
+      for (const packageInfo of this.walkTreeDownstreamFrom(...startNodes)) {
+        // this won't schedule anything twice
+        createTaskIfReady(packageInfo);
       }
-      for (const node of startNodes) {
-        createTaskIfReady(node);
-      }
-    } else {
+    } else if (startNodes.length === 0) {
       // seed todo with projects that have no dependents
       for (const q of this.#nameToNode.values()) {
         if (q.depsByName.size == 0) {
-          queue.add(createTask(q));
+          createTaskIfReady(q);
         }
       }
     }
 
     await queue.onIdle();
 
-    for (const [node, status] of statuses) {
-      if (status !== "complete" && status !== "skipped") {
-        debugPrintStatuses(statuses);
-        throw new Error("Failed");
-      }
-    }
-
-    function createTask(node: PackageInfo) {
-      statuses.set(node, "scheduled");
-      return async () => {
-        await performTask({
-          packagePath: node.packagePath,
-          packageName: node.name,
+    function createTaskIfReady(node: PackageInfo) {
+      if (
+        statuses.get(node) === "todo" &&
+        (allDepsOfPackagePathSatisified(node) || order == "any")
+      ) {
+        statuses.set(node, "scheduled");
+        queue.add(async () => {
+          await performTask({
+            packagePath: node.packagePath,
+            packageName: node.name,
+          });
+          statuses.set(node, "complete");
+          for (const dependentNode of node.inverseDepsByName.values()) {
+            createTaskIfReady(dependentNode);
+          }
         });
-        statuses.set(node, "complete");
-        for (const dependentNode of node.inverseDepsByName.values()) {
-          createTaskIfReady(dependentNode);
-        }
-      };
-    }
-
-    function createTaskIfReady(dependentNode: PackageInfo) {
-      if (statuses.get(dependentNode) === "todo" && allDepsOfPackagePathSatisified(dependentNode)) {
-        queue.add(createTask(dependentNode));
       }
     }
 
@@ -226,15 +223,18 @@ export class Workspace {
       return true;
     }
   }
-}
 
-function getNames(toVisit: PackageInfo[] | Set<PackageInfo> | IterableIterator<PackageInfo>): any {
-  return [...toVisit].map((a) => a.name);
-}
-
-function debugPrintStatuses(
-  statuses: Map<PackageInfo, "skipped" | "scheduled" | "complete" | "todo">
-) {
-  // eslint-disable-next-line no-console
-  console.log([...statuses.entries()].map((a) => [a[0].name, a[1]]));
+  #createInitialTaskStatuses(startNodes: PackageInfo[]) {
+    const statuses = new Map<PackageInfo, "skipped" | "scheduled" | "complete" | "todo">();
+    // we manually set todo in the skipped case
+    for (const q of this.#nameToNode.values()) {
+      statuses.set(q, startNodes.length > 0 ? "skipped" : "todo");
+    }
+    if (startNodes.length > 0) {
+      for (const packageDir of this.walkTreeDownstreamFrom(...startNodes)) {
+        statuses.set(packageDir, "todo");
+      }
+    }
+    return statuses;
+  }
 }

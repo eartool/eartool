@@ -49,6 +49,7 @@ export default makeBatchCommand(
         onComplete: ({ packageName }, { result: exportedRenames }) => {
           store.dispatch(workCompleted({ exportedRenames, packageName }));
         },
+        order: "upstreamFirst",
       };
     },
   },

@@ -34,7 +34,7 @@ describe(Workspace, () => {
     });
   });
 
-  describe("runTasksInOrder", () => {
+  describe("runTasks", () => {
     it("runs things in order correctly", async () => {
       const workspace = new Workspace();
       const foo = workspace.addPackage("foo", "/foo");
@@ -46,7 +46,7 @@ describe(Workspace, () => {
       baz.addDependency(bar);
 
       const order: string[] = [];
-      await workspace.runTasksInOrder([] /*all*/, async (args) => {
+      await workspace.runTasks([] /*all*/, "upstreamFirst", async (args) => {
         order.push(args.packageName);
       });
 
@@ -63,7 +63,7 @@ describe(Workspace, () => {
       foo.addDependency(baz);
 
       const order: string[] = [];
-      await workspace.runTasksInOrder([bar], async (args) => {
+      await workspace.runTasks([bar], "upstreamFirst", async (args) => {
         order.push(args.packageName);
       });
 

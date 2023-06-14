@@ -22,6 +22,7 @@ export const fooBatchCommand = makeBatchCommand(
         onComplete(jobInfo, extra) {
           // extra.logger.info(extra.result);
         },
+        order: "upstreamFirst",
       };
     },
   },
