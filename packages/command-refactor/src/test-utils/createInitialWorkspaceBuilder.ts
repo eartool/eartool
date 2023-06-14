@@ -103,5 +103,34 @@ export function createInitialWorkspaceBuilder() {
         export {};
       `
       );
+    })
+    .createProject("oversized", (p) => {
+      p.addFile(
+        "src/index.ts",
+        `
+        export {Icon} from "./components/nested/Icon.tsx";
+        export {Preview} from "./components/nested/Preview.tsx";
+      `
+      )
+        .addFile(
+          "src/components/nested/Icon.tsx",
+          `
+        import {word} from "./icons/word";
+        export function Icon() { return <div>Icon</div>; }
+      `
+        )
+        .addFile(
+          "src/components/nested/icons/word.ts",
+          `
+        export const word = "hi";
+      `
+        )
+        .addFile(
+          "src/components/nested/Preview.tsx",
+          `
+        import {Icon} from "./Icon";
+        export function Preview() { return <Icon/>; }
+      `
+        );
     });
 }

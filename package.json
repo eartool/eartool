@@ -10,6 +10,7 @@
   "scripts": {
     "cloc": "cloc --exclude-ext=yaml --exclude-ext=log --exclude-ext=txt --exclude-ext=json --match-d='src' --fullpath --not-match-d='node_modules|lib'  . ",
     "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest",
+    "debug:test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings --inspect-brk' jest --runInBand --detectOpenHandles",
     "lint": "eslint packages/*/src",
     "fixFormatting": "prettier --write ."
   },

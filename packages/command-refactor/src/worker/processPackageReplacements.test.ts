@@ -12,6 +12,66 @@ import type { SourceFile } from "ts-morph";
 import workerMain from "./workerMain.js";
 
 describe(processPackageReplacements, () => {
+  describe("Icon -> other", () => {
+    const destination = "other";
+    const filesToMove = new Set(["/workspace/oversized/src/components/nested/Icon.tsx"]);
+
+    it("updates oversized properly", async () => {
+      const result = await standardSetup(filesToMove, destination);
+      const { filesChanged, helpers } = await standardProcessPackageReplacmements(
+        result,
+        "oversized"
+      );
+
+      expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+        "// ==========================================================
+        // <>: /workspace/oversized/src/index.ts
+        //
+
+        export { Preview } from "./components/nested/Preview.tsx";
+
+        //
+        // </>: /workspace/oversized/src/index.ts
+        // ==========================================================
+
+        // ==========================================================
+        // <>: /workspace/oversized/src/components/nested/Preview.tsx
+        //
+
+        import { Icon } from "other";
+        import {} from "./Icon";
+        export function Preview() {
+          return <Icon />;
+        }
+
+        //
+        // </>: /workspace/oversized/src/components/nested/Preview.tsx
+        // ==========================================================
+
+        // ==========================================================
+        // <>: /workspace/oversized/src/components/nested/Icon.tsx
+        //
+
+        // FILE DOES NOT EXIST
+
+        //
+        // </>: /workspace/oversized/src/components/nested/Icon.tsx
+        // ==========================================================
+
+        // ==========================================================
+        // <>: /workspace/oversized/src/components/nested/icons/word.ts
+        //
+
+        // FILE DOES NOT EXIST
+
+        //
+        // </>: /workspace/oversized/src/components/nested/icons/word.ts
+        // ==========================================================
+        "
+      `);
+    });
+  });
+
   describe("doThingWithState -> state", () => {
     const destination = "state";
     const filesToMove = new Set(["/workspace/api/src/doThingWithState.ts"]);

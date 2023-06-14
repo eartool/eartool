@@ -13,6 +13,7 @@ import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForIm
 import { getNamespaceIdentifier } from "./getNamespaceIdentifier.js";
 import { getNamedSpecifiers } from "./getNamedSpecifiers.js";
 import type { Logger } from "pino";
+import * as path from "node:path";
 
 export function addSingleFileReplacementsForRenames(
   sf: SourceFile,
@@ -22,12 +23,13 @@ export function addSingleFileReplacementsForRenames(
   dryRun: boolean,
   mode: "full" | "imports" | "exports" = "full"
 ) {
+  // Keep this separated out so we can use conditional break points
   const filename = sf.getFilePath();
 
   const fullFilePathRenames = new Map(
     [...renames].filter(([packageName]) => packageName.startsWith("/"))
   );
-  logger.debug("TOP OF FILE %s", sf.getFilePath());
+  logger.debug("TOP OF FILE %s", filename);
   logger.debug(
     "Full file path renames:\n%s",
     [...fullFilePathRenames].flatMap(([filePathOrModule, renames]) =>
@@ -38,43 +40,29 @@ export function addSingleFileReplacementsForRenames(
   );
 
   if (mode === "full" || mode === "imports") {
-    accumulateRenamesForAllDecls(
-      sf.getImportDeclarations(),
-      fullFilePathRenames,
-      sf,
-      replacements,
-      renames,
-      logger
-    );
+    const importDecls = sf.getImportDeclarations();
+    accumulateRenamesForAllDecls(importDecls, fullFilePathRenames, replacements, renames);
   }
 
   if (mode === "full" || mode === "exports") {
-    accumulateRenamesForAllDecls(
-      sf.getExportDeclarations(),
-      fullFilePathRenames,
-      sf,
-      replacements,
-      renames,
-      logger
-    );
+    const decls = sf.getExportDeclarations();
+    accumulateRenamesForAllDecls(decls, fullFilePathRenames, replacements, renames);
   }
 }
 
 function accumulateRenamesForAllDecls(
   decls: ImportDeclaration[] | ExportDeclaration[],
   fullFilePathRenames: PackageExportRenames,
-  sf: SourceFile,
   replacements: Replacements,
-
-  renames: PackageExportRenames,
-  logger: Logger
+  renames: PackageExportRenames
 ) {
+  const logger = replacements.logger;
   const alreadyAdded = new Set();
   for (const decl of decls) {
     const moduleSpecifier = decl.getModuleSpecifierValue();
     if (!moduleSpecifier) continue;
 
-    const possibleLocations = getPossibleFileLocations(sf.getProject(), moduleSpecifier);
+    const possibleLocations = getPossibleFileLocations(decl);
     // logger.debug("possibel locations: %s", possibleLocations.join(" : "));
 
     // deal with full file path renames specially
@@ -83,14 +71,11 @@ function accumulateRenamesForAllDecls(
       const q = possibleLocations.some((l) => l == fullPathToRename);
       if (!q) continue;
 
-      // const refinedRenames: PackageExportRename[] = [...renamesForPackage, {}];
-
       accumulateRenamesForAllNamed(decl, renamesForPackage, replacements, alreadyAdded);
       accumulateRenamesForNamespaceIfNeeded(decl, renamesForPackage, replacements);
       // gotta deal with the namespace too
     }
 
-    // console.log(getSimplifiedNodeInfoAsString(decl));
     const renamesForPackage = renames.get(moduleSpecifier);
     if (!renamesForPackage) continue;
 

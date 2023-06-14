@@ -4,6 +4,8 @@
 
 - [x] when you move into a package, your imports need to be updated that refer to that package
 - [x] need to re-export once you move!
+- [x] fix updating related files that are lcoal
+- [ ] accumulate is leaving an invalid `import {} from "./Icon";` even though Icon was moved!
 - [ ] !! IMPORTANT: Sideways requires updating imports locally
 - [ ] deleting imports leaves a new line right now it seem
 - [ ] `import { a, b } from "foo"` doesn't clean up comma before if last
