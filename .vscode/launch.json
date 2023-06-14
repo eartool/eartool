@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest: current file",
+      "cwd": "${workspaceRoot}",
+      "env": { "NODE_OPTIONS": "--experimental-vm-modules" },
+      //"env": { "NODE_ENV": "test" },
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+      "args": ["${fileBasenameNoExtension}", "--runInBand"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest: processPackageReplacements",
+      "cwd": "${workspaceRoot}",
+      "env": { "NODE_OPTIONS": "--experimental-vm-modules" },
+      "pauseForSourceMap": true,
+      //"env": { "NODE_ENV": "test" },
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+      "args": ["--runInBand", "--coverage=false", "-t=Icon", "processPackageReplacements"],
+      "console": "integratedTerminal"
+    }
+  ]
+}
