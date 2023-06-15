@@ -1,3 +1,5 @@
 pnpm-lock.yaml
 /logs/
-/lib/
+/packages/*/lib/
+*.log.json
+tsconfig.json

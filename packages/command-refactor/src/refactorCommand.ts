@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
+ 
 import { makeBatchCommand } from "@eartool/batch";
 import { createWorkspaceFromDisk, type JobSpec } from "@eartool/batch";
 import { maybeLoadProject, type PackageJson } from "@eartool/utils";
