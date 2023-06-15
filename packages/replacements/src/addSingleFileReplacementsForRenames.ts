@@ -14,6 +14,7 @@ import { getNamedSpecifiers } from "./getNamedSpecifiers.js";
 import { getNamespaceIdentifier } from "./getNamespaceIdentifier.js";
 import { getPossibleFileLocations } from "./getPossibleFileLocations.js";
 import { weakMemo } from "./weakMemo.js";
+import { getDefaultIdentifier } from "./getDefaultIdentifier.js";
 
 // FIXME: This function is way too complex now because I tried to reuse the
 // renames structure for the full file path support to deal with moved files
@@ -158,35 +159,20 @@ function bulkRemoveMaybe(
     ?.getImportClause()
     ?.getNamedBindings();
 
-  if (importNamedBindings && importNamedBindings.isKind(SyntaxKind.NamedImports)) {
-    const toRename = getFirstWordsAsSet(renamesForPackage);
-    const removeAllNamed = getNamedSpecifiers(decl).every((a) => toRename.has(a.getName()));
-    if (removeAllNamed) {
-      if (decl.isKind(SyntaxKind.ImportDeclaration)) {
-        if (decl.getDefaultImport()) {
-          replacements.deleteNode(importNamedBindings);
-          const comma = importNamedBindings.getPreviousSiblingIfKindOrThrow(SyntaxKind.CommaToken);
-          replacements.deleteNode(comma);
-          return true;
-        } else {
-          replacements.deleteNode(decl);
-          return true;
-        }
-      }
-    }
-  }
+  const toRename = getFirstWordsAsSet(renamesForPackage);
+  const removeAllNamed = getNamedSpecifiers(decl).every((a) => toRename.has(a.getName()));
+  if (!removeAllNamed) return false;
 
-  const namedExports = decl.asKind(SyntaxKind.ExportDeclaration)?.getNamedExports();
-  if (namedExports) {
-    const toRename = getFirstWordsAsSet(renamesForPackage);
-    const removeAll = getNamedSpecifiers(decl).every((spec) => toRename.has(spec.getName()));
-    if (removeAll) {
-      replacements.deleteNode(decl);
-      return true;
-    }
+  if (importNamedBindings && getDefaultIdentifier(decl)) {
+    // ex: `import foo, {baz} from "bar"` or `import foo, * as baz from "bar"`
+    replacements.deleteNode(importNamedBindings);
+    const comma = importNamedBindings.getPreviousSiblingIfKindOrThrow(SyntaxKind.CommaToken);
+    replacements.deleteNode(comma);
+    return true;
+  } else {
+    replacements.deleteNode(decl);
+    return true;
   }
-
-  return false;
 }
 
 function prependRenames(
