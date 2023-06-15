@@ -153,40 +153,29 @@ function bulkRemoveMaybe(
   decl: ImportDeclaration | ExportDeclaration,
   replacements: Replacements
 ) {
-  const importNamedBindings = decl
-    .asKind(SyntaxKind.ImportDeclaration)
-    ?.getImportClause()
-    ?.getNamedBindings();
+  const toRename = getFirstWordsAsSet(renamesForPackage);
+  const removeAllNamed = getNamedSpecifiers(decl).every((a) => toRename.has(a.getName()));
+  if (!removeAllNamed) return false;
 
-  if (importNamedBindings && importNamedBindings.isKind(SyntaxKind.NamedImports)) {
-    const toRename = getFirstWordsAsSet(renamesForPackage);
-    const removeAllNamed = getNamedSpecifiers(decl).every((a) => toRename.has(a.getName()));
-    if (removeAllNamed) {
-      if (decl.isKind(SyntaxKind.ImportDeclaration)) {
-        if (decl.getDefaultImport()) {
-          replacements.deleteNode(importNamedBindings);
-          const comma = importNamedBindings.getPreviousSiblingIfKindOrThrow(SyntaxKind.CommaToken);
-          replacements.deleteNode(comma);
-          return true;
-        } else {
-          replacements.deleteNode(decl);
-          return true;
-        }
-      }
-    }
-  }
+  if (getNamedSpecifiers(decl).length == 0) return false;
 
-  const namedExports = decl.asKind(SyntaxKind.ExportDeclaration)?.getNamedExports();
-  if (namedExports) {
-    const toRename = getFirstWordsAsSet(renamesForPackage);
-    const removeAll = getNamedSpecifiers(decl).every((spec) => toRename.has(spec.getName()));
-    if (removeAll) {
-      replacements.deleteNode(decl);
+  if (decl.isKind(SyntaxKind.ImportDeclaration)) {
+    const importNamedBindings = decl
+      .getImportClauseOrThrow()
+      .getNamedBindingsOrThrow()
+      .asKindOrThrow(SyntaxKind.NamedImports);
+
+    if (decl.getDefaultImport()) {
+      replacements.deleteNode(importNamedBindings);
+      const comma = importNamedBindings.getPreviousSiblingIfKindOrThrow(SyntaxKind.CommaToken);
+      replacements.deleteNode(comma);
       return true;
     }
   }
 
-  return false;
+  // Otherwise there are named elements and nothing else, import or export
+  replacements.deleteNode(decl);
+  return true;
 }
 
 function prependRenames(
