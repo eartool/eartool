@@ -1,7 +1,7 @@
-import { getNewName } from "./getNewName.js";
-import { getRelevantNodeFromRefOrThrow } from "./getRelevantNodeFromRefOrThrow.js";
 import { isInSameNamespace, getReferenceFindableLocalDeclarationOrThrow } from "@eartool/utils";
 import type { NamespaceContext } from "@eartool/replacements";
+import { getNewName } from "./getNewName.js";
+import { getRelevantNodeFromRefOrThrow } from "./getRelevantNodeFromRefOrThrow.js";
 
 export function isSafeToRenameAcrossReferences(
   oldName: string,

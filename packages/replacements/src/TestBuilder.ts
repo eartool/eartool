@@ -1,10 +1,10 @@
 import type { SourceFile } from "ts-morph";
 import { Project } from "ts-morph";
 import { createTestLogger, formatTestTypescript } from "@eartool/test-utils";
+import { format } from "prettier";
 import { SimpleReplacements } from "./ReplacementsWrapper.js";
 import { processReplacements } from "./processReplacements.js";
 import type { Replacements } from "./Replacements.js";
-import { format } from "prettier";
 
 export class TestBuilder {
   #project: Project;

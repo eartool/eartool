@@ -1,6 +1,6 @@
+import * as Assert from "node:assert";
 import { getSimplifiedNodeInfoAsString } from "@eartool/utils";
 import { expect } from "@jest/globals";
-import * as Assert from "node:assert";
 import { pino, type Logger } from "pino";
 import pinoPretty from "pino-pretty";
 import { Node } from "ts-morph";

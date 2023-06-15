@@ -1,6 +1,4 @@
 import type { FilePath } from "@eartool/utils";
-import type { Logger } from "pino";
-import type { Project } from "ts-morph";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 
 export function removeFilesIfInProject(

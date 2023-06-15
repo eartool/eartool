@@ -1,5 +1,5 @@
-import type { Replacements } from "./Replacements.js";
 import { Node, type Identifier } from "ts-morph";
+import type { Replacements } from "./Replacements.js";
 import { replaceImportSpecifierWithNewName } from "./replaceImportSpecifierWithNewName.js";
 
 /**

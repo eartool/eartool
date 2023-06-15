@@ -1,21 +1,20 @@
+import * as path from "node:path";
 import {
   addSingleFileReplacementsForRenames,
   processReplacements,
-  SimpleReplacements,
   type PackageExportRenames,
 } from "@eartool/replacements";
 import type { FilePath } from "@eartool/utils";
-import * as path from "node:path";
 import type { Logger } from "pino";
-import { removeFilesIfInProject } from "./removeFilesIfInProject.js";
+import type { SourceFile } from "ts-morph";
 import type { RelativeFileInfo } from "../main/setupOverall.js";
-import { cleanupMovedFile } from "./cleanupMovedFile.js";
 import { getRootFile } from "../getRootFile.js";
+import { removeFilesIfInProject } from "./removeFilesIfInProject.js";
+import { cleanupMovedFile } from "./cleanupMovedFile.js";
 import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
 import { addReexports } from "./addReexports.js";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 import type { PackageContext } from "./PackageContext.js";
-import type { SourceFile } from "ts-morph";
 
 export interface FileContext extends PackageContext {
   sf: SourceFile;

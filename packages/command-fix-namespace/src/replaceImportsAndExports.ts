@@ -1,6 +1,6 @@
+import * as Assert from "assert";
 import type { ModuleDeclaration, VariableDeclaration } from "ts-morph";
 import { Node } from "ts-morph";
-import * as Assert from "assert";
 import type { Replacements } from "@eartool/replacements";
 import { isAnyOf } from "@reduxjs/toolkit";
 

@@ -3,5 +3,6 @@
     "*.ts": "${capture}.test.ts",
     "*.test.ts": "${capture}.test.ts.log, ${capture}.test.ts.log.json"
   },
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

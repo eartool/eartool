@@ -1,8 +1,8 @@
 import * as Assert from "node:assert";
 import { Node, SyntaxKind } from "ts-morph";
+import type { NamespaceContext } from "@eartool/replacements";
 import { getNewName } from "./getNewName.js";
 import { getRelevantNodeFromRefOrThrow } from "./getRelevantNodeFromRefOrThrow.js";
-import type { NamespaceContext } from "@eartool/replacements";
 
 export function renameReferences(oldName: string, context: NamespaceContext) {
   const { namespaceDecl } = context;

@@ -7,7 +7,7 @@ export function getJobArgs(
   packageName: string,
   args: { destination: string } & { logger: Logger },
   {
-    direction,
+    direction: _direction,
     packageExportRenamesMap,
     packageJsonDepsRequired,
     packageNameToFilesToMove,

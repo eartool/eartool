@@ -1,5 +1,5 @@
-import type { ReferenceFindableNode, Symbol } from "ts-morph";
-import { Node, SyntaxKind, type SourceFile } from "ts-morph";
+import { Node, SyntaxKind } from "ts-morph";
+import type { ReferenceFindableNode, Symbol, SourceFile } from "ts-morph";
 import { getSimplifiedNodeInfoAsString, type FilePath } from "@eartool/utils";
 
 export interface Metadata {

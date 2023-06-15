@@ -1,13 +1,13 @@
+import * as path from "node:path";
 import { Workspace } from "@eartool/batch";
 import { createTestLogger } from "@eartool/test-utils";
 import { writePackageJson, type FilePath, type PackageName, readPackageJson } from "@eartool/utils";
-import * as path from "node:path";
 import type { Logger } from "pino";
 import type { Project } from "ts-morph";
 import { InMemoryFileSystemHost } from "ts-morph";
-import { ProjectBuilder } from "./ProjectBuilder.js";
-import type { WorkerPackageContext } from "../worker/WorkerPackageContext.js";
 import { SimpleReplacements } from "@eartool/replacements";
+import type { WorkerPackageContext } from "../worker/WorkerPackageContext.js";
+import { ProjectBuilder } from "./ProjectBuilder.js";
 
 export class WorkspaceBuilder {
   #fs: InMemoryFileSystemHost;

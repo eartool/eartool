@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
+import { SyntaxKind } from "ts-morph";
 import { TestBuilder } from "./TestBuilder.js";
 import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
-import { SyntaxKind } from "ts-morph";
 
 describe(accumulateRenamesForImportedIdentifier, () => {
   it("renames a named import module specifier ", () => {

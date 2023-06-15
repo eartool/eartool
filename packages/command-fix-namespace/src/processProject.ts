@@ -1,12 +1,16 @@
 import type { Project } from "ts-morph";
-import { calculateNamespaceRemovals } from "./calculateNamespaceRemovals.js";
 import type { Logger } from "pino";
-import { ProjectContext, SimpleReplacements } from "@eartool/replacements";
-import { processReplacements, addSingleFileReplacementsForRenames } from "@eartool/replacements";
+import {
+  ProjectContext,
+  SimpleReplacements,
+  processReplacements,
+  addSingleFileReplacementsForRenames,
+  ReplacementsWrapperForContext,
+} from "@eartool/replacements";
 import { dropDtsFiles, organizeImportsOnFiles } from "@eartool/utils";
 import type { PackageName } from "@eartool/utils";
 import type { PackageExportRename } from "@eartool/replacements";
-import { ReplacementsWrapperForContext } from "@eartool/replacements";
+import { calculateNamespaceRemovals } from "./calculateNamespaceRemovals.js";
 import { calculateNamespaceLikeRemovals } from "./calculateNamespaceLikeRemovals.js";
 
 export interface Status {

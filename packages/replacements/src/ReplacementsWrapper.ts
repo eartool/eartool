@@ -1,9 +1,9 @@
-import type { Node } from "ts-morph";
-import { SyntaxKind, type SourceFile } from "ts-morph";
+import { SyntaxKind } from "ts-morph";
+import type { Node, SourceFile } from "ts-morph";
+import type { Logger } from "pino";
 import type { ProjectContext } from "./Context.js";
 import type { Replacement } from "./Replacement.js";
 import type { Replacements } from "./Replacements.js";
-import type { Logger } from "pino";
 
 export abstract class AbstractReplacementsWrapper implements Replacements {
   abstract get logger(): Logger;

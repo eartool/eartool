@@ -1,14 +1,13 @@
-import { createWorkspaceFromDisk } from "./createWorkspaceFromDisk.js";
-import * as path from "node:path";
-import { createLogger } from "../shared/createLogger.js";
 import { Worker } from "node:worker_threads";
+import * as path from "node:path";
+import type { Level, Logger } from "pino";
 import * as MessagesToMain from "../shared/MessagesToMain.js";
 import type { WireWorkerData } from "../worker/setupWorker.js";
 import type { JobDef } from "../shared/JobDef.js";
+import { createWorkspaceFromDisk } from "./createWorkspaceFromDisk.js";
 import type { Progress } from "./progress/Progress.js";
 import { NoopProgress } from "./progress/NoopProgress.js";
 import { RealProgress } from "./progress/RealProgress.js";
-import type { Level, Logger } from "pino";
 
 export interface JobInfo {
   packageName: string;

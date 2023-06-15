@@ -7,8 +7,8 @@ module.exports = {
   ignorePatterns: ["*.cjs", "lib", "node_modules"],
   extends: [
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
     "plugin:import/typescript",
+    "plugin:@typescript-eslint/recommended",
   ],
   overrides: [],
   parser: "@typescript-eslint/parser",
@@ -17,27 +17,53 @@ module.exports = {
     sourceType: "module",
     project: ["./tsconfig.json", "./packages/*/tsconfig.json"],
   },
-  plugins: ["@typescript-eslint", "import"],
+  plugins: ["@typescript-eslint", "import", "unused-imports"],
   rules: {
     "@typescript-eslint/consistent-type-exports": "error",
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-import-type-side-effects": "error",
+    "@typescript-eslint/no-import-type-side-effects": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-this-alias": "off",
-    "@typescript-eslint/no-unused-vars": [ERROR_WHEN_STRICT, { argsIgnorePattern: "^_" }],
+
+    // BEGIN Imports and unused vars
+    "import/no-duplicates": [ERROR_WHEN_STRICT, { "prefer-inline": false }],
+    "import/order": ["error", { groups: ["builtin", "external", "internal"] }],
+
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        vars: "all",
+        varsIgnorePattern: "^_",
+        args: "after-used",
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        ignoreRestSiblings: true,
+      },
+    ],
+    // END Imports and unused vars
 
     "no-console": "error",
     "@typescript-eslint/ban-types": "off", // terribly obnoxious since we need Symbol from ts-morph
-    "import/no-unresolved": "error",
-    "import/consistent-type-specifier-style": ERROR_WHEN_STRICT,
-    "import/no-duplicates": [ERROR_WHEN_STRICT, {}],
   },
   reportUnusedDisableDirectives: true,
+  overrides: [
+    {
+      files: ["*.test.ts"],
+      rules: {
+        "@typescript-eslint/no-unused-vars": "off",
+        "unused-imports/no-unused-imports": "off",
+        "unused-imports/no-unused-vars": "off",
+      },
+    },
+  ],
   settings: {
-    // "import/parsers": {
-    //   "@typescript-eslint/parser": [".ts", ".tsx"],
-    // },
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"],
+    },
     "import/resolver": {
       typescript: {
         alwaysTryTypes: true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`

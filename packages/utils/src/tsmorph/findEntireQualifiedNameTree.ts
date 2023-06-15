@@ -1,7 +1,6 @@
 import { isAnyOf } from "@reduxjs/toolkit";
 import { Node } from "ts-morph";
-import type { Identifier, PropertyAccessExpression } from "ts-morph";
-import type { QualifiedName } from "ts-morph";
+import type { Identifier, PropertyAccessExpression, QualifiedName } from "ts-morph";
 
 /**
  * Given a node (that should be an Identifier), find the qualified name tree that matches

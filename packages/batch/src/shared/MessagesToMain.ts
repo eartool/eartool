@@ -1,5 +1,4 @@
 import { createAction } from "@reduxjs/toolkit";
-import type { Level } from "pino";
 
 export interface Status {
   totalWorkUnits: number;

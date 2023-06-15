@@ -1,8 +1,8 @@
 import { createTestLogger } from "@eartool/test-utils";
 import type { PackageName } from "@eartool/utils";
 import { describe, expect, it } from "@jest/globals";
-import { SymbolRenames } from "./SymbolRenames.js";
 import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
+import { SymbolRenames } from "./SymbolRenames.js";
 import { calculatePackageExportRenamesForFileMoves } from "./calculatePackageExportRenamesForFileMoves.js";
 
 const PACKAGE_NAME: PackageName = "mypackage";

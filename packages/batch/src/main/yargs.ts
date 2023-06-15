@@ -1,12 +1,12 @@
-import * as path from "node:path";
-import type { MessagePort } from "node:worker_threads";
 import { isMainThread, workerData } from "node:worker_threads";
+import type { MessagePort } from "node:worker_threads";
+import * as path from "node:path";
+import type { Logger } from "pino";
 import type * as yargs from "yargs";
 import type { JobDef } from "../shared/JobDef.js";
 import { setupWorker, type WorkerData } from "../worker/setupWorker.js";
-import { runBatchJob, type BatchJobOptions, type JobSpec } from "./runBatchJob.js";
 import { createLogger } from "../shared/createLogger.js";
-import type { Logger } from "pino";
+import { runBatchJob, type BatchJobOptions, type JobSpec } from "./runBatchJob.js";
 
 const standardBatchYargsOptions = {
   workspace: {

@@ -1,11 +1,11 @@
 import { createTestLogger } from "@eartool/test-utils";
 import type { FilePath, PackageName } from "@eartool/utils";
 import { describe, expect, it } from "@jest/globals";
+import type { Logger } from "pino";
 import { getJobArgs } from "../main/getJobArgs.js";
 import { setupOverall } from "../main/setupOverall.js";
 import { createInitialWorkspaceBuilder } from "../test-utils/createInitialWorkspaceBuilder.js";
 import { processPackageReplacements } from "./processPackageReplacements.js";
-import type { Logger } from "pino";
 import type { PackageRelativeHelpers } from "./PackageRelativeHelpers.js";
 import { createCtxHelperFunctions } from "./createCtxHelperFunctions.js";
 

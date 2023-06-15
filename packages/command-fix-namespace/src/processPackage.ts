@@ -1,5 +1,5 @@
-import { processProject, type ProcessProjectOpts } from "./processProject.js";
 import { maybeLoadProject } from "@eartool/utils";
+import { processProject, type ProcessProjectOpts } from "./processProject.js";
 
 /*
     Goal: lets get const / function / class / statement out of namespaces

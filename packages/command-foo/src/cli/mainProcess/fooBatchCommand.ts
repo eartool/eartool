@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
 import { makeBatchCommand } from "@eartool/batch";
 import { dropDtsFiles, getSimplifiedNodeInfoAsString, maybeLoadProject } from "@eartool/utils";
-import { Node, Project, Signature, SymbolFlags, SyntaxKind, Type } from "ts-morph";
+import type { Project, Signature, Type } from "ts-morph";
+import { SyntaxKind } from "ts-morph";
 import type { Logger } from "pino";
 
 export const fooBatchCommand = makeBatchCommand(
@@ -13,13 +13,13 @@ export const fooBatchCommand = makeBatchCommand(
         string: true,
       },
     },
-    cliMain: async (args) => {
+    cliMain: async (_args) => {
       return {
         workerUrl: new URL(import.meta.url),
         getJobArgs() {
           return {};
         },
-        onComplete(jobInfo, extra) {
+        onComplete(_jobInfo, _extra) {
           // extra.logger.info(extra.result);
         },
         order: "upstreamFirst",
@@ -28,7 +28,7 @@ export const fooBatchCommand = makeBatchCommand(
   },
   async () => {
     return {
-      default: async ({ packagePath, logger, jobArgs }) => {
+      default: async ({ packagePath, logger }) => {
         const project = maybeLoadProject(packagePath);
         if (!project) {
           return;
@@ -102,19 +102,7 @@ export const fooBatchCommand = makeBatchCommand(
   }
 );
 
-// const reactFunctionsThatReturnComponent
-function newFunction(d: Node) {
-  const callExpression = d
-    .asKind(SyntaxKind.VariableDeclaration)
-    ?.getInitializerIfKind(SyntaxKind.CallExpression);
-  if (!callExpression) return;
-
-  callExpression.getReturnType();
-
-  callExpression.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
-}
-
-function findOwnPropsAssignment(project: Project, logger: Logger) {
+function _findOwnPropsAssignment(project: Project, logger: Logger) {
   for (const sf of project.getSourceFiles()) {
     for (const identifier of sf.getDescendantsOfKind(SyntaxKind.Identifier)) {
       if (identifier.getText() == "Props") {

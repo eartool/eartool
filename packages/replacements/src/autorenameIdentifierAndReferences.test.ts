@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
+import { SyntaxKind } from "ts-morph";
 import { TestBuilder } from "./TestBuilder.js";
 import { autorenameIdentifierAndReferences } from "./autorenameIdentifierAndReferences.js";
-import { SyntaxKind } from "ts-morph";
 
 describe(autorenameIdentifierAndReferences, () => {
   it("renames a short hand binding element ", () => {

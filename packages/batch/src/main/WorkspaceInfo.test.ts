@@ -1,6 +1,5 @@
-import { describe, it } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import { Workspace } from "./WorkspaceInfo.js";
-import { expect } from "@jest/globals";
 
 describe(Workspace, () => {
   describe("getPackageDirection", () => {

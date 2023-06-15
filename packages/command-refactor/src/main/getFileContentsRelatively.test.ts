@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
-import { getFileContentsRelatively } from "./getFileContentsRelatively.js";
 import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
+import { getFileContentsRelatively } from "./getFileContentsRelatively.js";
 
 describe(getFileContentsRelatively, () => {
   it("asdf a named import module specifier ", () => {

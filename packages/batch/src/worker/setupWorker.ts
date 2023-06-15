@@ -1,11 +1,11 @@
-import { ok } from "node:assert";
 import { MessagePort, parentPort, workerData } from "node:worker_threads";
+import { ok } from "node:assert";
 import type { Logger } from "pino";
+import abstractTransport from "pino-abstract-transport";
 import { createLogger } from "../shared/createLogger.js";
 import type { Status } from "../shared/MessagesToMain.js";
 import * as MessagesToMain from "../shared/MessagesToMain.js";
 import type { JobDef } from "../shared/JobDef.js";
-import abstractTransport from "pino-abstract-transport";
 
 export interface BaseWorkerData<T> {
   jobArgs: T;

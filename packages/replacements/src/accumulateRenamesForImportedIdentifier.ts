@@ -1,5 +1,5 @@
-import { findEntireQualifiedNameTree } from "@eartool/utils";
 import * as Assert from "assert";
+import { findEntireQualifiedNameTree } from "@eartool/utils";
 import type { ExportSpecifier, Identifier, ImportSpecifier } from "ts-morph";
 import { SyntaxKind } from "ts-morph";
 import type { PackageExportRename } from "./PackageExportRename.js";

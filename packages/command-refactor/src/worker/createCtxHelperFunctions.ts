@@ -1,8 +1,8 @@
-import { formatTestTypescript } from "@eartool/test-utils";
 import * as path from "node:path";
+import { formatTestTypescript } from "@eartool/test-utils";
+import { processReplacements } from "@eartool/replacements";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 import type { PackageRelativeHelpers } from "./PackageRelativeHelpers.js";
-import { processReplacements } from "@eartool/replacements";
 
 export function createCtxHelperFunctions(ctx: WorkerPackageContext): PackageRelativeHelpers {
   const getSourceFile = (filePath: string) => {

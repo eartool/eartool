@@ -1,6 +1,6 @@
+import * as Assert from "node:assert";
 import type { SingleBar } from "cli-progress";
 import { MultiBar, Presets } from "cli-progress";
-import * as Assert from "node:assert";
 import type { Progress } from "./Progress.js";
 
 export class RealProgress implements Progress {

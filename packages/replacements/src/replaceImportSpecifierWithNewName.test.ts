@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
+import { getImportSpecifierOrThrow } from "@eartool/utils";
 import { replaceImportSpecifierWithNewName } from "./replaceImportSpecifierWithNewName.js";
 import { TestBuilder } from "./TestBuilder.js";
-import { getImportSpecifierOrThrow } from "@eartool/utils";
 
 describe(replaceImportSpecifierWithNewName, () => {
   it("renames an import locally", () => {

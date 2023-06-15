@@ -1,6 +1,10 @@
-import type { FunctionDeclaration, MethodDeclaration, SyntaxList } from "ts-morph";
-import { type ModuleDeclaration, SymbolFlags } from "ts-morph";
-import { Node, SyntaxKind } from "ts-morph";
+import type {
+  FunctionDeclaration,
+  MethodDeclaration,
+  SyntaxList,
+  ModuleDeclaration,
+} from "ts-morph";
+import { Node, SyntaxKind, SymbolFlags } from "ts-morph";
 import { autorenameIdentifierAndReferences, type Replacements } from "@eartool/replacements";
 import type { NamespaceLikeVariableDeclaration } from "@eartool/utils";
 import { replaceAllNamesInScope } from "@eartool/replacements";

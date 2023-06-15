@@ -1,9 +1,9 @@
+import * as Assert from "node:assert";
 import type { DependencyDirection, Workspace } from "@eartool/batch";
 import type { PackageExportRename } from "@eartool/replacements";
 import type { FilePath, PackageJson } from "@eartool/utils";
 import { readPackageJson } from "@eartool/utils";
 import type { SetMultimap } from "@teppeis/multimaps";
-import * as Assert from "node:assert";
 import type { Logger } from "pino";
 import type { FileSystemHost, Project } from "ts-morph";
 import {

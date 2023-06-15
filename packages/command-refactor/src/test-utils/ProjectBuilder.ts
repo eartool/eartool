@@ -1,5 +1,5 @@
-import type { FilePath, PackageName } from "@eartool/utils";
 import * as path from "node:path";
+import type { FilePath, PackageName } from "@eartool/utils";
 import { Project } from "ts-morph";
 import type { WorkspaceBuilder } from "./WorkspaceBuilder.js";
 

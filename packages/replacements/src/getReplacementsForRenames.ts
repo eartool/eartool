@@ -1,9 +1,9 @@
 import type { Project } from "ts-morph";
-import type { PackageExportRename } from "./PackageExportRename.js";
 import type { PackageName } from "@eartool/utils";
+import type { Logger } from "pino";
+import type { PackageExportRename } from "./PackageExportRename.js";
 import { addSingleFileReplacementsForRenames } from "./addSingleFileReplacementsForRenames.js";
 import type { Replacements } from "./Replacements.js";
-import type { Logger } from "pino";
 
 // TODO This is going to be reall inefficient
 export function getReplacementsForRenames(

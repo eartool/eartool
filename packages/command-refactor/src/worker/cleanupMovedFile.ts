@@ -1,4 +1,3 @@
- 
 import { addImportOrExport, getDeclaration, getNamedSpecifiers } from "@eartool/replacements";
 import { SyntaxKind, type SourceFile } from "ts-morph";
 import { getRootFile } from "../getRootFile.js";

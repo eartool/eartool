@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
-import { setupOverall } from "./setupOverall.js";
 import { createTestLogger } from "@eartool/test-utils";
 import { createInitialWorkspaceBuilder } from "../test-utils/createInitialWorkspaceBuilder.js";
+import { setupOverall } from "./setupOverall.js";
 
 describe(setupOverall, () => {
   describe("simple cases", () => {

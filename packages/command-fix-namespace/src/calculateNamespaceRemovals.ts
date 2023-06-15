@@ -1,10 +1,10 @@
+import * as path from "node:path";
 import * as Assert from "assert";
 import { Node, type SourceFile, SyntaxKind } from "ts-morph";
+import { isNamespaceDeclaration } from "@eartool/utils";
+import type { ProjectContext, Replacements } from "@eartool/replacements";
 import { isSafeToRenameAllAcrossReferences } from "./isSafeToRenameAllAcrossReferences.js";
 import { renameAllReferences } from "./renameAllReferences.js";
-import { isNamespaceDeclaration } from "@eartool/utils";
-import * as path from "node:path";
-import type { ProjectContext, Replacements } from "@eartool/replacements";
 import { renameExports } from "./renameExports.js";
 import { replaceImportsAndExports } from "./replaceImportsAndExports.js";
 import { unwrapNamespaceInFile } from "./unwrapNamespaceInFile.js";

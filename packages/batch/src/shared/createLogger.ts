@@ -1,6 +1,6 @@
 import * as path from "node:path";
-import type { DestinationStream, StreamEntry } from "pino";
-import { pino, type LevelWithSilent } from "pino";
+import { pino } from "pino";
+import type { DestinationStream, StreamEntry, LevelWithSilent } from "pino";
 import pinoPretty from "pino-pretty";
 import chalk from "chalk";
 

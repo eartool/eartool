@@ -1,7 +1,7 @@
 import type { Workspace } from "@eartool/batch";
-import type { PackageName } from "../shared/PackageName.js";
 import type { FilePath } from "@eartool/utils";
 import { SetMultimap } from "@teppeis/multimaps";
+import type { PackageName } from "../shared/PackageName.js";
 
 export function mapFilesByPackageName(workspace: Workspace, files: Iterable<FilePath>) {
   const packagePathToName = workspace.getPackageDirToNameMap();

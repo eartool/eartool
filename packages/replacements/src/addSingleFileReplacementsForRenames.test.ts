@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
+import { createTestLogger } from "@eartool/test-utils";
 import { TestBuilder } from "./TestBuilder.js";
 import { addSingleFileReplacementsForRenames } from "./addSingleFileReplacementsForRenames.js";
-import { createTestLogger } from "@eartool/test-utils";
 
 describe(addSingleFileReplacementsForRenames, () => {
   it("renames a rexport ", () => {

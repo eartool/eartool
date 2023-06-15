@@ -1,6 +1,6 @@
 import { SyntaxKind } from "ts-morph";
-import type { Replacements } from "./Replacements.js";
 import type { ImportSpecifier } from "ts-morph";
+import type { Replacements } from "./Replacements.js";
 
 /**
  * Replaces the provided import specifier with a new name, respecting aliases

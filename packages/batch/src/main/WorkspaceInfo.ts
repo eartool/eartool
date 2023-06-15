@@ -1,5 +1,5 @@
-import PQueue from "p-queue";
 import * as Assert from "assert";
+import PQueue from "p-queue";
 import type { FilePath, PackageName } from "@eartool/utils";
 
 export type DependencyDirection = "downstream" | "upstream" | "sideways";

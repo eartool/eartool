@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { processProject, type ProcessProjectOpts } from "./processProject.js";
 import { createTestLogger, createProjectForTest, formatTestTypescript } from "@eartool/test-utils";
+import { processProject, type ProcessProjectOpts } from "./processProject.js";
 
 const cases: {
   name: string;

@@ -1,6 +1,5 @@
 import type { Logger } from "pino";
-import type { Node } from "ts-morph";
-import type { SourceFile } from "ts-morph";
+import type { Node, SourceFile } from "ts-morph";
 import type { Replacement } from "./Replacement.js";
 
 export interface Replacements {

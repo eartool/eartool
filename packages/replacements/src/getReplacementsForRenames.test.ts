@@ -1,10 +1,10 @@
 import { describe, expect, it } from "@jest/globals";
 import { Project } from "ts-morph";
+import { createConsoleLogger } from "@eartool/utils";
+import { createTestLogger } from "@eartool/test-utils";
 import { getReplacementsForRenames } from "./getReplacementsForRenames.js";
 import type { Replacement } from "./Replacement.js";
-import { createConsoleLogger } from "@eartool/utils";
 import { SimpleReplacements } from "./ReplacementsWrapper.js";
-import { createTestLogger } from "@eartool/test-utils";
 
 describe(getReplacementsForRenames, () => {
   it("records renames from root", async () => {
