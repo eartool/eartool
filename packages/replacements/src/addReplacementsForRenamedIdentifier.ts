@@ -36,13 +36,13 @@ export function addReplacementsForRenamedIdentifier(
           `: ${newName}`
         );
       } else {
-        replacements.replaceNode(parent.getNameNode(), newName);
+        replacements.replaceNode(parent.getNameNode(), " " + newName);
       }
     } else if (Node.isImportSpecifier(parent)) {
-      replaceImportSpecifierWithNewName(replacements, parent, newName);
+      replaceImportSpecifierWithNewName(replacements, parent, " " + newName);
     } else {
       logger.trace("Fallback replacement for %s", node.getText());
-      replacements.replaceNode(node, newName);
+      replacements.replaceNode(node, " " + newName);
     }
   }
 }

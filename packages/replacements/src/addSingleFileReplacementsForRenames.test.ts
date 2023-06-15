@@ -30,7 +30,148 @@ describe(addSingleFileReplacementsForRenames, () => {
       //
 
       export { bar } from "baz";
-      export {} from "./bar";
+
+
+      //
+      // <//index.ts>
+      //
+
+      "
+    `);
+    //
+  });
+
+  it("renames an import with named only", () => {
+    const { output } = new TestBuilder()
+      .addFile(
+        "/index.ts",
+        `
+          import {bar, bleh} from "bar";
+          doThing(bar);
+          doThing(bleh);
+      `
+      )
+      .performWork(({ replacements, files }) => {
+        addSingleFileReplacementsForRenames(
+          files.get("/index.ts")!,
+          new Map([
+            [
+              "bar",
+              [
+                { from: ["bar"], toFileOrModule: "baz" },
+                { from: ["bleh"], toFileOrModule: "baz" },
+              ],
+            ],
+          ]),
+          replacements,
+          createTestLogger(),
+          false
+        );
+      })
+      .build();
+
+    expect(output).toMatchInlineSnapshot(`
+      "
+      //
+      // </index.ts>
+      //
+
+      import { bar } from "baz";
+      import { bleh } from "baz";
+      doThing(bar);
+      doThing(bleh);
+
+
+      //
+      // <//index.ts>
+      //
+
+      "
+    `);
+    //
+  });
+
+  it("renames an import with default and named", () => {
+    const { output } = new TestBuilder()
+      .addFile(
+        "/index.ts",
+        `
+          import defImp, {bar, bleh} from "bar";
+          doThing(bar);
+          doThing(bleh);
+          doThing(defImp);
+      `
+      )
+      .performWork(({ replacements, files }) => {
+        addSingleFileReplacementsForRenames(
+          files.get("/index.ts")!,
+          new Map([
+            [
+              "bar",
+              [
+                { from: ["bar"], toFileOrModule: "baz" },
+                { from: ["bleh"], toFileOrModule: "baz" },
+              ],
+            ],
+          ]),
+          replacements,
+          createTestLogger(),
+          false
+        );
+      })
+      .build();
+
+    expect(output).toMatchInlineSnapshot(`
+      "
+      //
+      // </index.ts>
+      //
+
+      import defImp from "bar";
+      import { bar } from "baz";
+      import { bleh } from "baz";
+      doThing(bar);
+      doThing(bleh);
+      doThing(defImp);
+
+
+      //
+      // <//index.ts>
+      //
+
+      "
+    `);
+    //
+  });
+
+  it("renames an namespace ", () => {
+    const { output } = new TestBuilder()
+      .addFile(
+        "/index.ts",
+        `
+          import * as bar from "bar";
+          doThing(bar.Baz);
+      `
+      )
+      .performWork(({ replacements, files }) => {
+        addSingleFileReplacementsForRenames(
+          files.get("/index.ts")!,
+          new Map([["bar", [{ from: ["Baz"], toFileOrModule: "baz" }]]]),
+          replacements,
+          createTestLogger(),
+          false
+        );
+      })
+      .build();
+
+    expect(output).toMatchInlineSnapshot(`
+      "
+      //
+      // </index.ts>
+      //
+
+      import * as bar from "baz";
+      doThing(bar.Baz);
 
 
       //
@@ -67,8 +208,8 @@ describe(addSingleFileReplacementsForRenames, () => {
       // </index.ts>
       //
 
-      export { bar } from "baz";
       export { foo } from "./bar";
+      export { bar } from "baz";
 
 
       //

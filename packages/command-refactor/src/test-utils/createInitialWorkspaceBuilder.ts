@@ -59,6 +59,7 @@ export function createInitialWorkspaceBuilder() {
         )
         .addFile(
           "src/doThingWithState.ts",
+          // NOTE THIS HAS NO LINE BREAK BETWEEN IMPORT AND EXPORT FUNC
           `
             import {identity} from "util";
             import {State} from "state";

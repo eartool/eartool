@@ -36,11 +36,11 @@ export function autorenameIdentifierAndReferences(
       );
     } else {
       logger.trace("alt case");
-      replacements.replaceNode(nameNode, newName);
+      replacements.replaceNode(nameNode, " " + newName);
     }
   } else {
     logger.trace("parent is not a binding element, its a %s", parent.getKindName());
-    replacements.replaceNode(nameNode, newName);
+    replacements.replaceNode(nameNode, " " + newName);
   }
   addReplacementsForRenamedIdentifier(replacements, nameNode, scope, newName);
 }

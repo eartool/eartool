@@ -16,7 +16,7 @@ export function addReplacementsForExportsFromRemovedFiles(
     const specifierFullFilePath = decl.getModuleSpecifierSourceFile()?.getFilePath();
     if (specifierFullFilePath && setOfFilesToRemove.has(specifierFullFilePath)) {
       ctx.logger.info(`Deleting ${decl.getText()} from ${rootFile.getFilePath()}`);
-      ctx.replacements.replaceNode(decl, "");
+      ctx.replacements.deleteNode(decl);
     }
   }
 }

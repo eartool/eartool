@@ -27,7 +27,7 @@ export function cleanupMovedFile(ctx: WorkerPackageContext, sf: SourceFile) {
         }
       }
 
-      ctx.replacements.replaceNode(getDeclaration(namedImport), "");
+      ctx.replacements.deleteNode(getDeclaration(namedImport));
     }
     if (decl.isKind(SyntaxKind.ImportDeclaration) && decl.getDefaultImport()) {
       throw new Error("not implemented");

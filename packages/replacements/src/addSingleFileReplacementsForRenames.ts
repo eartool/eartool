@@ -1,19 +1,19 @@
-import type { PackageName } from "@eartool/utils";
-import type {
-  ExportDeclaration,
-  Identifier,
-  ImportDeclaration,
-  NamespaceExport,
-  SourceFile,
+import type { Logger } from "pino";
+import {
+  SyntaxKind,
+  type ExportDeclaration,
+  type Identifier,
+  type ImportDeclaration,
+  type NamespaceExport,
+  type SourceFile,
 } from "ts-morph";
 import type { PackageExportRename, PackageExportRenames } from "./PackageExportRename.js";
 import type { Replacements } from "./Replacements.js";
-import { getPossibleFileLocations } from "./getPossibleFileLocations.js";
 import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
-import { getNamespaceIdentifier } from "./getNamespaceIdentifier.js";
 import { getNamedSpecifiers } from "./getNamedSpecifiers.js";
-import type { Logger } from "pino";
-import * as path from "node:path";
+import { getNamespaceIdentifier } from "./getNamespaceIdentifier.js";
+import { getPossibleFileLocations } from "./getPossibleFileLocations.js";
+import { weakMemo } from "./weakMemo.js";
 
 // FIXME: This function is way too complex now because I tried to reuse the
 // renames structure for the full file path support to deal with moved files
@@ -36,7 +36,7 @@ export function addSingleFileReplacementsForRenames(
   logger.debug("TOP OF FILE %s", filename);
   if (fullFilePathRenames.size > 0) {
     logger.debug(
-      "Full file path renames:\n%s",
+      "addSingleFileReplacementsForRenames(): Full file path renames:\n%s",
       [...fullFilePathRenames].flatMap(([filePathOrModule, renames]) =>
         renames
           .map((a) => `  - ${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
@@ -44,7 +44,7 @@ export function addSingleFileReplacementsForRenames(
       )
     );
   } else {
-    logger.debug("Full file path renames: NONE");
+    logger.debug("addSingleFileReplacementsForRenames(): Full file path renames: NONE");
   }
 
   if (mode === "full" || mode === "imports") {
@@ -96,49 +96,97 @@ function accumulateRenamesForAllDecls(
       if (toFileOrModule) {
         replacements.replaceNode(moduleSpecifier, `"${toFileOrModule}"`);
       } else {
-        accumulateRenamesForAllNamed(decl, renamesForPackage, replacements, alreadyAdded);
-        accumulateRenamesForNamespaceIfNeeded(decl, renamesForPackage, replacements);
+        accumulateRenamesForDecl(decl, renamesForPackage, replacements, alreadyAdded);
       }
     }
 
     const renamesForPackage = renames.get(moduleSpecifier.getLiteralText());
     if (!renamesForPackage) continue;
 
-    accumulateRenamesForAllNamed(decl, renamesForPackage, replacements, alreadyAdded);
-    accumulateRenamesForNamespaceIfNeeded(decl, renamesForPackage, replacements);
+    accumulateRenamesForDecl(decl, renamesForPackage, replacements, alreadyAdded);
   }
 }
 
-function accumulateRenamesForNamespaceIfNeeded(
-  decl: ImportDeclaration | ExportDeclaration,
-  renamesForPackage: PackageExportRename[],
-  replacements: Replacements
+const getFirstWordsAsSet = weakMemo(function getFirstWordsAsSet(
+  renamesForPackage: PackageExportRename[]
 ) {
-  const maybeNamespaceIdentifier = getNamespaceIdentifier(decl);
-  if (maybeNamespaceIdentifier) {
-    accumulateRenamesForImportedIdentifier(
-      maybeNamespaceIdentifier,
-      prependRenames(renamesForPackage, maybeNamespaceIdentifier),
-      replacements
-    );
-  }
-}
+  return new Set(renamesForPackage.map((a) => a.from[0]));
+});
 
-function accumulateRenamesForAllNamed(
+function accumulateRenamesForDecl(
   decl: ImportDeclaration | ExportDeclaration,
   renamesForPackage: PackageExportRename[],
   replacements: Replacements,
   alreadyAdded: Set<unknown>
 ) {
+  // For this single decl, we don't want to do individual replacements
+  // unless there are leftovers.
+
+  const skipCleanup =
+    renamesForPackage.every((a) => a.toFileOrModule != undefined) &&
+    bulkRemoveMaybe(renamesForPackage, decl, replacements);
+
+  const maybeNamespaceIdentifier = getNamespaceIdentifier(decl);
+  if (maybeNamespaceIdentifier) {
+    accumulateRenamesForImportedIdentifier(
+      maybeNamespaceIdentifier,
+      prependRenames(renamesForPackage, maybeNamespaceIdentifier),
+      replacements,
+      skipCleanup
+    );
+  }
+
   for (const spec of getNamedSpecifiers(decl)) {
     accumulateRenamesForImportedIdentifier(
       spec.getAliasNode() ?? spec.getNameNode(),
       renamesForPackage,
       replacements,
+      skipCleanup,
       alreadyAdded,
       spec
     );
   }
+}
+
+function bulkRemoveMaybe(
+  renamesForPackage: PackageExportRename[],
+  decl: ImportDeclaration | ExportDeclaration,
+  replacements: Replacements
+) {
+  const importNamedBindings = decl
+    .asKind(SyntaxKind.ImportDeclaration)
+    ?.getImportClause()
+    ?.getNamedBindings();
+
+  if (importNamedBindings && importNamedBindings.isKind(SyntaxKind.NamedImports)) {
+    const toRename = getFirstWordsAsSet(renamesForPackage);
+    const removeAllNamed = getNamedSpecifiers(decl).every((a) => toRename.has(a.getName()));
+    if (removeAllNamed) {
+      if (decl.isKind(SyntaxKind.ImportDeclaration)) {
+        if (decl.getDefaultImport()) {
+          replacements.deleteNode(importNamedBindings);
+          const comma = importNamedBindings.getPreviousSiblingIfKindOrThrow(SyntaxKind.CommaToken);
+          replacements.deleteNode(comma);
+          return true;
+        } else {
+          replacements.deleteNode(decl);
+          return true;
+        }
+      }
+    }
+  }
+
+  const namedExports = decl.asKind(SyntaxKind.ExportDeclaration)?.getNamedExports();
+  if (namedExports) {
+    const toRename = getFirstWordsAsSet(renamesForPackage);
+    const removeAll = getNamedSpecifiers(decl).every((spec) => toRename.has(spec.getName()));
+    if (removeAll) {
+      replacements.deleteNode(decl);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function prependRenames(

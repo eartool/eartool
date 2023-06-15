@@ -8,12 +8,14 @@ import type { Replacements } from "./Replacements.js";
 export function accumulateRenamesForImportedIdentifier(
   importedOrExportedIdentifier: Identifier,
   packageExportRenames: PackageExportRename[],
-  replacements: Replacements
+  replacements: Replacements,
+  skipCleanup: boolean
 ): void;
 export function accumulateRenamesForImportedIdentifier(
   importedOrExportedIdentifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements,
+  skipCleanup: boolean,
   alreadyProcessed: Set<unknown>,
   specifier: ImportSpecifier | ExportSpecifier
 ): void;
@@ -21,6 +23,7 @@ export function accumulateRenamesForImportedIdentifier(
   identifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements,
+  skipCleanup: boolean,
   // in this case we can skip the add
   alreadyProcessed?: Set<unknown> | undefined,
   specifier?: ImportSpecifier | ExportSpecifier | undefined
@@ -46,7 +49,7 @@ export function accumulateRenamesForImportedIdentifier(
           specifier,
           packageExportRename.to?.[0],
           packageExportRename.toFileOrModule,
-          true
+          !skipCleanup
         );
       } else {
         if (packageExportRename.to != undefined) {
@@ -57,25 +60,10 @@ export function accumulateRenamesForImportedIdentifier(
             packageExportRename.to[0] != packageExportRename.from[0]
           ) {
             alreadyProcessed.add(packageExportRename);
-
-            replacements.logger.trace(
-              "Adding `%s` to `%s` in %s",
-              packageExportRename.to[0],
-              specifier.getText(),
-              specifier.getSourceFile().getFilePath()
-            );
-
             replacements.insertBefore(specifier, `${packageExportRename.to[0]},`);
           }
 
           const fullReplacement = packageExportRename.to.join(".");
-
-          replacements.logger.trace(
-            "Replacing `%s` with `%s` in %s",
-            fullyQualifiedInstance.getText(),
-            fullReplacement,
-            fullyQualifiedInstance.getSourceFile().getFilePath()
-          );
 
           replacements.replaceNode(fullyQualifiedInstance, fullReplacement);
         }
@@ -83,13 +71,6 @@ export function accumulateRenamesForImportedIdentifier(
         if (packageExportRename.toFileOrModule) {
           const decl = identifier.getFirstAncestorByKindOrThrow(
             maybeExportSpecifier ? SyntaxKind.ExportDeclaration : SyntaxKind.ImportDeclaration
-          );
-
-          replacements.logger.trace(
-            'Replacing `"%s"` with `"%s"` in %s',
-            decl.getModuleSpecifier()!.getText(),
-            `"${packageExportRename.toFileOrModule}"`,
-            fullyQualifiedInstance.getSourceFile().getFilePath()
           );
 
           // This is broken i am positive FIXME
@@ -120,20 +101,9 @@ export function addImportOrExport(
   const symbolName = newSymbolName ?? specifier.getName();
   const importLine = `${keyword} { ${symbolName} } from "${newModuleSpecifier}";`;
 
-  replacements.logger.trace(
-    "Adding import `%s` to %s",
-    importLine,
-    decl.getSourceFile().getFilePath()
-  );
-  replacements.logger.trace(
-    "Deleting `%s` from `%s` in %s",
-    specifier.getNameNode().getText(),
-    decl.getText(),
-    specifier.getSourceFile().getFilePath()
-  );
-  replacements.insertBefore(decl, `${importLine}\n`);
+  replacements.insertAfter(decl, `\n${importLine}`);
   if (cleanup) {
-    replacements.replaceNode(specifier.getNameNode(), "");
+    replacements.deleteNode(specifier.getNameNode());
     replacements.removeNextSiblingIfComma(specifier);
   }
 }

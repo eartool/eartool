@@ -1,6 +1,6 @@
 import type { SourceFile } from "ts-morph";
 import { Project } from "ts-morph";
-import { createTestLogger } from "@eartool/test-utils";
+import { createTestLogger, formatTestTypescript } from "@eartool/test-utils";
 import { SimpleReplacements } from "./ReplacementsWrapper.js";
 import { processReplacements } from "./processReplacements.js";
 import type { Replacements } from "./Replacements.js";
@@ -33,7 +33,7 @@ export class TestBuilder {
   }
 
   addFile(filePath: string, contents: string) {
-    const sf = this.#project.createSourceFile(filePath, contents);
+    const sf = this.#project.createSourceFile(filePath, formatTestTypescript(contents));
     sf.saveSync();
     this.#files.set(filePath, sf);
 

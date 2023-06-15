@@ -1,8 +1,7 @@
-import { processReplacements } from "@eartool/replacements";
-import { formatTestTypescript } from "@eartool/test-utils";
 import { describe, expect, it } from "@jest/globals";
 import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
 import { cleanupMovedFile } from "./cleanupMovedFile.js";
+import { createCtxHelperFunctions } from "./createCtxHelperFunctions.js";
 
 describe(cleanupMovedFile, () => {
   it("handles imports from own package", () => {
@@ -36,25 +35,20 @@ describe(cleanupMovedFile, () => {
     const sf = ctx.project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/foo.ts`);
     cleanupMovedFile(ctx, sf);
 
-    processReplacements(ctx.project, ctx.replacements.getReplacementsMap());
-    sf.organizeImports().saveSync();
-    const text = formatTestTypescript(sf.getText());
-    expect(text).toEqual(
-      formatTestTypescript(`
-        import { bar } from "./bar";
+    const { processReplacementsAndGetTestResultsForFiles } = createCtxHelperFunctions(ctx);
+    const { testResults } = processReplacementsAndGetTestResultsForFiles();
+    expect(testResults).toMatchInlineSnapshot(`
+      "// ==========================================================
+      // <>: /workspace/foo/src/foo.ts
+      //
 
-        export const foo = bar;
-      `)
-    );
+      import { bar } from "./bar";
+      export const foo = bar;
 
-    {
-      const sf = ctx.project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/index.ts`);
-      sf.organizeImports().saveSync();
-
-      expect(formatTestTypescript(sf.getText())).toMatchInlineSnapshot(`
-        "export { bar } from "./bar";
-        "
-      `);
-    }
+      //
+      // </>: /workspace/foo/src/foo.ts
+      // ==========================================================
+      "
+    `);
   });
 });

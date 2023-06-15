@@ -39,7 +39,7 @@ export function calculateNamespaceRemovals(
   const context = projectContext.createNamespaceContext(namespaceDecl);
 
   const namespaceName = namespaceDecl.getName();
-  context.logger.trace(`Found namespace %s`, namespaceName);
+  context.logger.trace(`calculateNamespaceRemovals(): Found namespace %s`, namespaceName);
 
   const syntaxList = namespaceDecl.getChildSyntaxListOrThrow();
   const symbolsInRootScope = new Set(sf.getLocals().map((a) => a.getName()));
@@ -80,8 +80,14 @@ export function calculateNamespaceRemovals(
     }
   }
 
-  context.logger.trace("Type rename: %s", Array.from(context.typeRenames).join(", "));
-  context.logger.trace("Concrete rename: %s", Array.from(context.concreteRenames).join(", "));
+  context.logger.trace(
+    "calculateNamespaceRemovals(): Type rename: %s",
+    Array.from(context.typeRenames).join(", ")
+  );
+  context.logger.trace(
+    "calculateNamespaceRemovals(): Concrete rename: %s",
+    Array.from(context.concreteRenames).join(", ")
+  );
 
   // if we got here, its safe to know we can rename in file but we don't
   // know what we can do across the rest of the package. lets sanity check

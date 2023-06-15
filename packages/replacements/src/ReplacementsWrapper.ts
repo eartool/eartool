@@ -22,21 +22,48 @@ export abstract class AbstractReplacementsWrapper implements Replacements {
   }
 
   replaceNode(node: Node, newValue: string): void {
-    // console.log(node.getText());
+    this.logger.trace(
+      { primaryNode: node },
+      "replaceNode(): originalText: `%s`, newValue: `%s`",
+      node.getText(),
+      newValue
+    );
+
     this.addReplacement(node, node.getStart(), node.getEnd(), newValue);
   }
 
+  deleteNode(node: Node): void {
+    this.logger.trace({ primaryNode: node }, "Deleting full node: `%s`", node.getFullText());
+    this.addReplacement(node, node.getFullStart(), node.getEnd(), "");
+  }
+
   insertBefore(node: Node, newValue: string): void {
-    this.addReplacement(node, node.getStart(), node.getStart(), newValue);
+    const start = node.getStart();
+
+    this.logger.trace(
+      { primaryNode: node },
+      "insertBefore(): newValue: `%s`, beforeNode: `%s`",
+      newValue,
+      node.getText()
+    );
+
+    this.addReplacement(node, start, start, newValue);
+  }
+
+  insertAfter(node: Node, newValue: string): void {
+    this.logger.trace({ primaryNode: node }, "insertAfter: ft: `%s`", node.getFullText());
+
+    this.addReplacement(node, node.getEnd(), node.getEnd(), newValue);
   }
 
   removeNextSiblingIfComma(q: Node) {
     const sib = q.getNextSibling();
     if (sib?.isKind(SyntaxKind.CommaToken)) {
-      this.addReplacement(q.getSourceFile(), sib.getStart(), sib.getEnd(), "");
+      this.deleteNode(sib);
     }
   }
 }
+
 export class ReplacementsWrapperForContext
   extends AbstractReplacementsWrapper
   implements Replacements
