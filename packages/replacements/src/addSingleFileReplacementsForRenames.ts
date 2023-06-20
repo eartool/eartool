@@ -11,11 +11,11 @@ import {
   getNamedSpecifiers,
   getNamespaceIdentifier,
   getPossibleFileLocations,
+  weakMemo,
 } from "@eartool/utils";
 import type { PackageExportRename, PackageExportRenames } from "./PackageExportRename.js";
 import type { Replacements } from "./Replacements.js";
 import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
-import { weakMemo } from "./weakMemo.js";
 
 // FIXME: This function is way too complex now because I tried to reuse the
 // renames structure for the full file path support to deal with moved files

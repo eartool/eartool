@@ -28,6 +28,7 @@ export type { NamespaceLike, NamespaceLikeVariableDeclaration } from "./tsmorph/
 export { isRootExport } from "./tsmorph/isRootExport.js";
 export { maybeLoadProject } from "./tsmorph/maybeLoadProject.js";
 export { organizeImportsOnFiles } from "./tsmorph/organizeImportsOnFiles.js";
+export { weakMemo } from "./weakMemo.js";
 export type { PackageContext } from "./workspace/PackageContext.js";
 export { Workspace } from "./workspace/WorkspaceInfo.js";
 export type { DependencyDirection } from "./workspace/WorkspaceInfo.js";
