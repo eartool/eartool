@@ -9,11 +9,3 @@ export { autorenameIdentifierAndReferences } from "./autorenameIdentifierAndRefe
 export { getReplacementsForRenames } from "./getReplacementsForRenames.js";
 export { processReplacements } from "./processReplacements.js";
 export { replaceAllNamesInScope } from "./replaceAllNamesInScope.js";
-
-// TODO Move this to its own file
-// export { TestBuilder } from "./TestBuilder.js";
-
-export { getNamespaceIdentifierOrExport } from "./getNamespaceIdentifierOrExport.js";
-export { getNamespaceIdentifier } from "./getNamespaceIdentifier.js";
-export { getNamedSpecifiers } from "./getNamedSpecifiers.js";
-export { getDeclaration } from "./getDeclaration.js";

@@ -7,12 +7,14 @@ import {
   type SourceFile,
 } from "ts-morph";
 import type { PackageContext } from "@eartool/utils";
+import {
+  getNamedSpecifiers,
+  getNamespaceIdentifier,
+  getPossibleFileLocations,
+} from "@eartool/utils";
 import type { PackageExportRename, PackageExportRenames } from "./PackageExportRename.js";
 import type { Replacements } from "./Replacements.js";
 import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
-import { getNamedSpecifiers } from "./getNamedSpecifiers.js";
-import { getNamespaceIdentifier } from "./getNamespaceIdentifier.js";
-import { getPossibleFileLocations } from "./getPossibleFileLocations.js";
 import { weakMemo } from "./weakMemo.js";
 
 // FIXME: This function is way too complex now because I tried to reuse the

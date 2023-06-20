@@ -1,6 +1,6 @@
 import * as path from "node:path";
-import type { PackageContext } from "@eartool/utils";
 import { ModuleKind, type ExportDeclaration, type ImportDeclaration } from "ts-morph";
+import type { PackageContext } from "./PackageContext.js";
 
 export function getPossibleFileLocations(
   ctx: PackageContext,

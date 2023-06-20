@@ -23,3 +23,8 @@ export { createLogger } from "./shared/createLogger.js";
 export type { DependencyDirection } from "./main/WorkspaceInfo.js";
 export { Workspace } from "./main/WorkspaceInfo.js";
 export { createWorkspaceFromDisk } from "./main/createWorkspaceFromDisk.js";
+export { getDeclaration } from "./getDeclaration.js";
+export { getNamedSpecifiers } from "./getNamedSpecifiers.js";
+export { getNamespaceIdentifier } from "./getNamespaceIdentifier.js";
+export { getNamespaceIdentifierOrExport } from "./getNamespaceIdentifierOrExport.js";
+export { getPossibleFileLocations } from "./getPossibleFileLocations.js";

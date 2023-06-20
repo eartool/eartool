@@ -1,7 +1,7 @@
 import * as path from "node:path";
-import { addImportOrExport, getNamedSpecifiers } from "@eartool/replacements";
+import { addImportOrExport } from "@eartool/replacements";
+import { getNamedSpecifiers, getProperRelativePathAsModuleSpecifierTo } from "@eartool/utils";
 import { SyntaxKind, type SourceFile } from "ts-morph";
-import { getProperRelativePathAsModuleSpecifierTo } from "@eartool/utils";
 import { getRootFile } from "../getRootFile.js";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 
