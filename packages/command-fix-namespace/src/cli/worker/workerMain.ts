@@ -7,11 +7,11 @@ import type { WorkerArgs } from "../shared/WorkerArgs.js";
 // setupWorker<FixWorkspaceJob>(workerMain());
 
 export async function workerMain(
-  { logger, packagePath, dryRun, updateStatus, jobArgs }: WorkerData<WorkerArgs>,
+  { logger, packagePath, packageName, dryRun, updateStatus, jobArgs }: WorkerData<WorkerArgs>,
   _port: MessagePort
 ): Promise<PackageExportRename[]> {
   try {
-    const result = await processPackage(packagePath, {
+    const result = await processPackage(packageName, packagePath, {
       ...jobArgs,
       logger,
       dryRun,

@@ -1,15 +1,19 @@
 import { type ModuleDeclaration, Node, type Project, type SourceFile, SyntaxKind } from "ts-morph";
 import type { Logger } from "pino";
+import type { PackageContext } from "@eartool/utils";
 import type { Replacement } from "./Replacement.js";
 import type { PackageExportRename } from "./PackageExportRename.js";
 
-export class ProjectContext {
+export class ProjectContext implements PackageContext {
   #replacements = new Map<string, Replacement[]>();
   #recordedRenames: PackageExportRename[] = [];
 
-  constructor(project: Project, public logger: Logger) {
-    //
-  }
+  constructor(
+    public project: Project,
+    public logger: Logger,
+    public packagePath: string,
+    public packageName: string
+  ) {}
 
   addReplacement = (replacement: Replacement) => {
     this.#getReplacementsArray(replacement.filePath).push(replacement);
@@ -77,6 +81,9 @@ export class NamespaceContext implements Omit<ProjectContext, "createNamespaceCo
   getReplacements: ProjectContext["getReplacements"];
   recordRename: ProjectContext["recordRename"];
   getRecordedRenames: ProjectContext["getRecordedRenames"];
+  packageName: string;
+  packagePath: string;
+  project: Project;
 
   constructor(projectContext: ProjectContext, decl: ModuleDeclaration) {
     this.#projectContext = projectContext;
@@ -92,5 +99,9 @@ export class NamespaceContext implements Omit<ProjectContext, "createNamespaceCo
     this.getReplacements = this.#projectContext.getReplacements;
     this.recordRename = this.#projectContext.recordRename;
     this.getRecordedRenames = this.#projectContext.getRecordedRenames;
+
+    this.packageName = this.#projectContext.packageName;
+    this.packagePath = this.#projectContext.packagePath;
+    this.project = this.#projectContext.project;
   }
 }

@@ -51,7 +51,12 @@ export abstract class AbstractReplacementsWrapper implements Replacements {
   }
 
   insertAfter(node: Node, newValue: string): void {
-    this.logger.trace({ primaryNode: node }, "insertAfter: ft: `%s`", node.getFullText());
+    this.logger.trace(
+      { primaryNode: node },
+      "insertAfter(): newValue: %s, afterNode: `%s`",
+      newValue,
+      node.getText()
+    );
 
     this.addReplacement(node, node.getEnd(), node.getEnd(), newValue);
   }
@@ -80,12 +85,12 @@ export class ReplacementsWrapperForContext
   }
 
   addReplacement(filePath: string | Node, start: number, end: number, newValue: string): void {
-    // this.logger.trace({
-    //   filePath: getFilePath(filePath),
-    //   start,
-    //   end,
-    //   newValue,
-    // });
+    this.logger.trace({
+      filePath: getFilePath(filePath),
+      start,
+      end,
+      newValue,
+    });
     this.#context.addReplacement({
       filePath: getFilePath(filePath),
       start,
@@ -113,6 +118,12 @@ export class SimpleReplacements extends AbstractReplacementsWrapper implements R
   }
 
   addReplacement(filePath: string | Node, start: number, end: number, newValue: string): void {
+    this.logger.trace({
+      filePath: getFilePath(filePath),
+      start,
+      end,
+      newValue,
+    });
     this.#replacements.push({
       filePath: getFilePath(filePath),
       start,

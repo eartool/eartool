@@ -1,6 +1,7 @@
 import { isMainThread, workerData } from "node:worker_threads";
 import type { MessagePort } from "node:worker_threads";
 import * as path from "node:path";
+import * as os from "node:os";
 import type { Logger } from "pino";
 import type * as yargs from "yargs";
 import { findWorkspaceDir } from "@pnpm/find-workspace-dir";
@@ -8,7 +9,6 @@ import type { JobDef } from "../shared/JobDef.js";
 import { setupWorker, type WorkerData } from "../worker/setupWorker.js";
 import { createLogger } from "../shared/createLogger.js";
 import { runBatchJob, type BatchJobOptions, type JobSpec } from "./runBatchJob.js";
-import * as os from "node:os";
 
 const standardBatchYargsOptions = {
   workspace: {

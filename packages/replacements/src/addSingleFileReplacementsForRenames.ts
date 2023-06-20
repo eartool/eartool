@@ -7,6 +7,7 @@ import {
   type NamespaceExport,
   type SourceFile,
 } from "ts-morph";
+import type { PackageContext } from "@eartool/utils";
 import type { PackageExportRename, PackageExportRenames } from "./PackageExportRename.js";
 import type { Replacements } from "./Replacements.js";
 import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
@@ -20,13 +21,14 @@ import { weakMemo } from "./weakMemo.js";
 // leaving the current package and going elsewhere and needing to update
 // the other files in that package. I regret this and will need to fix this.
 export function addSingleFileReplacementsForRenames(
+  ctx: PackageContext,
   sf: SourceFile,
   renames: PackageExportRenames,
   replacements: Replacements,
-  logger: Logger,
   dryRun: boolean,
   mode: "full" | "imports" | "exports" = "full"
 ) {
+  const { logger } = ctx;
   // Keep this separated out so we can use conditional break points
   const filename = sf.getFilePath();
 
@@ -47,18 +49,21 @@ export function addSingleFileReplacementsForRenames(
     logger.debug("addSingleFileReplacementsForRenames(): Full file path renames: NONE");
   }
 
+  logger.debug("mode: %s", mode);
+
   if (mode === "full" || mode === "imports") {
     const importDecls = sf.getImportDeclarations();
-    accumulateRenamesForAllDecls(importDecls, fullFilePathRenames, replacements, renames);
+    accumulateRenamesForAllDecls(ctx, importDecls, fullFilePathRenames, replacements, renames);
   }
 
   if (mode === "full" || mode === "exports") {
     const decls = sf.getExportDeclarations();
-    accumulateRenamesForAllDecls(decls, fullFilePathRenames, replacements, renames);
+    accumulateRenamesForAllDecls(ctx, decls, fullFilePathRenames, replacements, renames);
   }
 }
 
 function accumulateRenamesForAllDecls(
+  ctx: PackageContext,
   decls: ImportDeclaration[] | ExportDeclaration[],
   fullFilePathRenames: PackageExportRenames,
   replacements: Replacements,
@@ -69,11 +74,10 @@ function accumulateRenamesForAllDecls(
     const moduleSpecifier = decl.getModuleSpecifier();
     if (!moduleSpecifier) continue;
 
-    const possibleLocations = getPossibleFileLocations(decl);
+    const possibleLocations = getPossibleFileLocations(ctx, decl);
 
     // deal with full file path renames specially
     for (const [fullPathToRename, renamesForPackage] of fullFilePathRenames) {
-      replacements.logger.debug("Huh");
       const declMatchesPossibleFile = possibleLocations.some((l) => l == fullPathToRename);
       if (!declMatchesPossibleFile) continue;
       if (renamesForPackage.length === 0) continue; // Should never happen but I like assurances

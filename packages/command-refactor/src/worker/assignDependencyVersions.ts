@@ -29,7 +29,7 @@ export function assignDependencyVersions(
             );
           }
         }
-        logger.trace("Setting dependency version '%s': '%s'", depName, depVersion);
+        logger.info("Setting dependency version '%s': '%s'", depName, depVersion);
         typeObj[depName] = depVersion;
       }
     }

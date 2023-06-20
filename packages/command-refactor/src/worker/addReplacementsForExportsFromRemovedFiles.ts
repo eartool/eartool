@@ -6,10 +6,12 @@ export function addReplacementsForExportsFromRemovedFiles(
   ctx: WorkerPackageContext,
   filesToRemove: Iterable<FilePath>
 ) {
-  const rootFile = getRootFile(ctx.project);
-  if (!rootFile) throw new Error("Couldnt find root file");
-
   const setOfFilesToRemove = new Set(filesToRemove);
+  if (setOfFilesToRemove.size === 0) return;
+
+  const rootFile = getRootFile(ctx.project);
+  if (!rootFile) throw new Error(`Couldnt find root file for ${ctx.packagePath}`);
+
   if (setOfFilesToRemove.size == 0) return;
 
   for (const decl of rootFile.getExportDeclarations()) {

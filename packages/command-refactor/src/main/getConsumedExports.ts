@@ -28,7 +28,7 @@ export function getConsumedExports(sf: SourceFile): Map<FilePath, Metadata> {
   return ret;
 }
 
-const createEmptyMetadata = (): Metadata => ({
+export const createEmptyMetadata = (): Metadata => ({
   reexports: new Map(),
   imports: new Set(),
   reexportsFrom: new Map(),

@@ -1,3 +1,4 @@
+import type { FilePath, PackageName } from "@eartool/utils";
 import { maybeLoadProject } from "@eartool/utils";
 import { processProject, type ProcessProjectOpts } from "./processProject.js";
 
@@ -14,7 +15,11 @@ import { processProject, type ProcessProjectOpts } from "./processProject.js";
     * Delete namespace if empty
 
 */
-export async function processPackage(packagePath: string, opts: ProcessProjectOpts) {
+export async function processPackage(
+  packageName: PackageName,
+  packagePath: FilePath,
+  opts: ProcessProjectOpts
+) {
   const project = maybeLoadProject(packagePath);
 
   if (!project) {
@@ -22,5 +27,6 @@ export async function processPackage(packagePath: string, opts: ProcessProjectOp
     return Promise.resolve({ exportedRenames: [] });
   }
 
-  return await processProject(project, opts);
+  return await processProject({ project, logger: opts.logger, packageName, packagePath }, opts);
 }
+//

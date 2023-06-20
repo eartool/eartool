@@ -131,8 +131,9 @@ export function calculatePackageExportRenamesForFileMoves(
     }
 
     for (const q of usedSymbols) {
-      const qq = rootExportsPerRelativeFilePath.get(filePath) ?? new Map<string, string>();
-      rootExportsPerRelativeFilePath.set(filePath, qq);
+      const relFilePath = path.relative(packagePath, sf.getFilePath());
+      const qq = rootExportsPerRelativeFilePath.get(relFilePath) ?? new Map<string, string>();
+      rootExportsPerRelativeFilePath.set(relFilePath, qq);
       qq.set(q, q);
     }
   }
@@ -166,7 +167,7 @@ function addExistingRenamesForRootExport(
   const rootIndexFileExports = consumed.get(rootFile!.getFilePath())?.reexports;
 
   if (!rootIndexFileExports) {
-    logger.warn("File isn't re-exported! " + sf.getFilePath());
+    logger.debug("File isn't re-exported! " + sf.getFilePath());
     return;
   }
   for (const [_originalName, exportedName] of rootIndexFileExports) {

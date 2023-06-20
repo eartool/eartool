@@ -43,6 +43,17 @@ export class WorkspaceBuilder {
       JSON.stringify({ packageName, dependencies: {} })
     );
 
+    this.#fs.writeFileSync(
+      path.join(packagePath, "tsconfig.json"),
+      JSON.stringify({
+        extends: "../../tsconfig.base.json",
+        compilerOptions: {
+          outDir: "lib",
+          rootDir: "src",
+        },
+      })
+    );
+
     writePackageJson(this.#fs, packagePath, { name: packageName });
 
     const builder = new ProjectBuilder(packageName, packagePath, this);

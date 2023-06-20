@@ -1,16 +1,36 @@
 import * as path from "node:path";
-import type { ExportDeclaration, ImportDeclaration } from "ts-morph";
+import type { PackageContext } from "@eartool/utils";
+import { ModuleKind, type ExportDeclaration, type ImportDeclaration } from "ts-morph";
 
-export function getPossibleFileLocations(decl: ImportDeclaration | ExportDeclaration) {
+export function getPossibleFileLocations(
+  ctx: PackageContext,
+  decl: ImportDeclaration | ExportDeclaration
+) {
   const moduleSpecifier = decl.getModuleSpecifierValue();
   if (!moduleSpecifier) return [];
 
   // we only do this for relative imports
   if (!moduleSpecifier.startsWith(".")) return [];
 
+  let esModule = false;
   if (moduleSpecifier.endsWith(".js")) {
+    const { module } = decl.getProject().getCompilerOptions();
+    if (module == ModuleKind.Node16 || module == ModuleKind.NodeNext) {
+      //
+    }
+    const packageJson = JSON.parse(
+      decl.getProject().getFileSystem().readFileSync(path.join(ctx.packagePath, "package.json"))
+    );
+
+    if (packageJson.type != "module") {
+      throw new Error("importing a direct js file is a hack right now that requires modules");
+    }
+
+    // MAYBE we should move the package.json to the context
+
+    esModule = true;
     // module land
-    throw new Error("Not implemented: " + moduleSpecifier);
+    // throw new Error("Not implemented: " + moduleSpecifier);
   }
 
   const project = decl.getProject();
@@ -19,6 +39,7 @@ export function getPossibleFileLocations(decl: ImportDeclaration | ExportDeclara
     .getRootDirectories()
     .find((d) => sf.getFilePath().startsWith(d.getPath()));
   if (!rootDirSfIsIn) {
+    // since getRootDirectories() is confusing, this is probably not the check we want.
     throw new Error(
       "Somehow we ended up with a source file thats not in a root dir: " + sf.getFilePath()
     );
@@ -27,7 +48,10 @@ export function getPossibleFileLocations(decl: ImportDeclaration | ExportDeclara
   // If we only had a single root dir, this would be the full path (minus the .ts or .tsx)
   // FUTURE: If we are supporting modern javascript imports the extension here will
   // be .js but thats not what we are looking for.
-  const moduleSpecifierFull = path.resolve(sf.getDirectoryPath(), moduleSpecifier);
+  const moduleSpecifierFull = path.resolve(
+    sf.getDirectoryPath(),
+    esModule ? moduleSpecifier.substring(0, moduleSpecifier.length - 3) : moduleSpecifier
+  );
 
   // we need to convert this back to relative to the root of the package
   const relPathToRootDir = path.relative(rootDirSfIsIn.getPath(), moduleSpecifierFull);
@@ -35,6 +59,6 @@ export function getPossibleFileLocations(decl: ImportDeclaration | ExportDeclara
   return project
     .getRootDirectories()
     .flatMap((d) =>
-      [".ts", ".tsx"].map((ext) => path.resolve(d.getPath(), relPathToRootDir + ext))
+      [".js", ".ts", ".tsx"].map((ext) => path.resolve(d.getPath(), relPathToRootDir + ext))
     );
 }

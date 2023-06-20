@@ -12,12 +12,12 @@ describe(addSingleFileReplacementsForRenames, () => {
           export {bar} from "./bar";
       `
       )
-      .performWork(({ replacements, files }) => {
+      .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
+          ctx,
           files.get("/index.ts")!,
           new Map([["./bar", [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }]]]),
           replacements,
-          createTestLogger(),
           false
         );
       })
@@ -51,8 +51,9 @@ describe(addSingleFileReplacementsForRenames, () => {
           doThing(bleh);
       `
       )
-      .performWork(({ replacements, files }) => {
+      .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
+          ctx,
           files.get("/index.ts")!,
           new Map([
             [
@@ -64,7 +65,6 @@ describe(addSingleFileReplacementsForRenames, () => {
             ],
           ]),
           replacements,
-          createTestLogger(),
           false
         );
       })
@@ -102,8 +102,9 @@ describe(addSingleFileReplacementsForRenames, () => {
           doThing(defImp);
       `
       )
-      .performWork(({ replacements, files }) => {
+      .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
+          ctx,
           files.get("/index.ts")!,
           new Map([
             [
@@ -115,7 +116,6 @@ describe(addSingleFileReplacementsForRenames, () => {
             ],
           ]),
           replacements,
-          createTestLogger(),
           false
         );
       })
@@ -153,12 +153,12 @@ describe(addSingleFileReplacementsForRenames, () => {
           doThing(bar.Baz);
       `
       )
-      .performWork(({ replacements, files }) => {
+      .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
+          ctx,
           files.get("/index.ts")!,
           new Map([["bar", [{ from: ["Baz"], toFileOrModule: "baz" }]]]),
           replacements,
-          createTestLogger(),
           false
         );
       })
@@ -191,12 +191,12 @@ describe(addSingleFileReplacementsForRenames, () => {
           export {bar, foo} from "./bar";
       `
       )
-      .performWork(({ replacements, files }) => {
+      .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
+          ctx,
           files.get("/index.ts")!,
           new Map([["./bar", [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }]]]),
           replacements,
-          createTestLogger(),
           false
         );
       })
@@ -233,19 +233,19 @@ describe(addSingleFileReplacementsForRenames, () => {
         "/nested/foo.ts",
         `import {bar} from "../bar"; export const nestedFoo: string = doStuff(bar); `
       )
-      .performWork(({ replacements, files }) => {
+      .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
+          ctx,
           files.get("/nested/foo.ts")!,
           new Map([["/bar.ts", [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }]]]),
           replacements,
-          createTestLogger(),
           false
         );
         addSingleFileReplacementsForRenames(
+          ctx,
           files.get("/index.ts")!,
           new Map([["/bar.ts", [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }]]]),
           replacements,
-          createTestLogger(),
           false
         );
       })

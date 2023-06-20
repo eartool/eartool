@@ -5,6 +5,7 @@ import { format } from "prettier";
 import { SimpleReplacements } from "./ReplacementsWrapper.js";
 import { processReplacements } from "./processReplacements.js";
 import type { Replacements } from "./Replacements.js";
+import type { PackageContext } from "@eartool/utils";
 
 export class TestBuilder {
   #project: Project;
@@ -32,6 +33,15 @@ export class TestBuilder {
     return this.#replacements;
   }
 
+  get ctx(): PackageContext {
+    return {
+      logger: this.replacements.logger,
+      packageName: "foo",
+      packagePath: "foo",
+      project: this.project,
+    };
+  }
+
   addFile(filePath: string, contents: string) {
     const sf = this.#project.createSourceFile(filePath, formatTestTypescript(contents));
     sf.saveSync();
@@ -42,6 +52,7 @@ export class TestBuilder {
 
   performWork(
     f: (args: {
+      ctx: PackageContext;
       project: Project;
       replacements: Replacements;
       files: Map<string, SourceFile>;

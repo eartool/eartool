@@ -8,7 +8,7 @@ import {
   ReplacementsWrapperForContext,
 } from "@eartool/replacements";
 import { dropDtsFiles, organizeImportsOnFiles } from "@eartool/utils";
-import type { PackageName } from "@eartool/utils";
+import type { PackageContext, PackageName } from "@eartool/utils";
 import type { PackageExportRename } from "@eartool/replacements";
 import { calculateNamespaceRemovals } from "./calculateNamespaceRemovals.js";
 import { calculateNamespaceLikeRemovals } from "./calculateNamespaceLikeRemovals.js";
@@ -39,7 +39,7 @@ export interface ProcessProjectOpts extends BaseOptions {
  * @returns
  */
 export async function processProject(
-  project: Project,
+  packageContext: PackageContext,
   {
     dryRun = false,
     logger,
@@ -50,8 +50,15 @@ export async function processProject(
     organizeImports: shouldOrganizeImports,
   }: ProcessProjectOpts
 ) {
+  const { project } = packageContext;
+
   dropDtsFiles(project);
-  const context = new ProjectContext(project, logger);
+  const context = new ProjectContext(
+    packageContext.project,
+    logger,
+    packageContext.packagePath,
+    packageContext.packageName
+  );
   const totalFiles = project.getSourceFiles().length;
   // Three stages:
   // * analyzing:
@@ -101,7 +108,7 @@ export async function processProject(
 
     if (additionalRenames) {
       const replacements = new SimpleReplacements(logger);
-      addSingleFileReplacementsForRenames(sf, additionalRenames, replacements, logger, dryRun);
+      addSingleFileReplacementsForRenames(context, sf, additionalRenames, replacements, dryRun);
       for (const r of replacements.getReplacementsArray()) {
         context.addReplacement(r);
       }

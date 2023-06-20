@@ -10,64 +10,89 @@ import type { PackageRelativeHelpers } from "./PackageRelativeHelpers.js";
 import { createCtxHelperFunctions } from "./createCtxHelperFunctions.js";
 
 describe(processPackageReplacements, () => {
-  describe("Icon -> other", () => {
+  describe("word -> other", () => {
     const destination = "other";
-    const filesToMove = new Set(["/workspace/oversized/src/components/nested/Icon.tsx"]);
+    const filesToMove = new Set(["/workspace/oversized/src/components/nested/icons/word.ts"]);
 
-    it("updates oversized properly", async () => {
+    it("includes the new export in the moved package", async () => {
+      // This test moves a file that is not exported to a new place and needs to export it
+      // from the new place even though the old place did not!
       const result = await standardSetup(filesToMove, destination);
-      const { filesChanged, helpers } = await standardProcessPackageReplacmements(
-        result,
-        "oversized"
-      );
+      const { filesChanged, helpers } = await standardProcessPackageReplacmements(result, "other");
 
       expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
         "// ==========================================================
-        // <>: /workspace/oversized/src/index.ts
+        // <>: /workspace/other/src/index.ts
         //
 
-        export { Preview } from "./components/nested/Preview.tsx";
+        export {};
+        export { word } from "./components/nested/icons/word";
 
         //
-        // </>: /workspace/oversized/src/index.ts
-        // ==========================================================
-
-        // ==========================================================
-        // <>: /workspace/oversized/src/components/nested/Preview.tsx
-        //
-
-        import { Icon } from "other";
-        export function Preview() {
-          return <Icon />;
-        }
-
-        //
-        // </>: /workspace/oversized/src/components/nested/Preview.tsx
-        // ==========================================================
-
-        // ==========================================================
-        // <>: /workspace/oversized/src/components/nested/Icon.tsx
-        //
-
-        // FILE DOES NOT EXIST
-
-        //
-        // </>: /workspace/oversized/src/components/nested/Icon.tsx
-        // ==========================================================
-
-        // ==========================================================
-        // <>: /workspace/oversized/src/components/nested/icons/word.ts
-        //
-
-        // FILE DOES NOT EXIST
-
-        //
-        // </>: /workspace/oversized/src/components/nested/icons/word.ts
+        // </>: /workspace/other/src/index.ts
         // ==========================================================
         "
       `);
     });
-  });
+  }),
+    describe("Icon -> other", () => {
+      const destination = "other";
+      const filesToMove = new Set(["/workspace/oversized/src/components/nested/Icon.tsx"]);
+
+      it("updates oversized properly", async () => {
+        const result = await standardSetup(filesToMove, destination);
+        const { filesChanged, helpers } = await standardProcessPackageReplacmements(
+          result,
+          "oversized"
+        );
+
+        expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+                  "// ==========================================================
+                  // <>: /workspace/oversized/src/index.ts
+                  //
+
+                  export { Preview } from "./components/nested/Preview.tsx";
+
+                  //
+                  // </>: /workspace/oversized/src/index.ts
+                  // ==========================================================
+
+                  // ==========================================================
+                  // <>: /workspace/oversized/src/components/nested/Preview.tsx
+                  //
+
+                  import { Icon } from "other";
+                  export function Preview() {
+                    return <Icon />;
+                  }
+
+                  //
+                  // </>: /workspace/oversized/src/components/nested/Preview.tsx
+                  // ==========================================================
+
+                  // ==========================================================
+                  // <>: /workspace/oversized/src/components/nested/Icon.tsx
+                  //
+
+                  // FILE DOES NOT EXIST
+
+                  //
+                  // </>: /workspace/oversized/src/components/nested/Icon.tsx
+                  // ==========================================================
+
+                  // ==========================================================
+                  // <>: /workspace/oversized/src/components/nested/icons/word.ts
+                  //
+
+                  // FILE DOES NOT EXIST
+
+                  //
+                  // </>: /workspace/oversized/src/components/nested/icons/word.ts
+                  // ==========================================================
+                  "
+              `);
+      });
+    });
 
   describe("[doThingWithState -> state]", () => {
     const destination = "state";
@@ -179,7 +204,8 @@ describe(processPackageReplacements, () => {
 
 async function standardProcessPackageReplacmements(
   result: StandardSetupResult,
-  packageName: string
+  packageName: string,
+  extraPackages: string[] = []
 ) {
   const ctx = result.getWorkerPackageContext(packageName);
 

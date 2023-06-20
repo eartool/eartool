@@ -1,8 +1,9 @@
 import * as path from "node:path";
 import { pino } from "pino";
-import type { DestinationStream, StreamEntry, LevelWithSilent } from "pino";
+import type { DestinationStream, StreamEntry, LevelWithSilent, Logger } from "pino";
 import pinoPretty from "pino-pretty";
 import chalk from "chalk";
+import { getSimplifiedNodeInfoAsString } from "@eartool/utils";
 
 interface Opts {
   level: LevelWithSilent;
@@ -66,5 +67,14 @@ export function createLogger(
 
   streams.push(...extraStreams);
 
-  return pino({ level }, pino.multistream(streams));
+  return pino(
+    {
+      level,
+      serializers: {
+        ...pino.stdSerializers,
+        primaryNode: getSimplifiedNodeInfoAsString,
+      },
+    },
+    pino.multistream(streams)
+  ) as Logger;
 }

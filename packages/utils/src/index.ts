@@ -1,5 +1,6 @@
 export type { FilePath } from "./FilePath.js";
 export type { Flavored } from "./Flavored.js";
+export type { PackageContext } from "./PackageContext.js";
 export { readPackageJson, writePackageJson } from "./PackageJson.js";
 export type { PackageJson } from "./PackageJson.js";
 export type { PackageName } from "./PackageName.js";

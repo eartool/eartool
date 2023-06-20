@@ -5,7 +5,6 @@ import {
   type PackageExportRenames,
 } from "@eartool/replacements";
 import type { FilePath } from "@eartool/utils";
-import type { Logger } from "pino";
 import type { SourceFile } from "ts-morph";
 import type { RelativeFileInfo } from "../main/setupOverall.js";
 import { getRootFile } from "../getRootFile.js";
@@ -14,14 +13,10 @@ import { cleanupMovedFile } from "./cleanupMovedFile.js";
 import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
 import { addReexports } from "./addReexports.js";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
-import type { PackageContext } from "./PackageContext.js";
+import type { PackageContext } from "../../../utils/src/PackageContext.js";
 
 export interface FileContext extends PackageContext {
   sf: SourceFile;
-}
-
-export interface WithLogger {
-  logger: Logger;
 }
 
 export async function processPackageReplacements(
@@ -48,27 +43,29 @@ export async function processPackageReplacements(
 
   for (const [relPath, { fileContents, rootExports }] of relativeFileInfoMap) {
     const fullpath = path.resolve(ctx.packagePath, relPath);
-    ctx.logger.trace("Adding file '%s'", fullpath);
+    ctx.logger.info("Adding file '%s'", fullpath);
     const sf = ctx.project.createSourceFile(fullpath, fileContents);
 
     // Gotta clean up the files we added
     cleanupMovedFile(ctx, sf);
 
-    const rootFile = getRootFile(ctx.project);
-    if (!rootFile) throw new Error("Couldnt find rootfile");
     // FIXME need to handle namespace exports too
     if (rootExports.size > 0) {
+      const rootFile = getRootFile(ctx.project);
+      if (!rootFile) throw new Error("Couldnt find rootfile");
+
       addReexports(rootExports, ctx.replacements, rootFile, fullpath);
     }
   }
 
   // Simple renames
   for (const sf of ctx.project.getSourceFiles()) {
+    ctx.packagePath;
     addSingleFileReplacementsForRenames(
+      ctx,
       sf,
       packageExportRenamesMap,
       ctx.replacements,
-      ctx.logger,
       dryRun,
       getRootFile(ctx.project) === sf ? "imports" : "full"
     );

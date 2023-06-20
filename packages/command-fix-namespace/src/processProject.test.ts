@@ -670,14 +670,17 @@ describe("processProject", () => {
       try {
         const project = createProjectForTest(inputs);
 
-        await processProject(project, {
-          logger,
-          additionalRenames,
-          removeFauxNamespaces: removeFauxNamespaces ?? true,
-          dryRun: false,
-          organizeImports: true,
-          removeNamespaces: removeNamespaces ?? true,
-        });
+        await processProject(
+          { project, logger, packageName: "foo", packagePath: "/" },
+          {
+            logger,
+            additionalRenames,
+            removeFauxNamespaces: removeFauxNamespaces ?? true,
+            dryRun: false,
+            organizeImports: true,
+            removeNamespaces: removeNamespaces ?? true,
+          }
+        );
 
         const fs = project.getFileSystem();
 
@@ -720,13 +723,16 @@ describe("processProject", () => {
       `,
     });
 
-    const result = await processProject(project, {
-      logger,
-      removeNamespaces: true,
-      removeFauxNamespaces: false,
-      dryRun: false,
-      organizeImports: true,
-    });
+    const result = await processProject(
+      { project, logger, packageName: "foo", packagePath: "/" },
+      {
+        logger,
+        removeNamespaces: true,
+        removeFauxNamespaces: false,
+        dryRun: false,
+        organizeImports: true,
+      }
+    );
     expect(result.exportedRenames).toHaveLength(1);
     expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Props"], to: ["FooProps"] });
   });

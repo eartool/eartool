@@ -72,6 +72,60 @@ describe(setupOverall, () => {
         }
       `);
     });
+    it("correctly reexports from new home even if not exported from original home", async () => {
+      const { workspace, projectLoader } = createInitialWorkspaceBuilder().build();
+
+      const result = await setupOverall(
+        workspace,
+        projectLoader,
+        new Set(["/workspace/oversized/src/components/nested/icons/word.ts"]),
+        "other",
+        createTestLogger()
+      );
+
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "direction": "sideways",
+          "packageExportRenamesMap": Map {
+            "/workspace/oversized/src/components/nested/icons/word.ts" => [
+              {
+                "from": [
+                  "word",
+                ],
+                "toFileOrModule": "other",
+              },
+            ],
+          },
+          "packageJsonDepsRequired": {
+            "dependencies": Map {},
+            "devDependencies": Map {},
+          },
+          "packageNameToFilesToMove": SetMultimap {
+            "map": Map {
+              "oversized" => Set {
+                "/workspace/oversized/src/components/nested/icons/word.ts",
+              },
+            },
+            "operator": SetOperator {},
+            "size_": 1,
+          },
+          "primaryPackages": Set {
+            "oversized",
+            "other",
+          },
+          "relativeFileInfoMap": Map {
+            "src/components/nested/icons/word.ts" => {
+              "fileContents": "
+                export const word = "hi";
+              ",
+              "rootExports": Map {
+                "word" => "word",
+              },
+            },
+          },
+        }
+      `);
+    });
 
     it("pushes downstream", async () => {
       const { workspace, projectLoader } = createInitialWorkspaceBuilder().build();

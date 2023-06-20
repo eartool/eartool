@@ -16,10 +16,16 @@ export function addReexports(
     .map(([name, alias]) => (name === alias ? name : `${name} as ${alias}`))
     .join(", ");
 
+  const exportLine = `export {${exportSpecifiers}} from "${rootFile.getRelativePathAsModuleSpecifierTo(
+    fullpath
+  )}";`;
+
+  replacements.logger.info("Adding `%s` to %s", exportLine, rootFile.getFilePath());
+
   replacements.addReplacement(
     rootFile.getFilePath(),
     rootFile.getTrailingTriviaEnd(),
     rootFile.getTrailingTriviaEnd(),
-    `export {${exportSpecifiers}} from "${rootFile.getRelativePathAsModuleSpecifierTo(fullpath)}";`
+    exportLine
   );
 }

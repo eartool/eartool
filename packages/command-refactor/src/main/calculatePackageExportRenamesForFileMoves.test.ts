@@ -64,9 +64,6 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
         "rootExportsPerRelativeFilePath": Map {
           "src/foo.ts" => Map {
             "foo" => "foo",
-          },
-          "/workspace/mypackage/src/foo.ts" => Map {
-            "foo" => "foo",
             "notOriginallyRootExported" => "notOriginallyRootExported",
           },
         },
@@ -151,6 +148,7 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
           "src/foo.ts" => Map {
             "foo" => "foo",
           },
+          "src/bar.ts" => Map {},
         },
       }
     `);
