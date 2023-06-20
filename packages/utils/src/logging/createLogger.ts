@@ -3,7 +3,7 @@ import { pino } from "pino";
 import type { DestinationStream, StreamEntry, LevelWithSilent, Logger } from "pino";
 import pinoPretty from "pino-pretty";
 import chalk from "chalk";
-import { getSimplifiedNodeInfoAsString } from "../getSimplifiedNodeInfo.js";
+import { getSimplifiedNodeInfoAsString } from "../tsmorph/getSimplifiedNodeInfo.js";
 
 interface Opts {
   level: LevelWithSilent;

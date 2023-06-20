@@ -1,7 +1,5 @@
 import { Node } from "ts-morph";
 
-// TODO MOVE THIS
-
 export const getSimplifiedNodeInfo = (n: Node) => ({
   filePath: n.getSourceFile().getFilePath() as string,
   startLineNumber: n.getStartLineNumber(),
