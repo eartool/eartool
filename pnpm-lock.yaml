@@ -65,7 +65,7 @@ importers:
   packages/batch:
     dependencies:
       '@eartool/utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../utils
       '@pnpm/filter-workspace-packages':
         specifier: 7.0.8
@@ -147,16 +147,16 @@ importers:
   packages/command-fix-namespace:
     dependencies:
       '@eartool/batch':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../batch
       '@eartool/replacements':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../replacements
       '@eartool/test-utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../test-utils
       '@eartool/utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../utils
       '@pnpm/filter-workspace-packages':
         specifier: 7.0.8
@@ -247,16 +247,16 @@ importers:
   packages/command-foo:
     dependencies:
       '@eartool/batch':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../batch
       '@eartool/replacements':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../replacements
       '@eartool/test-utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../test-utils
       '@eartool/utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../utils
       '@pnpm/filter-workspace-packages':
         specifier: 7.0.8
@@ -347,16 +347,16 @@ importers:
   packages/command-refactor:
     dependencies:
       '@eartool/batch':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../batch
       '@eartool/replacements':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../replacements
       '@eartool/test-utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../test-utils
       '@eartool/utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../utils
       '@pnpm/filter-workspace-packages':
         specifier: 7.0.8
@@ -447,22 +447,22 @@ importers:
   packages/eartool:
     dependencies:
       '@eartool/command-fix-namespace':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../command-fix-namespace
       '@eartool/command-foo':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../command-foo
       '@eartool/command-refactor':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../command-refactor
       '@eartool/replacements':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../replacements
       '@eartool/test-utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../test-utils
       '@eartool/utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../utils
       '@pnpm/filter-workspace-packages':
         specifier: 7.0.8
@@ -553,10 +553,10 @@ importers:
   packages/replacements:
     dependencies:
       '@eartool/test-utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../test-utils
       '@eartool/utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../utils
       '@pnpm/filter-workspace-packages':
         specifier: 7.0.8
@@ -647,7 +647,7 @@ importers:
   packages/test-utils:
     dependencies:
       '@eartool/utils':
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: link:../utils
       '@pnpm/filter-workspace-packages':
         specifier: 7.0.8
