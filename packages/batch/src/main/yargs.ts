@@ -5,9 +5,9 @@ import * as os from "node:os";
 import type { Logger } from "pino";
 import type * as yargs from "yargs";
 import { findWorkspaceDir } from "@pnpm/find-workspace-dir";
+import { createLogger } from "@eartool/utils";
 import type { JobDef } from "../shared/JobDef.js";
 import { setupWorker, type WorkerData } from "../worker/setupWorker.js";
-import { createLogger } from "../shared/createLogger.js";
 import { runBatchJob, type BatchJobOptions, type JobSpec } from "./runBatchJob.js";
 
 const standardBatchYargsOptions = {

@@ -3,7 +3,7 @@ import { pino } from "pino";
 import type { DestinationStream, StreamEntry, LevelWithSilent, Logger } from "pino";
 import pinoPretty from "pino-pretty";
 import chalk from "chalk";
-import { getSimplifiedNodeInfoAsString } from "@eartool/utils";
+import { getSimplifiedNodeInfoAsString } from "../getSimplifiedNodeInfo.js";
 
 interface Opts {
   level: LevelWithSilent;

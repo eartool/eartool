@@ -1,6 +1,6 @@
 import type { MessagePort } from "node:worker_threads";
 import abstractTransport from "pino-abstract-transport";
-import { createLogger } from "../shared/createLogger.js";
+import { createLogger } from "@eartool/utils";
 import type { Status } from "../shared/MessagesToMain.js";
 import * as MessagesToMain from "../shared/MessagesToMain.js";
 import type { JobDef } from "../shared/JobDef.js";
