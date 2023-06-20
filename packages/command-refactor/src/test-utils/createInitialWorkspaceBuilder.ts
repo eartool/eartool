@@ -1,14 +1,17 @@
 import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
 
-export function createInitialWorkspaceBuilder() {
+export function createInitialWorkspaceBuilder(esm = false) {
   // app -> api -> state
   // app -> state
+
+  const ext = esm ? ".js" : "";
+
   return new WorkspaceBuilder("/workspace/")
-    .createProject("state", (p) => {
+    .createProject("state", { esm }, (p) => {
       p.addFile(
         "src/index.ts",
         `
-             export {State} from "./state";
+             export {State} from "./state${ext}";
           `
       ).addFile(
         "src/state.ts",
@@ -19,7 +22,7 @@ export function createInitialWorkspaceBuilder() {
           `
       );
     })
-    .createProject("util", (p) => {
+    .createProject("util", { esm }, (p) => {
       p.addFile(
         "src/index.ts",
         `
@@ -27,14 +30,14 @@ export function createInitialWorkspaceBuilder() {
       `
       );
     })
-    .createProject("api", (p) => {
+    .createProject("api", { esm }, (p) => {
       p.addFile(
         "src/index.ts",
         `
-            export {doThingWithBaz} from "./doThingWithBaz";
-            export {doThingWithState} from "./doThingWithState";
-            export {selectA} from "./selectA"
-            export {Baz} from "./Baz";
+            export {doThingWithBaz} from "./doThingWithBaz${ext}";
+            export {doThingWithState} from "./doThingWithState${ext}";
+            export {selectA} from "./selectA${ext}"
+            export {Baz} from "./Baz${ext}";
           `
       )
         .addFile(
@@ -46,14 +49,14 @@ export function createInitialWorkspaceBuilder() {
         .addFile(
           "src/doThingWithBaz.ts",
           `
-            import {Baz} from "./Baz";
+            import {Baz} from "./Baz${ext}";
             export function doThingWithBaz(baz: Baz) { return baz.value; }
           `
         )
         .addFile(
           "src/alsoUsesBaz.ts",
           `
-            import {Baz} from "./Baz"; 
+            import {Baz} from "./Baz${ext}"; 
             function alsoUsesBaz(baz: Baz) { return baz.value; }
           `
         )
@@ -69,7 +72,7 @@ export function createInitialWorkspaceBuilder() {
         .addFile(
           "src/selectA.ts",
           `
-          import {doThingWithState} from "./doThingWithState";
+          import {doThingWithState} from "./doThingWithState${ext}";
 
           export function selectA(state: State) { return doThingWithState(state); }
         `
@@ -78,7 +81,7 @@ export function createInitialWorkspaceBuilder() {
         .addDependency("util");
       //
     })
-    .createProject("app", (p) => {
+    .createProject("app", { esm }, (p) => {
       p.addFile(
         "src/index.ts",
         `
@@ -97,7 +100,7 @@ export function createInitialWorkspaceBuilder() {
         .addDependency("state")
         .addDependency("api");
     })
-    .createProject("other", (p) => {
+    .createProject("other", { esm }, (p) => {
       p.addFile(
         "src/index.ts",
         `
@@ -105,18 +108,18 @@ export function createInitialWorkspaceBuilder() {
       `
       );
     })
-    .createProject("oversized", (p) => {
+    .createProject("oversized", { esm }, (p) => {
       p.addFile(
         "src/index.ts",
         `
-        export {Icon} from "./components/nested/Icon.tsx";
-        export {Preview} from "./components/nested/Preview.tsx";
+        export {Icon} from "./components/nested/Icon${ext}";
+        export {Preview} from "./components/nested/Preview${ext}";
       `
       )
         .addFile(
           "src/components/nested/Icon.tsx",
           `
-        import {word} from "./icons/word";
+        import {word} from "./icons/word${ext}";
         export function Icon() { return <div>Icon</div>; }
       `
         )
@@ -129,7 +132,7 @@ export function createInitialWorkspaceBuilder() {
         .addFile(
           "src/components/nested/Preview.tsx",
           `
-        import {Icon} from "./Icon";
+        import {Icon} from "./Icon${ext}";
         export function Preview() { return <Icon/>; }
       `
         );

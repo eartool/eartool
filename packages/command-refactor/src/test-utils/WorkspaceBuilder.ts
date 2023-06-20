@@ -9,6 +9,10 @@ import { SimpleReplacements } from "@eartool/replacements";
 import type { WorkerPackageContext } from "../worker/WorkerPackageContext.js";
 import { ProjectBuilder } from "./ProjectBuilder.js";
 
+type CreateProjectOpts = {
+  esm?: boolean;
+};
+
 export class WorkspaceBuilder {
   #fs: InMemoryFileSystemHost;
   #logger: Logger;
@@ -25,45 +29,49 @@ export class WorkspaceBuilder {
     this.#workspacePath = workspacePath;
   }
 
-  /**
-   *
-   * @param packageName
-   * @param packagePath Relative to workspacePath
-   * @param callback
-   */
-  createProject = (
+  createProject(
     packageName: PackageName,
+    opts: CreateProjectOpts,
     callback: (projectBuilder: ProjectBuilder) => void
-  ) => {
+  ): this;
+  createProject(packageName: PackageName, callback: (projectBuilder: ProjectBuilder) => void): this;
+  createProject(
+    packageName: PackageName,
+    opts: CreateProjectOpts | ((projectBuilder: ProjectBuilder) => void),
+    callback?: (projectBuilder: ProjectBuilder) => void
+  ) {
+    const realCallback = callback ?? (opts as (projectBuilder: ProjectBuilder) => void);
+    const esm = callback ? (opts as CreateProjectOpts).esm : false;
+
     const packagePath = path.resolve(this.#workspacePath, packageName);
     this.#fs.mkdirSync(packagePath);
     this.#fs.mkdirSync(path.join(packagePath, "src"));
-    this.#fs.writeFileSync(
-      path.join(packagePath, "package.json"),
-      JSON.stringify({ packageName, dependencies: {} })
-    );
 
     this.#fs.writeFileSync(
       path.join(packagePath, "tsconfig.json"),
       JSON.stringify({
-        extends: "../../tsconfig.base.json",
         compilerOptions: {
           outDir: "lib",
           rootDir: "src",
+          moduleResolution: esm ? "Node16" : "Node10",
         },
       })
     );
 
-    writePackageJson(this.#fs, packagePath, { name: packageName });
+    writePackageJson(this.#fs, packagePath, {
+      name: packageName,
+      dependencies: {},
+      ...(esm ? { type: "module" } : {}),
+    });
 
     const builder = new ProjectBuilder(packageName, packagePath, this);
-    callback(builder);
+    realCallback(builder);
     builder.project.saveSync();
     this.#packageNameToProject.set(packageName, builder.project);
     this.#packagePathToProject.set(packagePath, builder.project);
     this.#workspace.addPackage(packageName, packagePath);
     return this;
-  };
+  }
 
   addDependency(from: PackageName, to: PackageName) {
     const fromPackage = this.#workspace.getPackageBy({ name: from });

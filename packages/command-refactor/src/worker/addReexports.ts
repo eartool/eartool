@@ -1,6 +1,7 @@
 import type { Replacements } from "@eartool/replacements";
 import type { FilePath } from "@eartool/utils";
-import type { SourceFile } from "ts-morph";
+import { type SourceFile } from "ts-morph";
+import { getProperRelativePathAsModuleSpecifierTo } from "./getProperRelativePathAsModuleSpecifierTo.js";
 
 export function addReexports(
   rootExports: Map<string, string>,
@@ -16,9 +17,9 @@ export function addReexports(
     .map(([name, alias]) => (name === alias ? name : `${name} as ${alias}`))
     .join(", ");
 
-  const exportLine = `export {${exportSpecifiers}} from "${rootFile.getRelativePathAsModuleSpecifierTo(
-    fullpath
-  )}";`;
+  // This hack shouldnt be needed!
+  const moduleSpecifier = getProperRelativePathAsModuleSpecifierTo(rootFile, fullpath);
+  const exportLine = `export {${exportSpecifiers}} from "${moduleSpecifier}";`;
 
   replacements.logger.info("Adding `%s` to %s", exportLine, rootFile.getFilePath());
 

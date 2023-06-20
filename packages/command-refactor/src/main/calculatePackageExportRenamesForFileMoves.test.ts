@@ -148,7 +148,6 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
           "src/foo.ts" => Map {
             "foo" => "foo",
           },
-          "src/bar.ts" => Map {},
         },
       }
     `);
