@@ -44,13 +44,16 @@ export function accumulateRenamesForImportedIdentifier(
 
       if (packageExportRename.toFileOrModule && specifier) {
         // TODO: This code causes an import to retain an empty set of braces
-        addImportOrExport(
-          replacements,
-          specifier,
-          packageExportRename.to?.[0],
-          packageExportRename.toFileOrModule,
-          !skipCleanup
-        );
+        if (!alreadyProcessed || !alreadyProcessed.has(packageExportRename)) {
+          addImportOrExport(
+            replacements,
+            specifier,
+            packageExportRename.to?.[0],
+            packageExportRename.toFileOrModule,
+            !skipCleanup
+          );
+          alreadyProcessed?.add(packageExportRename);
+        }
       } else {
         if (packageExportRename.to != undefined) {
           if (
