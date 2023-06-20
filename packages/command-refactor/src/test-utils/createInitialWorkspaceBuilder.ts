@@ -3,24 +3,37 @@ import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
 export function createInitialWorkspaceBuilder(esm = false) {
   // app -> api -> state
   // app -> state
+  // app -> test-utils
+  // api -> test-utils
+  // state -> test-utils
 
   const ext = esm ? ".js" : "";
 
   return new WorkspaceBuilder("/workspace/")
+    .createProject("test-utils", { esm }, (p) => {
+      p.addFile(
+        "src/index.ts",
+        `
+        export {};
+      `
+      );
+    })
     .createProject("state", { esm }, (p) => {
       p.addFile(
         "src/index.ts",
         `
              export {State} from "./state${ext}";
           `
-      ).addFile(
-        "src/state.ts",
-        `
+      )
+        .addFile(
+          "src/state.ts",
+          `
             export interface State {
               foo: number
             }
           `
-      );
+        )
+        .addDependency("test-utils");
     })
     .createProject("util", { esm }, (p) => {
       p.addFile(
@@ -78,7 +91,8 @@ export function createInitialWorkspaceBuilder(esm = false) {
         `
         )
         .addDependency("state")
-        .addDependency("util");
+        .addDependency("util")
+        .addDependency("test-utils");
       //
     })
     .createProject("app", { esm }, (p) => {
@@ -87,18 +101,34 @@ export function createInitialWorkspaceBuilder(esm = false) {
         `
         export {};
       `
-      );
-      p.addFile(
-        "src/cli.ts",
-        `
+      )
+        .addFile(
+          "src/cli.ts",
+          `
             import {doThingWithState} from "api";
             import {State} from "state";
 
             print(doThingWithState({foo : 5}));
           `
-      )
+        )
+        .addFile(
+          "src/inner/something.test.ts",
+          `
+            import {prepareTest} from "../helper/prepareTest${ext}";
+
+            prepareTest();
+          `
+        )
+        .addFile(
+          "src/helper/prepareTest.ts",
+          `
+          import {State} from "state";
+          export function prepareTest(): State { return {foo: 5 }; }
+        `
+        )
         .addDependency("state")
-        .addDependency("api");
+        .addDependency("api")
+        .addDependency("test-utils");
     })
     .createProject("other", { esm }, (p) => {
       p.addFile(

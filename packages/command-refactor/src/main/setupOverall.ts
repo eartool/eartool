@@ -134,6 +134,26 @@ export async function setupOverall(
 
   // await workspace.runTasksInOrder([], async ({ packageName, packagePath }) => {});
 
+  // if packageJsonDepsRequired has an entry that has destination in its walk, we fail
+  const q = new Set([
+    ...packageJsonDepsRequired.dependencies.keys(),
+    ...packageJsonDepsRequired.devDependencies.keys(),
+  ]);
+
+  // we could probably do this next part faster with some memoization!
+  for (const up of workspace.walk(destinationModule, "downstream")) {
+    if (up.name === destinationModule) continue;
+
+    if (q.has(up.name)) {
+      throw new Error(
+        `Cannot complete task. It would create a circular dependency as the destination '${destinationModule}' is upstream of a dependency it would have to take: '${up.name}'`
+      );
+    }
+  }
+  for (const asdf of q) {
+    workspace.walk(asdf);
+  }
+
   return {
     packageExportRenamesMap: renames.asRaw(),
     relativeFileInfoMap,

@@ -127,6 +127,22 @@ describe(setupOverall, () => {
       `);
     });
 
+    it("fails instead of creating a circular reference", async () => {
+      const { workspace, projectLoader } = createInitialWorkspaceBuilder().build();
+
+      expect(
+        setupOverall(
+          workspace,
+          projectLoader,
+          new Set(["/workspace/app/src/helper/prepareTest.ts"]),
+          "test-utils",
+          createTestLogger()
+        )
+      ).rejects.toMatchInlineSnapshot(
+        `[Error: Cannot complete task. It would create a circular dependency as the destination 'test-utils' is upstream of a dependency it would have to take: 'state']`
+      );
+    });
+
     it("pushes downstream", async () => {
       const { workspace, projectLoader } = createInitialWorkspaceBuilder().build();
 
