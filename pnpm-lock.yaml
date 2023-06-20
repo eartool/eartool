@@ -67,6 +67,9 @@ importers:
       '@pnpm/filter-workspace-packages':
         specifier: 7.0.8
         version: 7.0.8(@pnpm/logger@5.0.0)
+      '@pnpm/find-workspace-dir':
+        specifier: ^6.0.2
+        version: 6.0.2
       '@pnpm/find-workspace-packages':
         specifier: ^6.0.8
         version: 6.0.8(@pnpm/logger@5.0.0)
@@ -1683,6 +1686,11 @@ packages:
     engines: {node: '>=16.14'}
     dev: false
 
+  /@pnpm/constants@7.1.1:
+    resolution: {integrity: sha512-31pZqMtjwV+Vaq7MaPrT1EoDFSYwye3dp6BiHIGRJmVThCQwySRKM7hCvqqI94epNkqFAAYoWrNynWoRYosGdw==}
+    engines: {node: '>=16.14'}
+    dev: false
+
   /@pnpm/core-loggers@9.0.0(@pnpm/logger@5.0.0):
     resolution: {integrity: sha512-QLKZBrcf/LGQIZAM+cxd31/LYVZwA38xKow/n/KvSqMcYpNBLwcpAyp6kM+kwI2+QGcmHxlJ3blsRhKh+oMLhQ==}
     engines: {node: '>=16.14'}
@@ -1750,6 +1758,13 @@ packages:
       '@pnpm/constants': 7.0.0
     dev: false
 
+  /@pnpm/error@5.0.2:
+    resolution: {integrity: sha512-0TEm+tWNYm+9uh6DSKyRbv8pv/6b4NL0PastLvMxIoqZbBZ5Zj1cYi332R9xsSUi31ZOsu2wpgn/bC7DA9hrjg==}
+    engines: {node: '>=16.14'}
+    dependencies:
+      '@pnpm/constants': 7.1.1
+    dev: false
+
   /@pnpm/fetcher-base@14.0.0:
     resolution: {integrity: sha512-jcRmjlkL4RAKeZWwWwE8fREZtMrdPXYHnl8upgmaBzTDEyXBiztQGqiRO6swGxCRWgycJPo+uUpuPJHF3uQsSg==}
     engines: {node: '>=16.14'}
@@ -1774,6 +1789,14 @@ packages:
       ramda: /@pnpm/ramda@0.28.1
     transitivePeerDependencies:
       - '@pnpm/logger'
+    dev: false
+
+  /@pnpm/find-workspace-dir@6.0.2:
+    resolution: {integrity: sha512-JSrpQUFCs4vY1D5tOmj7qBb+oE2j/lO6341giEdUpvYf3FijY8CY13l8rPjfHV2y3m//utzl0An+q+qx14S6Nw==}
+    engines: {node: '>=16.14'}
+    dependencies:
+      '@pnpm/error': 5.0.2
+      find-up: 5.0.0
     dev: false
 
   /@pnpm/find-workspace-packages@6.0.8(@pnpm/logger@5.0.0):

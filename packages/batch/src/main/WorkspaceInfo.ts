@@ -159,12 +159,13 @@ export class Workspace {
   async runTasks(
     lookup: undefined | (PackageInfo | PackageLookupCriteria)[],
     order: "any" | "upstreamFirst",
+    concurrency: number,
     performTask: RunTaskCallback
   ) {
     const startNodes = lookup ? [...this.nodesFor(lookup)] : [];
     const statuses = this.#createInitialTaskStatuses(startNodes);
 
-    const queue = new PQueue({ autoStart: true, concurrency: 6 });
+    const queue = new PQueue({ autoStart: true, concurrency });
 
     // Always do the start nodes first, regardless of ordering
     for (const node of startNodes) {

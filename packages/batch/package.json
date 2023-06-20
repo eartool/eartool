@@ -27,6 +27,7 @@
     "@eartool/utils": "workspace:*",
     "@pnpm/filter-workspace-packages": "7.0.8",
     "@pnpm/find-workspace-packages": "^6.0.8",
+    "@pnpm/find-workspace-dir": "^6.0.2",
     "@reduxjs/toolkit": "^2.0.0-alpha.6",
     "@types/pino-pretty": "^5.0.0",
     "chalk": "^5.2.0",

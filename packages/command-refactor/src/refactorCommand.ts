@@ -94,7 +94,7 @@ export async function cliMain(
     _: (string | number)[];
     $0: string;
   } & {
-    readonly workspace: string;
+    readonly workspace: Promise<string>; // pretty sure the types are wrong and this is always resolved
     readonly from: string[];
     readonly downstream: boolean;
     readonly progress: boolean;
@@ -102,8 +102,8 @@ export async function cliMain(
     readonly dryRun: boolean;
     readonly verbose: number;
   } & { logger: Logger }
-): Promise<JobSpec<JobArgs, {}>> {
-  const workspace = await createWorkspaceFromDisk(args.workspace);
+): Promise<Omit<JobSpec<JobArgs, {}>, "runInlineFunc">> {
+  const workspace = await createWorkspaceFromDisk(await args.workspace);
   const setupResults = await setupOverall(
     workspace,
     maybeLoadProject,

@@ -2,7 +2,8 @@ import { Worker } from "node:worker_threads";
 import * as path from "node:path";
 import type { Level, Logger } from "pino";
 import * as MessagesToMain from "../shared/MessagesToMain.js";
-import type { WireWorkerData } from "../worker/setupWorker.js";
+import { type WireWorkerData, type WorkerFunc } from "../worker/setupWorker.js";
+import { runWorker } from "../worker/runWorker.js";
 import type { JobDef } from "../shared/JobDef.js";
 import { createWorkspaceFromDisk } from "./createWorkspaceFromDisk.js";
 import type { Progress } from "./progress/Progress.js";
@@ -18,6 +19,7 @@ export interface JobInfo {
 
 export interface JobSpec<T, R> {
   workerUrl: URL;
+  runInlineFunc: () => Promise<WorkerFunc<JobDef<T, R>>>;
   getJobArgs: (info: JobInfo) => T | Promise<T>;
   onComplete?: (jobInfo: JobInfo, extra: { logger: Logger; result: R }) => void | Promise<void>;
   skipJobAndReturnResult?: (jobInfo: JobInfo) => R | undefined | Promise<R | undefined>;
@@ -30,6 +32,7 @@ export interface BatchJobOptions {
   logDir: string;
   dryRun: boolean;
   progress: boolean;
+  workers: number;
 }
 
 export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
@@ -52,6 +55,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
   await workspace.runTasks(
     startNodeLookups,
     jobSpec.order,
+    opts.workers,
     async ({ packageName, packagePath }) => {
       const isInStartGroup =
         startNodeLookups.length === 0 || startNodeLookups.some((a) => a.name === packageName);
@@ -90,7 +94,6 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
     };
 
     logger.debug("Forking worker for %s", packageName);
-    const worker = new Worker(jobSpec.workerUrl, { workerData });
 
     const { port1: myPort, port2: theirPort } = new MessageChannel();
     const result = new Promise<Q["__ResultType"]>((resolve) => {
@@ -124,7 +127,14 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
       });
     });
 
-    worker.postMessage({ port: theirPort }, [theirPort]);
+    if (opts.workers == 1) {
+      const f = await jobSpec.runInlineFunc();
+      runWorker(theirPort, f, workerData);
+    } else {
+      const worker = new Worker(jobSpec.workerUrl, { workerData });
+      worker.postMessage({ port: theirPort }, [theirPort]);
+    }
+
     return result;
   }
 }

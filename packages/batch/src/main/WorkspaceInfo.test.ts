@@ -45,7 +45,7 @@ describe(Workspace, () => {
       baz.addDependency(bar);
 
       const order: string[] = [];
-      await workspace.runTasks([] /*all*/, "upstreamFirst", async (args) => {
+      await workspace.runTasks([] /*all*/, "upstreamFirst", 6, async (args) => {
         order.push(args.packageName);
       });
 
@@ -62,7 +62,7 @@ describe(Workspace, () => {
       foo.addDependency(baz);
 
       const order: string[] = [];
-      await workspace.runTasks([bar], "upstreamFirst", async (args) => {
+      await workspace.runTasks([bar], "upstreamFirst", 6, async (args) => {
         order.push(args.packageName);
       });
 

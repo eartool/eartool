@@ -1,4 +1,4 @@
-import { makeBatchCommand } from "@eartool/batch";
+import { makeBatchCommand, type WorkerData } from "@eartool/batch";
 import { dropDtsFiles, getSimplifiedNodeInfoAsString, maybeLoadProject } from "@eartool/utils";
 import type { Project, Signature, Type } from "ts-morph";
 import { SyntaxKind } from "ts-morph";
@@ -23,84 +23,88 @@ export const fooBatchCommand = makeBatchCommand(
           // extra.logger.info(extra.result);
         },
         order: "upstreamFirst",
+        runInlineFunc: async () => workerMain,
       };
     },
   },
   async () => {
     return {
-      default: async ({ packagePath, logger }) => {
-        const project = maybeLoadProject(packagePath);
-        if (!project) {
-          return;
-        }
-
-        dropDtsFiles(project);
-
-        // findOwnPropsAssignment(project, logger);
-
-        for (const sf of project.getSourceFiles()) {
-          for (const propAccessExpression of sf.getDescendantsOfKind(
-            SyntaxKind.PropertyAccessExpression
-          )) {
-            const name = propAccessExpression.getName();
-            if (name != "Props" && name != "OwnProps") {
-              continue;
-            }
-
-            // only handle simple cases
-            const lhs = propAccessExpression.getExpressionIfKind(SyntaxKind.Identifier);
-            if (!lhs) continue;
-            const decls = lhs.getSymbol()?.getDeclarations() ?? [];
-
-            logger.info(
-              "Found some:\n%s",
-              decls.map((d) => "   " + getSimplifiedNodeInfoAsString(d)).join("\n")
-            );
-
-            if (decls.length != 2) continue;
-
-            for (const d of decls) {
-              const callExpression = d
-                .asKind(SyntaxKind.VariableDeclaration)
-                ?.getInitializerIfKind(SyntaxKind.CallExpression);
-              if (!callExpression) continue;
-
-              logger.info("Found return type: %s", callExpression.getReturnType().getText());
-
-              const type = callExpression.getReturnType();
-
-              if (isReactComponent(type, logger)) {
-                logger.info(
-                  "call sigs: %s",
-                  type.getCallSignatures().flatMap((a) => a.getDeclaration().getText())
-                );
-              }
-
-              // const q = d.getSymbolsInScope(SymbolFlags.TypeLiteral);
-              // // q.find(a=>a.getName() == "React");
-              // logger.info("huh %s", q.map((a) => a.getName()).join("\n"));
-
-              // logger.info(
-              //   "Huh %s",
-              //   q
-              //     .map(
-              //       (a) =>
-              //         a.getName() +
-              //         " - " +
-              //         a
-              //           .getExportSymbol()
-              //           .getDeclarations()
-              //           .map((b) => b.getSourceFile().getFilePath())
-              //     )
-              //     .join(", ")
-              // );
-            }
-          }
-        }
-      },
+      default: workerMain,
     };
   }
 );
+
+async function workerMain({ packagePath, logger }: WorkerData<{}>): Promise<{}> {
+  const project = maybeLoadProject(packagePath);
+  if (!project) {
+    return {};
+  }
+
+  dropDtsFiles(project);
+
+  // findOwnPropsAssignment(project, logger);
+
+  for (const sf of project.getSourceFiles()) {
+    for (const propAccessExpression of sf.getDescendantsOfKind(
+      SyntaxKind.PropertyAccessExpression
+    )) {
+      const name = propAccessExpression.getName();
+      if (name != "Props" && name != "OwnProps") {
+        continue;
+      }
+
+      // only handle simple cases
+      const lhs = propAccessExpression.getExpressionIfKind(SyntaxKind.Identifier);
+      if (!lhs) continue;
+      const decls = lhs.getSymbol()?.getDeclarations() ?? [];
+
+      logger.info(
+        "Found some:\n%s",
+        decls.map((d) => "   " + getSimplifiedNodeInfoAsString(d)).join("\n")
+      );
+
+      if (decls.length != 2) continue;
+
+      for (const d of decls) {
+        const callExpression = d
+          .asKind(SyntaxKind.VariableDeclaration)
+          ?.getInitializerIfKind(SyntaxKind.CallExpression);
+        if (!callExpression) continue;
+
+        logger.info("Found return type: %s", callExpression.getReturnType().getText());
+
+        const type = callExpression.getReturnType();
+
+        if (isReactComponent(type, logger)) {
+          logger.info(
+            "call sigs: %s",
+            type.getCallSignatures().flatMap((a) => a.getDeclaration().getText())
+          );
+        }
+
+        // const q = d.getSymbolsInScope(SymbolFlags.TypeLiteral);
+        // // q.find(a=>a.getName() == "React");
+        // logger.info("huh %s", q.map((a) => a.getName()).join("\n"));
+
+        // logger.info(
+        //   "Huh %s",
+        //   q
+        //     .map(
+        //       (a) =>
+        //         a.getName() +
+        //         " - " +
+        //         a
+        //           .getExportSymbol()
+        //           .getDeclarations()
+        //           .map((b) => b.getSourceFile().getFilePath())
+        //     )
+        //     .join(", ")
+        // );
+      }
+    }
+  }
+  return {};
+}
 
 function _findOwnPropsAssignment(project: Project, logger: Logger) {
   for (const sf of project.getSourceFiles()) {

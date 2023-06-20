@@ -5,3 +5,4 @@ logs/
 **/src/**/*.log.json
 tsconfig.tsbuildinfo
 /config
+.log
