@@ -57,6 +57,9 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.1.3"
   },
-  "keywords": [],
-  "gitHead": "c7c041da0d27fad7b0cb282ae37f2151006f283d"
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "d4eb164a90e350622f9fa20c6bacfae7cb0215f8",
+  "keywords": []
 }

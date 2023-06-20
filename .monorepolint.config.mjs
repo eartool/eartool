@@ -24,6 +24,9 @@ export default {
             },
           },
           files: ["bin", "lib"],
+          publishConfig: {
+            access: "public",
+          },
         },
       },
     }),
