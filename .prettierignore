@@ -3,3 +3,4 @@ pnpm-lock.yaml
 /packages/*/lib/
 *.log.json
 tsconfig.json
+/.log/

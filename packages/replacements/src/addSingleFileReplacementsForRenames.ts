@@ -1,4 +1,3 @@
-import type { Logger } from "pino";
 import {
   SyntaxKind,
   type ExportDeclaration,

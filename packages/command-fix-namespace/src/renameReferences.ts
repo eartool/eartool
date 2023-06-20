@@ -1,6 +1,7 @@
 import * as Assert from "node:assert";
 import { Node, SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "@eartool/replacements";
+import { getProperRelativePathAsModuleSpecifierTo } from "@eartool/utils";
 import { getNewName } from "./getNewName.js";
 import { getRelevantNodeFromRefOrThrow } from "./getRelevantNodeFromRefOrThrow.js";
 
@@ -71,7 +72,8 @@ export function renameReferences(oldName: string, context: NamespaceContext) {
         start: 0,
         end: 0,
         filePath: referencingSf.getFilePath(),
-        newValue: `import { ${localName} as ${importName}} from "${referencingSf.getRelativePathAsModuleSpecifierTo(
+        newValue: `import { ${localName} as ${importName}} from "${getProperRelativePathAsModuleSpecifierTo(
+          referencingSf,
           namespaceDecl.getSourceFile()
         )}";`,
       });

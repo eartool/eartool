@@ -1,7 +1,6 @@
 import type { Replacements } from "@eartool/replacements";
-import type { FilePath } from "@eartool/utils";
+import { getProperRelativePathAsModuleSpecifierTo, type FilePath } from "@eartool/utils";
 import { type SourceFile } from "ts-morph";
-import { getProperRelativePathAsModuleSpecifierTo } from "./getProperRelativePathAsModuleSpecifierTo.js";
 
 export function addReexports(
   rootExports: Map<string, string>,

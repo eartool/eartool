@@ -1,4 +1,4 @@
-import { MessagePort } from "node:worker_threads";
+import type { MessagePort } from "node:worker_threads";
 import abstractTransport from "pino-abstract-transport";
 import { createLogger } from "../shared/createLogger.js";
 import type { Status } from "../shared/MessagesToMain.js";

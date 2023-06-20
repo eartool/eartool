@@ -13,7 +13,7 @@
     "debug:test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings --inspect-brk' jest --runInBand --detectOpenHandles",
     "lint": "eslint packages/*/src",
     "fixFormatting": "prettier --write .",
-    "precommit": "pnpm -r fixLint && pnpm fixFormatting"
+    "precommit": "pnpm lint --fix && pnpm fixFormatting"
   },
   "devDependencies": {
     "@monorepolint/cli": "^0.5.0-alpha.107",

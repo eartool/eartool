@@ -23,7 +23,6 @@ export function getPossibleFileLocations(
     );
 
     if (packageJson.type != "module") {
-      console.log(packageJson);
       throw new Error("importing a direct js file is a hack right now that requires modules");
     }
 

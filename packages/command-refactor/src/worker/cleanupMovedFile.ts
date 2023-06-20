@@ -1,5 +1,7 @@
+import * as path from "node:path";
 import { addImportOrExport, getDeclaration, getNamedSpecifiers } from "@eartool/replacements";
 import { SyntaxKind, type SourceFile } from "ts-morph";
+import { getProperRelativePathAsModuleSpecifierTo } from "@eartool/utils";
 import { getRootFile } from "../getRootFile.js";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 
@@ -18,11 +20,18 @@ export function cleanupMovedFile(ctx: WorkerPackageContext, sf: SourceFile) {
 
       for (const rootExportedDecl of rootExportedSymbol?.getDeclarations() ?? []) {
         if (rootExportedDecl.isKind(SyntaxKind.ExportSpecifier)) {
-          const newModuleSpecifier = rootExportedDecl
-            .getExportDeclaration()
-            .getModuleSpecifierValue()!;
+          const blh = rootExportedDecl.getExportDeclaration().getModuleSpecifierValue()!;
 
-          addImportOrExport(ctx.replacements, namedImport, undefined, newModuleSpecifier, false);
+          const fullPath = path.resolve(rootExportedDecl.getSourceFile().getDirectoryPath(), blh);
+
+          // this path needs to be relative to the file we are doing now, not the index.ts file
+          addImportOrExport(
+            ctx.replacements,
+            namedImport,
+            undefined,
+            getProperRelativePathAsModuleSpecifierTo(sf, fullPath),
+            false
+          );
         }
       }
 

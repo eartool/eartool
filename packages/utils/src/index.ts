@@ -6,6 +6,7 @@ export type { PackageJson } from "./PackageJson.js";
 export type { PackageName } from "./PackageName.js";
 export { createConsoleLogger } from "./createConsoleLogger.js";
 export { findNewNameInScope } from "./findNewNameInScope.js";
+export { getProperRelativePathAsModuleSpecifierTo } from "./getProperRelativePathAsModuleSpecifierTo.js";
 export { getSimplifiedNodeInfo, getSimplifiedNodeInfoAsString } from "./getSimplifiedNodeInfo.js";
 export { maybeLoadProject } from "./maybeLoadProject.js";
 export { dropDtsFiles } from "./tsmorph/dropDtsFiles.js";
