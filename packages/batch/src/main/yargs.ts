@@ -31,22 +31,20 @@ const standardBatchYargsOptions = {
     string: true,
     default: [] as string[],
     defaultDescription: "All packages",
-  },
-  // TODO move this out, it doesnt always make sense.
-  downstream: {
-    type: "boolean",
-    default: true,
+    hidden: true,
   },
   // TODO not all comamnds need this/support it
   progress: {
     type: "boolean",
-    default: true,
+    default: false,
   },
   // Same
   "dry-run": {
+    alias: "n",
     describe: "Whether to run without saving changes",
     type: "boolean",
     default: false,
+    implies: ["no-progress"],
   },
   verbose: {
     alias: "v",
@@ -54,9 +52,9 @@ const standardBatchYargsOptions = {
     count: true,
   },
   workers: {
-    alias: "p",
     number: true,
     default: os.cpus().length,
+    defaultDescription: `Number of CPUs (${os.cpus().length})`,
   },
 } as const satisfies { [key: string]: yargs.Options };
 
@@ -81,11 +79,13 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
   {
     name,
     description,
+    example,
     options,
     cliMain,
   }: {
     name: string;
     description: string;
+    example?: [string, string];
     options: O;
     cliMain: (
       args: yargs.ArgumentsCamelCase<yargs.InferredOptionTypes<O>> &
@@ -101,7 +101,12 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
       yargs.command(
         name,
         description,
-        (yargs) => yargs.options({ ...standardBatchYargsOptions, ...options }).strict(),
+        (yargs) => {
+          let ret = yargs.options({ ...standardBatchYargsOptions, ...options }).strict();
+          if (example) ret = ret.example(...example);
+
+          return ret;
+        },
         async (args) => {
           const batchJobOpts = await getBatchJobOptionsFromYargs(args);
 

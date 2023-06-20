@@ -68,18 +68,29 @@ Frameowkr right now doesn't let me iterate over the package set twice... so we c
 
 export const refactorCommand = makeBatchCommand(
   {
-    name: "refactor",
-    description: "refactor description",
+    name: "move-files",
+    description: "move files between packages without losing your mind",
+    example: [
+      "$0 move-files -f /full/path.ts -d @myorg/mypackage",
+      "Moves /full/path.ts and all its requirements to @myorg/mypackage",
+    ],
     options: {
       destination: {
+        alias: "d",
         description: "The package name to end on",
         string: true,
         demandOption: true,
+        group: "Required Options",
       },
       files: {
+        alias: "f",
         array: true,
         normalize: true,
         demandOption: true,
+        group: "Required Options",
+      },
+      startPackageNames: {
+        hidden: true,
       },
     },
     cliMain: async (args) => {
@@ -97,9 +108,7 @@ export async function cliMain(
   } & {
     readonly workspace: Promise<string>; // pretty sure the types are wrong and this is always resolved
     readonly from: string[];
-    readonly downstream: boolean;
     readonly progress: boolean;
-    readonly "dry-run": boolean;
     readonly dryRun: boolean;
     readonly verbose: number;
   } & { logger: Logger }

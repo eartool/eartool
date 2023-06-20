@@ -4,7 +4,6 @@ import type { Argv } from "yargs";
 import yargsEntry from "yargs";
 import { hideBin } from "yargs/helpers";
 import { registerFixNamespaceCommand } from "@eartool/command-fix-namespace";
-import { fooBatchCommand } from "@eartool/command-foo";
 import { refactorCommand } from "@eartool/command-refactor";
 
 type Fn = (a: Argv<NonNullable<unknown>>) => Argv<NonNullable<unknown>>;
@@ -14,7 +13,6 @@ export default async function cli() {
     (yargs) => yargs.config(),
     registerFixNamespaceCommand!,
     refactorCommand!,
-    fooBatchCommand!,
     (yargs) => yargs.strict().demandCommand().showHelpOnFail(true),
   ];
 

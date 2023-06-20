@@ -18,6 +18,17 @@ const options = {
     type: "boolean",
     default: true,
   },
+  from: {
+    describe: "",
+    array: true,
+    string: true,
+    default: [] as string[],
+    defaultDescription: "All packages",
+  },
+  downstream: {
+    type: "boolean",
+    default: true,
+  },
 } as const satisfies { [key: string]: yargs.Options };
 
 export default makeBatchCommand(
