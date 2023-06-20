@@ -1,6 +1,6 @@
 {
   "name": "eartool",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-alpha.6",
   "description": "",
   "author": "",
   "license": "MIT",
@@ -25,12 +25,12 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
-    "@eartool/command-fix-namespace": "^1.0.0-alpha.5",
-    "@eartool/command-foo": "^1.0.0-alpha.5",
-    "@eartool/command-refactor": "^1.0.0-alpha.5",
-    "@eartool/replacements": "^1.0.0-alpha.5",
-    "@eartool/test-utils": "^1.0.0-alpha.5",
-    "@eartool/utils": "^1.0.0-alpha.5",
+    "@eartool/command-fix-namespace": "^1.0.0-alpha.6",
+    "@eartool/command-foo": "^1.0.0-alpha.6",
+    "@eartool/command-refactor": "^1.0.0-alpha.6",
+    "@eartool/replacements": "^1.0.0-alpha.6",
+    "@eartool/test-utils": "^1.0.0-alpha.6",
+    "@eartool/utils": "^1.0.0-alpha.6",
     "@pnpm/filter-workspace-packages": "7.0.8",
     "@pnpm/find-workspace-packages": "^6.0.8",
     "@pnpm/workspace.pkgs-graph": "^2.0.4",
