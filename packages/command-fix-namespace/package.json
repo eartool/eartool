@@ -1,6 +1,6 @@
 {
   "name": "@eartool/command-fix-namespace",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "",
   "author": "",
   "license": "MIT",
@@ -24,10 +24,10 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
-    "@eartool/batch": "^1.0.0-alpha.4",
-    "@eartool/replacements": "^1.0.0-alpha.4",
-    "@eartool/test-utils": "^1.0.0-alpha.4",
-    "@eartool/utils": "^1.0.0-alpha.4",
+    "@eartool/batch": "^1.0.0-alpha.5",
+    "@eartool/replacements": "^1.0.0-alpha.5",
+    "@eartool/test-utils": "^1.0.0-alpha.5",
+    "@eartool/utils": "^1.0.0-alpha.5",
     "@pnpm/filter-workspace-packages": "7.0.8",
     "@pnpm/find-workspace-packages": "^6.0.8",
     "@pnpm/workspace.pkgs-graph": "^2.0.4",
