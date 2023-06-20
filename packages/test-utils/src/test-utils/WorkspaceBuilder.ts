@@ -1,6 +1,5 @@
 import * as path from "node:path";
 import { Workspace } from "@eartool/utils";
-import { createTestLogger } from "@eartool/test-utils";
 import {
   writePackageJson,
   type FilePath,
@@ -11,6 +10,7 @@ import {
 import type { Logger } from "pino";
 import type { Project } from "ts-morph";
 import { InMemoryFileSystemHost } from "ts-morph";
+import { createTestLogger } from "../createTestLogger.js";
 import { ProjectBuilder } from "./ProjectBuilder.js";
 
 type CreateProjectOpts = {

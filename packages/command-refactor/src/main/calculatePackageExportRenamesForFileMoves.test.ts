@@ -1,7 +1,6 @@
-import { createTestLogger } from "@eartool/test-utils";
+import { createTestLogger, WorkspaceBuilder } from "@eartool/test-utils";
 import type { PackageName } from "@eartool/utils";
 import { describe, expect, it } from "@jest/globals";
-import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
 import { SymbolRenames } from "./SymbolRenames.js";
 import { calculatePackageExportRenamesForFileMoves } from "./calculatePackageExportRenamesForFileMoves.js";
 import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";

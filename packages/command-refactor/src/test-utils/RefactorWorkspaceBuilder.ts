@@ -1,9 +1,8 @@
 import { SimpleReplacements } from "@eartool/replacements";
 import { type PackageContext } from "@eartool/utils";
-import { createTestLogger } from "@eartool/test-utils";
+import { createTestLogger, WorkspaceBuilder } from "@eartool/test-utils";
+import { type PackageContextFactory } from "@eartool/test-utils";
 import type { WorkerPackageContext } from "../worker/WorkerPackageContext.js";
-import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
-import { type PackageContextFactory } from "./WorkspaceBuilder.js";
 
 export class RefactorWorkspaceBuilder extends WorkspaceBuilder<WorkerPackageContext> {
   constructor(workspacePath: string) {

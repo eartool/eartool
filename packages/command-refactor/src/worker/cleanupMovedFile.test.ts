@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
+import { WorkspaceBuilder } from "@eartool/test-utils";
 import { cleanupMovedFile } from "./cleanupMovedFile.js";
 import { createCtxHelperFunctions } from "./createCtxHelperFunctions.js";
 import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
