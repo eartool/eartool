@@ -1,19 +1,30 @@
 import * as path from "node:path";
 import { Workspace } from "@eartool/batch";
 import { createTestLogger } from "@eartool/test-utils";
-import { writePackageJson, type FilePath, type PackageName, readPackageJson } from "@eartool/utils";
+import {
+  writePackageJson,
+  type FilePath,
+  type PackageName,
+  readPackageJson,
+  type PackageContext,
+} from "@eartool/utils";
 import type { Logger } from "pino";
 import type { Project } from "ts-morph";
 import { InMemoryFileSystemHost } from "ts-morph";
-import { SimpleReplacements } from "@eartool/replacements";
-import type { WorkerPackageContext } from "../worker/WorkerPackageContext.js";
 import { ProjectBuilder } from "./ProjectBuilder.js";
 
 type CreateProjectOpts = {
   esm?: boolean;
 };
 
-export class WorkspaceBuilder {
+export type PackageContextFactory<T extends PackageContext> = (args: {
+  name: PackageName;
+  logger: Logger;
+  workspace: Workspace;
+  projectLoader: (packagePath: FilePath) => Project | undefined;
+}) => T;
+
+export class WorkspaceBuilder<T extends PackageContext> {
   #fs: InMemoryFileSystemHost;
   #logger: Logger;
   #packageNameToProject = new Map<PackageName, Project>();
@@ -21,12 +32,14 @@ export class WorkspaceBuilder {
   #workspace: Workspace;
   #deferredDependency: Array<[PackageName, PackageName]> = [];
   #workspacePath: FilePath;
+  #packageContextFactory: PackageContextFactory<T>;
 
-  constructor(workspacePath: FilePath) {
+  constructor(workspacePath: FilePath, packageContextFactory: PackageContextFactory<T>) {
     this.#logger = createTestLogger();
     this.#fs = new InMemoryFileSystemHost();
     this.#workspace = new Workspace();
     this.#workspacePath = workspacePath;
+    this.#packageContextFactory = packageContextFactory;
   }
 
   createProject(
@@ -109,19 +122,9 @@ export class WorkspaceBuilder {
       workspace,
       workspacePath: this.#workspacePath,
       projectLoader,
-      getWorkerPackageContext: function getWorkerPackageContext(name: string) {
-        const packageInfo = workspace.getPackageByNameOrThrow(name);
-        const project = projectLoader(packageInfo.packagePath)!;
+      getPackageContext: (name: string) => {
         const logger = createTestLogger();
-
-        const packageContext: WorkerPackageContext = {
-          logger: createTestLogger(),
-          packageName: packageInfo.name,
-          packagePath: packageInfo.packagePath,
-          project,
-          replacements: new SimpleReplacements(logger),
-        };
-        return packageContext;
+        return this.#packageContextFactory({ name, logger, workspace, projectLoader });
       },
     };
   }

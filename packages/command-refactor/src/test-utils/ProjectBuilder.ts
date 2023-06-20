@@ -7,9 +7,9 @@ export class ProjectBuilder {
   #project: Project;
   #packagePath: FilePath;
   #packageName: PackageName;
-  #workspace: WorkspaceBuilder;
+  #workspace: WorkspaceBuilder<any>;
 
-  constructor(packageName: PackageName, packagePath: FilePath, workspace: WorkspaceBuilder) {
+  constructor(packageName: PackageName, packagePath: FilePath, workspace: WorkspaceBuilder<any>) {
     this.#project = new Project({
       // skipAddingFilesFromTsConfig: true,
       tsConfigFilePath: path.join(packagePath, "tsconfig.json"),

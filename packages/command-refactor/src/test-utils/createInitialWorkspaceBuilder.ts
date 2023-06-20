@@ -1,4 +1,4 @@
-import { WorkspaceBuilder } from "./WorkspaceBuilder.js";
+import { RefactorWorkspaceBuilder } from "./RefactorWorkspaceBuilder.js";
 
 export function createInitialWorkspaceBuilder(esm = false) {
   // app -> api -> state
@@ -9,7 +9,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
 
   const ext = esm ? ".js" : "";
 
-  return new WorkspaceBuilder("/workspace/")
+  return new RefactorWorkspaceBuilder("/workspace/")
     .createProject("test-utils", { esm }, (p) => {
       p.addFile(
         "src/index.ts",

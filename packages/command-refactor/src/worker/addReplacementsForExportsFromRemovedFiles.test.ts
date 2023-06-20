@@ -1,14 +1,14 @@
 import { processReplacements } from "@eartool/replacements";
 import { formatTestTypescript } from "@eartool/test-utils";
 import { describe, expect, it } from "@jest/globals";
-import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
 import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
+import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 
 describe(addReplacementsForExportsFromRemovedFiles, () => {
   it("works", () => {
     const PACKAGE_NAME = "foo";
 
-    const { workspace, projectLoader, getWorkerPackageContext } = new WorkspaceBuilder("/workspace")
+    const { getPackageContext } = new RefactorWorkspaceBuilder("/workspace")
       .createProject(PACKAGE_NAME, (p) => {
         p.addFile(
           "src/foo.ts",
@@ -34,7 +34,7 @@ describe(addReplacementsForExportsFromRemovedFiles, () => {
 
     const name = PACKAGE_NAME;
 
-    const ctx = getWorkerPackageContext(name);
+    const ctx = getPackageContext(name);
 
     addReplacementsForExportsFromRemovedFiles(ctx, [`/workspace/${PACKAGE_NAME}/src/bar.ts`]);
 

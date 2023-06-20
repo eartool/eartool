@@ -413,7 +413,7 @@ async function standardProcessPackageReplacmements(
   packageName: string,
   extraPackages: string[] = []
 ) {
-  const ctx = result.getWorkerPackageContext(packageName);
+  const ctx = result.getPackageContext(packageName);
 
   const jobArgs = getJobArgs(packageName, result, result.setupResults);
 
@@ -455,7 +455,7 @@ async function standardSetup(
   );
 
   const helpersForPackage = (packageName: string) =>
-    createCtxHelperFunctions(builtResults.getWorkerPackageContext(packageName));
+    createCtxHelperFunctions(builtResults.getPackageContext(packageName));
 
   return { ...builtResults, logger, setupResults, destination, helpersForPackage };
 }

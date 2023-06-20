@@ -1,10 +1,10 @@
 import { describe, it, expect } from "@jest/globals";
-import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
 import { getFileContentsRelatively } from "./getFileContentsRelatively.js";
+import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 
 describe(getFileContentsRelatively, () => {
   it("asdf a named import module specifier ", () => {
-    const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
+    const { workspace, projectLoader } = new RefactorWorkspaceBuilder("/workspace")
       .createProject("merp", (p) => {
         p.addFile("src/foo.ts", `export const foo = 5;`);
       })

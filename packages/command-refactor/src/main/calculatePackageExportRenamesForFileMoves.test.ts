@@ -4,11 +4,12 @@ import { describe, expect, it } from "@jest/globals";
 import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
 import { SymbolRenames } from "./SymbolRenames.js";
 import { calculatePackageExportRenamesForFileMoves } from "./calculatePackageExportRenamesForFileMoves.js";
+import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 
 const PACKAGE_NAME: PackageName = "mypackage";
 describe(calculatePackageExportRenamesForFileMoves, () => {
   it("handles a named import module specifier ", () => {
-    const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
+    const { workspace, projectLoader } = new RefactorWorkspaceBuilder("/workspace")
       .createProject(PACKAGE_NAME, (p) => {
         p.addFile(
           "src/foo.ts",
@@ -99,7 +100,7 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
   });
 
   it("drags a file with it that isn't reexported", () => {
-    const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
+    const { workspace, projectLoader } = new RefactorWorkspaceBuilder("/workspace")
       .createProject(PACKAGE_NAME, (p) => {
         p.addFile(
           "src/foo.ts",
@@ -166,7 +167,7 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
   });
 
   it("drags a file with it that is reexported", () => {
-    const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
+    const { workspace, projectLoader } = new RefactorWorkspaceBuilder("/workspace")
       .createProject(PACKAGE_NAME, (p) => {
         p.addFile(
           "src/foo.ts",

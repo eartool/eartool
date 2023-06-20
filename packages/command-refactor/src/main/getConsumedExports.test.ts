@@ -1,7 +1,7 @@
 import { createProjectForTest } from "@eartool/test-utils";
 import { describe, expect, it } from "@jest/globals";
-import { WorkspaceBuilder } from "../test-utils/WorkspaceBuilder.js";
 import { getConsumedExports } from "./getConsumedExports.js";
+import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 
 describe(getConsumedExports, () => {
   it("idk", () => {
@@ -84,7 +84,7 @@ describe(getConsumedExports, () => {
   });
 
   it("renames a named import module specifier ", () => {
-    const { workspace, projectLoader } = new WorkspaceBuilder("/workspace")
+    const { workspace, projectLoader } = new RefactorWorkspaceBuilder("/workspace")
       .createProject("foo", (p) => {
         p.addFile(
           "src/foo.ts",
