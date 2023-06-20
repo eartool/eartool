@@ -1,11 +1,11 @@
 import { Worker } from "node:worker_threads";
 import * as path from "node:path";
 import type { Level, Logger } from "pino";
+import { createWorkspaceFromDisk } from "@eartool/utils";
 import * as MessagesToMain from "../shared/MessagesToMain.js";
 import { type WireWorkerData, type WorkerFunc } from "../worker/setupWorker.js";
 import { runWorker } from "../worker/runWorker.js";
 import type { JobDef } from "../shared/JobDef.js";
-import { createWorkspaceFromDisk } from "./createWorkspaceFromDisk.js";
 import type { Progress } from "./progress/Progress.js";
 import { NoopProgress } from "./progress/NoopProgress.js";
 import { RealProgress } from "./progress/RealProgress.js";

@@ -1,7 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { makeBatchCommand } from "@eartool/batch";
-import { createWorkspaceFromDisk, type JobSpec } from "@eartool/batch";
+import { type JobSpec } from "@eartool/batch";
+import { createWorkspaceFromDisk } from "@eartool/utils";
 import { maybeLoadProject, type PackageJson } from "@eartool/utils";
 import type { Logger } from "pino";
 import { setupOverall } from "./main/setupOverall.js";

@@ -4,8 +4,3 @@ export type { WorkerData } from "./worker/setupWorker.js";
 export { setupWorker } from "./worker/setupWorker.js";
 export type { JobDef } from "./shared/JobDef.js";
 export { makeBatchCommand } from "./main/yargs.js";
-
-// TODO: Move to own package?
-export { createWorkspaceFromDisk } from "./main/createWorkspaceFromDisk.js";
-export type { DependencyDirection } from "./main/WorkspaceInfo.js";
-export { Workspace } from "./main/WorkspaceInfo.js";

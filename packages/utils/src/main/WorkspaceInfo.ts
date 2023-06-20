@@ -1,6 +1,7 @@
 import * as Assert from "node:assert";
 import PQueue from "p-queue";
-import type { FilePath, PackageName } from "@eartool/utils";
+import type { FilePath } from "../FilePath.js";
+import type { PackageName } from "../PackageName.js";
 
 export type DependencyDirection = "downstream" | "upstream" | "sideways";
 

@@ -1,5 +1,4 @@
-import type { Workspace } from "@eartool/batch";
-import type { FilePath } from "@eartool/utils";
+import type { Workspace, FilePath } from "@eartool/utils";
 import { SetMultimap } from "@teppeis/multimaps";
 import type { PackageName } from "../shared/PackageName.js";
 

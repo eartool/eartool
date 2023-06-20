@@ -1,5 +1,5 @@
 import * as path from "node:path";
-import { Workspace } from "@eartool/batch";
+import { Workspace } from "@eartool/utils";
 import { createTestLogger } from "@eartool/test-utils";
 import {
   writePackageJson,

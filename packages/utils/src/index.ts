@@ -20,3 +20,6 @@ export type { NamespaceLike, NamespaceLikeVariableDeclaration } from "./tsmorph/
 export { isRootExport } from "./tsmorph/isRootExport.js";
 export { organizeImportsOnFiles } from "./tsmorph/organizeImportsOnFiles.js";
 export { createLogger } from "./shared/createLogger.js";
+export type { DependencyDirection } from "./main/WorkspaceInfo.js";
+export { Workspace } from "./main/WorkspaceInfo.js";
+export { createWorkspaceFromDisk } from "./main/createWorkspaceFromDisk.js";

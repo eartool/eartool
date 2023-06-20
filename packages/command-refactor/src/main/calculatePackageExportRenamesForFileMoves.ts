@@ -1,7 +1,6 @@
 import * as Assert from "node:assert";
 import * as path from "node:path";
-import type { DependencyDirection } from "@eartool/batch";
-import type { FilePath, PackageName } from "@eartool/utils";
+import type { DependencyDirection, FilePath, PackageName } from "@eartool/utils";
 import type { Logger } from "pino";
 import type { Project, SourceFile } from "ts-morph";
 import { getRootFile } from "../getRootFile.js";

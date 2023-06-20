@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { Workspace } from "./WorkspaceInfo.js";
+import { Workspace } from "@eartool/utils";
 
 describe(Workspace, () => {
   describe("getPackageDirection", () => {
