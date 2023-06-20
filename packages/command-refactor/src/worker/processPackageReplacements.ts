@@ -4,7 +4,7 @@ import {
   processReplacements,
   type PackageExportRenames,
 } from "@eartool/replacements";
-import type { FilePath } from "@eartool/utils";
+import type { FilePath, PackageContext } from "@eartool/utils";
 import type { SourceFile } from "ts-morph";
 import type { RelativeFileInfo } from "../main/setupOverall.js";
 import { getRootFile } from "../getRootFile.js";
@@ -13,7 +13,6 @@ import { cleanupMovedFile } from "./cleanupMovedFile.js";
 import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
 import { addReexports } from "./addReexports.js";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
-import type { PackageContext } from "../../../utils/src/PackageContext.js";
 
 export interface FileContext extends PackageContext {
   sf: SourceFile;
