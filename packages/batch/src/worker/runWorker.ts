@@ -15,18 +15,21 @@ export async function runWorker<Q extends JobDef<any, any>>(
 
   const logger = createMessagePortForwardingLogger(port, logDir);
 
-  const result = await worker(
-    {
-      ...jobData,
-      logger,
-      updateStatus: (status: Status) => {
-        port.postMessage(MessagesToMain.updateStatus(status));
+  try {
+    const result = await worker(
+      {
+        ...jobData,
+        logger,
+        updateStatus: (status: Status) => {
+          port.postMessage(MessagesToMain.updateStatus(status));
+        },
       },
-    },
-    port
-  );
-
-  port.postMessage(MessagesToMain.workComplete(result));
+      port
+    );
+    port.postMessage(MessagesToMain.workComplete({ status: "success", result }));
+  } catch (err) {
+    port.postMessage(MessagesToMain.workComplete({ status: "failed", error: err }));
+  }
 }
 function createMessagePortForwardingLogger(port: MessagePort, logDir: string) {
   const realAbstractTransport =

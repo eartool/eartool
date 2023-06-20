@@ -40,11 +40,11 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
   logger: Logger,
   jobSpec: JobSpec<Q["__ArgsType"], Q["__ResultType"]>
 ) {
+  const progress: Progress = opts.progress ? new RealProgress() : new NoopProgress();
+
   const { workspaceDir } = opts;
   // we have at least 11 under a normal run on my mac. it doesn't grow, we arent leaking
   process.setMaxListeners(20);
-
-  const progress: Progress = opts.progress ? new RealProgress() : new NoopProgress();
 
   const workspace = await createWorkspaceFromDisk(workspaceDir);
   const startNodeLookups = opts.startPackageNames.map((name) => ({ name }));
@@ -68,15 +68,23 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
         logger.trace("Skipping with result for %s", packageName);
       }
 
-      const result = maybeSkipWithResult ?? (await runInWorker(jobInfo));
+      try {
+        const result = maybeSkipWithResult ?? (await runInWorker(jobInfo));
 
-      if (jobSpec.onComplete) {
-        logger.trace("Calling onComplete for %s %o", packageName);
-        await jobSpec.onComplete(jobInfo, { logger, result });
+        if (jobSpec.onComplete) {
+          logger.trace("Calling onComplete for %s %o", packageName);
+          await jobSpec.onComplete(jobInfo, { logger, result });
+        }
+
+        progress.completeProject(packageName);
+        logger.trace("Done with %s", packageName);
+      } catch (err) {
+        logger.flush();
+        throw new AggregateError(
+          [err],
+          `Failed while trying to run job for ${jobInfo.packagePath}`
+        );
       }
-
-      progress.completeProject(packageName);
-      logger.trace("Done with %s", packageName);
     }
   );
 
@@ -96,7 +104,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
     logger.debug("Forking worker for %s", packageName);
 
     const { port1: myPort, port2: theirPort } = new MessageChannel();
-    const result = new Promise<Q["__ResultType"]>((resolve) => {
+    const result = new Promise<Q["__ResultType"]>((resolve, reject) => {
       myPort.addListener("message", (message) => {
         if (MessagesToMain.log.match(message)) {
           const { level, msg, ...remaining } = message.payload;
@@ -118,7 +126,12 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
         } else if (MessagesToMain.workComplete.match(message)) {
           logger.trace("Recieved workComplete form worker %s, %o", packagePath, message.payload);
 
-          resolve(message.payload);
+          if (message.payload.status == "success") {
+            resolve(message.payload.result);
+          } else {
+            logger.fatal(message.payload.error);
+            reject(message.payload.error);
+          }
           return;
         } else {
           // UNKNOWN MESSAGE!!

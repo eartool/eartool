@@ -8,7 +8,9 @@ export interface Status {
 
 export const updateStatus = createAction<Status>("ToMain-UpdateStatus");
 
-export const workComplete = createAction<unknown>("ToMain-WorkComplete");
+export const workComplete = createAction<
+  { status: "success"; result: unknown } | { status: "failed"; error: unknown }
+>("ToMain-WorkComplete");
 
 interface LogMessageShape extends Record<string, unknown> {
   level: number;

@@ -1,5 +1,5 @@
 import * as path from "node:path";
-import { addImportOrExport, getDeclaration, getNamedSpecifiers } from "@eartool/replacements";
+import { addImportOrExport, getNamedSpecifiers } from "@eartool/replacements";
 import { SyntaxKind, type SourceFile } from "ts-morph";
 import { getProperRelativePathAsModuleSpecifierTo } from "@eartool/utils";
 import { getRootFile } from "../getRootFile.js";
@@ -13,6 +13,7 @@ export function cleanupMovedFile(ctx: WorkerPackageContext, sf: SourceFile) {
   ];
 
   for (const decl of decls) {
+    ctx.logger.debug("handling %s", decl.getText());
     for (const namedImport of getNamedSpecifiers(decl)) {
       const rootExportedSymbol = rootFile
         ?.getExportSymbols()
@@ -34,9 +35,10 @@ export function cleanupMovedFile(ctx: WorkerPackageContext, sf: SourceFile) {
           );
         }
       }
-
-      ctx.replacements.deleteNode(getDeclaration(namedImport));
     }
+
+    ctx.replacements.deleteNode(decl);
+    // deleted.add(getDeclaration().)
     if (decl.isKind(SyntaxKind.ImportDeclaration) && decl.getDefaultImport()) {
       throw new Error("not implemented");
     }

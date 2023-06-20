@@ -183,6 +183,8 @@ function getPackageVersions(
     for (const depType of ["dependencies", "devDependencies"] as const) {
       if (assignDepVersion(packageFile, depType, depName, ret)) success = true;
       if (assignDepVersion(packageFile, depType, `@types/${depName}`, ret)) success = true;
+      if (depName.startsWith("node:") && assignDepVersion(packageFile, depType, "@types/node", ret))
+        success = true;
     }
     if (!success) {
       logger.warn("Failed to find a dependency version for `%s`", depName);

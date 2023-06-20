@@ -92,7 +92,7 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
         StandardBatchArgs & { logger: Logger }
     ) => Promise<Omit<JobSpec<W, R>, "runInlineFunc">>;
   },
-  workerMain: () => Promise<{
+  loadWorkerMain: () => Promise<{
     default: (workerArgs: WorkerData<W>, port: MessagePort) => Promise<R>;
   }>
 ) {
@@ -123,7 +123,7 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
 
           await runBatchJob<JobDef<W, R>>(await getBatchJobOptionsFromYargs(args), logger, {
             ...q,
-            runInlineFunc: async () => (await workerMain()).default,
+            runInlineFunc: async () => (await loadWorkerMain()).default,
             getJobArgs(info) {
               return {
                 ...q.getJobArgs(info),
@@ -135,7 +135,7 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
       );
   } else {
     if (workerData.jobArgs.__specialCommandCheck === name) {
-      workerMain().then((a) => setupWorker(a.default));
+      loadWorkerMain().then((a) => setupWorker(a.default));
       // setupWorker((await workerMain()).default);
     }
   }

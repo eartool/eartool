@@ -1,4 +1,4 @@
-import * as Assert from "assert";
+import * as Assert from "node:assert";
 import PQueue from "p-queue";
 import type { FilePath, PackageName } from "@eartool/utils";
 

@@ -15,20 +15,21 @@ describe(cleanupMovedFile, () => {
         p.addFile(
           "src/foo.ts",
           `
-            import {bar} from "foo";
-            export const foo = bar;
+            import {bar, baz} from "foo";
+            export const foo = bar + baz;
           `
         )
           .addFile(
             "src/bar.ts",
             `
               export const bar = 5;
+              export const baz = 6;
             `
           )
           .addFile(
             "src/index.ts",
             `
-              export {bar} from "./bar";
+              export {bar, baz} from "./bar";
             `
           );
       })
@@ -46,7 +47,8 @@ describe(cleanupMovedFile, () => {
       //
 
       import { bar } from "./bar";
-      export const foo = bar;
+      import { baz } from "./bar";
+      export const foo = bar + baz;
 
       //
       // </>: /workspace/foo/src/foo.ts

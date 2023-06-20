@@ -13,7 +13,12 @@ export function processReplacements(project: Project, replacementsMap: Map<strin
     const parts = [];
     let prevEnd = 0;
     for (const replacement of sortedReplacements) {
-      if (prevEnd > replacement.start) throw new Error("invairant violated");
+      if (prevEnd > replacement.start)
+        throw new Error(
+          `invairant violated. overlapping replacements arent allowed. check: ${JSON.stringify(
+            sortedReplacements
+          )}`
+        );
       parts.push(original.slice(prevEnd, replacement.start));
       parts.push(replacement.newValue);
       prevEnd = replacement.end;
