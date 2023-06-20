@@ -28,3 +28,4 @@ export { getNamedSpecifiers } from "./getNamedSpecifiers.js";
 export { getNamespaceIdentifier } from "./getNamespaceIdentifier.js";
 export { getNamespaceIdentifierOrExport } from "./getNamespaceIdentifierOrExport.js";
 export { getPossibleFileLocations } from "./getPossibleFileLocations.js";
+export { getRootFile } from "./getRootFile.js";

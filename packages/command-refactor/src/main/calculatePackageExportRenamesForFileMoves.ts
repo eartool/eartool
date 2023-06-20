@@ -3,7 +3,7 @@ import * as path from "node:path";
 import type { DependencyDirection, FilePath, PackageName } from "@eartool/utils";
 import type { Logger } from "pino";
 import type { Project, SourceFile } from "ts-morph";
-import { getRootFile } from "../getRootFile.js";
+import { getRootFile } from "@eartool/utils";
 import type { SymbolRenames } from "./SymbolRenames.js";
 import { getConsumedExports as getConsumedImportsAndExports } from "./getConsumedExports.js";
 

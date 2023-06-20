@@ -1,5 +1,5 @@
 import type { FilePath } from "@eartool/utils";
-import { getRootFile } from "../getRootFile.js";
+import { getRootFile } from "@eartool/utils";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 
 export function addReplacementsForExportsFromRemovedFiles(

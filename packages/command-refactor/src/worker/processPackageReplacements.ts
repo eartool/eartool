@@ -6,8 +6,8 @@ import {
 } from "@eartool/replacements";
 import type { FilePath, PackageContext } from "@eartool/utils";
 import type { SourceFile } from "ts-morph";
+import { getRootFile } from "@eartool/utils";
 import type { RelativeFileInfo } from "../main/setupOverall.js";
-import { getRootFile } from "../getRootFile.js";
 import { removeFilesIfInProject } from "./removeFilesIfInProject.js";
 import { cleanupMovedFile } from "./cleanupMovedFile.js";
 import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
