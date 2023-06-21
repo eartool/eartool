@@ -1,6 +1,6 @@
 {
   "name": "@eartool/batch",
-  "version": "1.0.0-alpha.6",
+  "version": "0.1.0",
   "description": "",
   "author": "",
   "license": "MIT",
@@ -24,7 +24,7 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
-    "@eartool/utils": "^1.0.0-alpha.6",
+    "@eartool/utils": "workspace:*",
     "@pnpm/filter-workspace-packages": "7.0.8",
     "@pnpm/find-workspace-dir": "^6.0.2",
     "@pnpm/find-workspace-packages": "^6.0.8",
