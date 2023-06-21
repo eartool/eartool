@@ -44,7 +44,6 @@ const standardBatchYargsOptions = {
     describe: "Whether to run without saving changes",
     type: "boolean",
     default: false,
-    implies: ["no-progress"],
   },
   verbose: {
     alias: "v",
