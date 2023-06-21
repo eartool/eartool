@@ -46,6 +46,6 @@ jobs:
 
       - name: Publish snapshot if needed
         if: steps.changesets.outputs.published != 'true'
-        run: pnpm ci:release-snapshot
+        run: pnpm ci:publish-snapshot
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
