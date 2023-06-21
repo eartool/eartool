@@ -21,6 +21,7 @@
     "fixAll": "pnpm fixFormatting && pnpm fixLint",
     "fixFormatting": "prettier --write .",
     "fixLint": "eslint --fix src",
+    "prepublishOnly": "tsc --build",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {

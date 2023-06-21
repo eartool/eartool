@@ -9,9 +9,9 @@
   ],
   "scripts": {
     "ci:publish": "pnpm publish -r --tag next --access public --report-summary.json",
-    "ci:publish-snapshot": "pnpm changeset version --snapshot && pnpm publish -r --tag snapshot --access public --report-summary --no-git-checks",
+    "ci:publish-snapshot": "pnpm prepublishOnly && pnpm check:eslint && pnpm changeset version --snapshot && pnpm publish -r --tag snapshot --access public --report-summary --no-git-checks --dry-run",
     "cloc": "cloc --exclude-ext=yaml --exclude-ext=log --exclude-ext=txt --exclude-ext=json --match-d='src' --fullpath --not-match-d='node_modules|lib'  . ",
-    "prepublishOnly": "pnpm run build && pnpm run check:jest",
+    "prepublishOnly": "pnpm run build && pnpm run check:jest && pnpm run check:prettier && pnpm run check:eslint",
     "build": "tsc --build packages/*/tsconfig.json",
     "check:prettier": "prettier --check .",
     "check:jest": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest",
@@ -23,12 +23,12 @@
     "precommit": "pnpm lint --fix && pnpm fixFormatting"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.1",
     "@monorepolint/cli": "^0.5.0-alpha.107",
     "@monorepolint/config": "^0.5.0-alpha.107",
     "@monorepolint/core": "^0.5.0-alpha.107",
     "@monorepolint/rules": "^0.5.0-alpha.107",
     "@swc/jest": "^0.2.26",
-    "@changesets/cli": "^2.26.1",
     "@typescript-eslint/eslint-plugin": "^5.60.0",
     "@typescript-eslint/parser": "^5.60.0",
     "babel-jest": "^29.5.0",

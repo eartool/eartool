@@ -35,6 +35,10 @@ export default {
         scripts: {
           clean: "rm -rf lib tsconfig.tsbuildinfo",
           deepClean: "rm -rf lib tsconfig.tsbuildinfo",
+          "check:prettier": { options: [], fixValue: undefined },
+          "check:jest": { options: [], fixValue: undefined },
+          "check:eslint": { options: [], fixValue: undefined },
+          prepublishOnly: "tsc --build",
         },
       },
     }),
