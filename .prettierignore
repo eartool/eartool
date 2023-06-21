@@ -4,3 +4,4 @@ pnpm-lock.yaml
 *.log.json
 tsconfig.json
 /.log/
+pnpm-publish-summary.json
