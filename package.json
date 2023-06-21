@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "ci:publish": "pnpm publish -r --tag next --access public --report-summary.json",
-    "ci:publish-snapshot": "pnpm changeset version --snapshot && pnpm publish -r --tag snapshot --access public --report-summary.json",
+    "ci:publish-snapshot": "pnpm changeset version --snapshot && pnpm publish -r --tag snapshot --access public --report-summary",
     "cloc": "cloc --exclude-ext=yaml --exclude-ext=log --exclude-ext=txt --exclude-ext=json --match-d='src' --fullpath --not-match-d='node_modules|lib'  . ",
     "prepublishOnly": "pnpm run build && pnpm run check:jest",
     "build": "tsc --build packages/*/tsconfig.json",
