@@ -27,7 +27,7 @@ jobs:
       - name: Install Deps
         #run: pnpm ci
         run: pnpm install
-      - run: pnpm run build --if-present
+      - run: pnpm run build
       - run: pnpm test
       - run: pnpm check:prettier
       - run: pnpm check:eslint
