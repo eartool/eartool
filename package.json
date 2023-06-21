@@ -8,6 +8,7 @@
     "lib"
   ],
   "scripts": {
+    "ci:publish": "pnpm publish -r --tag next --access public --report-summary.json",
     "cloc": "cloc --exclude-ext=yaml --exclude-ext=log --exclude-ext=txt --exclude-ext=json --match-d='src' --fullpath --not-match-d='node_modules|lib'  . ",
     "build": "tsc --build packages/*/tsconfig.json",
     "check:prettier": "prettier --check .",
