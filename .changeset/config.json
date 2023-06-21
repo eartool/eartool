@@ -8,5 +8,9 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "bumpVersionsWithWorkspaceProtocolOnly": true,
+  "snapshot": {
+    "useCalculatedVersion": true,
+    "prereleaseTemplate": "snapshot-{datetime}-{commit}"
+  },
   "ignore": []
 }
