@@ -16,7 +16,8 @@ export default async function cli() {
     (yargs) => yargs.strict().demandCommand().showHelpOnFail(true),
   ];
 
-  return await cmds
-    .reduce((yargs, curCommand) => curCommand(yargs), yargsEntry(hideBin(process.argv)))
-    .parseAsync();
+  const rootYargs = yargsEntry(hideBin(process.argv));
+  rootYargs.wrap(rootYargs.terminalWidth());
+
+  return await cmds.reduce((yargs, curCommand) => curCommand(yargs), rootYargs).parseAsync();
 }
