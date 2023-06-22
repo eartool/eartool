@@ -19,7 +19,7 @@
     "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest",
     "debug:test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings --inspect-brk' jest --runInBand --detectOpenHandles",
     "lint": "eslint packages/*/src",
-    "fixFormatting": "prettier --write .",
+    "fixFormatting": "prettier --loglevel warn --write .",
     "precommit": "pnpm lint --fix && pnpm fixFormatting",
     "prepare": "husky install"
   },
