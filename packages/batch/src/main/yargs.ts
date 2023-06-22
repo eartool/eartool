@@ -50,6 +50,11 @@ const standardBatchYargsOptions = {
     boolean: true,
     count: true,
   },
+  "organize-imports": {
+    describe: "Whether or not to organise imports",
+    type: "boolean",
+    default: true,
+  },
   workers: {
     number: true,
     default: os.cpus().length,

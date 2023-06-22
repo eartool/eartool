@@ -12,12 +12,6 @@ const options = {
     type: "boolean",
     default: true,
   },
-
-  "organize-imports": {
-    describe: "Whether or not to organise imports",
-    type: "boolean",
-    default: true,
-  },
   from: {
     describe: "",
     array: true,

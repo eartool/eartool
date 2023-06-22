@@ -85,9 +85,13 @@ export const refactorCommand = makeBatchCommand(
       files: {
         alias: "f",
         array: true,
-        normalize: true,
+        string: true,
+        // normalize: true,
         demandOption: true,
         group: "Required Options",
+        coerce(arg: string[]) {
+          return arg.map((file) => path.resolve(file));
+        },
       },
       startPackageNames: {
         hidden: true,
@@ -111,6 +115,7 @@ export async function cliMain(
     readonly progress: boolean;
     readonly dryRun: boolean;
     readonly verbose: number;
+    readonly organizeImports: boolean;
   } & { logger: Logger }
 ): Promise<Omit<JobSpec<JobArgs, {}>, "runInlineFunc">> {
   const workspace = await createWorkspaceFromDisk(await args.workspace);

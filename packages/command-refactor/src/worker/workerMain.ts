@@ -70,7 +70,7 @@ export default async function workerMain({
 
     if (shouldOrganizeImports) {
       logger.debug("Organizing imports");
-      organizeImportsOnFiles(project, changedFiles);
+      organizeImportsOnFiles(project, changedFiles, false);
     }
 
     if (dryRun) {

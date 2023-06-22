@@ -1,7 +1,11 @@
 import type { Project } from "ts-morph";
 
-export function organizeImportsOnFiles(project: Project, changedFilesIter: Iterable<string>) {
+export function organizeImportsOnFiles(
+  project: Project,
+  changedFilesIter: Iterable<string>,
+  throwOnMissing = false
+) {
   for (const filePath of changedFilesIter) {
-    project.getSourceFileOrThrow(filePath).organizeImports();
+    project[throwOnMissing ? "getSourceFileOrThrow" : "getSourceFile"](filePath)?.organizeImports();
   }
 }

@@ -5,7 +5,7 @@ import type { RelativeFileInfo, SetupResults } from "./setupOverall.js";
 
 export function getJobArgs(
   packageName: string,
-  args: { destination: string } & { logger: Logger },
+  args: { destination: string; organizeImports: boolean } & { logger: Logger },
   {
     direction: _direction,
     packageExportRenamesMap,
@@ -25,6 +25,6 @@ export function getJobArgs(
     filesToRemove: packageNameToFilesToMove.get(packageName),
     destination: args.destination,
     primaryPackages,
-    shouldOrganizeImports: false,
+    shouldOrganizeImports: args.organizeImports,
   };
 }

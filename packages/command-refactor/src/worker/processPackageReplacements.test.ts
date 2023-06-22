@@ -437,6 +437,7 @@ type StandardSetupResult = ReturnType<ReturnType<typeof createInitialWorkspaceBu
   setupResults: Awaited<ReturnType<typeof setupOverall>>;
   destination: PackageName;
   helpersForPackage: (packageName: string) => PackageRelativeHelpers;
+  organizeImports: boolean;
 };
 
 async function standardSetup(
@@ -457,5 +458,12 @@ async function standardSetup(
   const helpersForPackage = (packageName: string) =>
     createCtxHelperFunctions(builtResults.getPackageContext(packageName));
 
-  return { ...builtResults, logger, setupResults, destination, helpersForPackage };
+  return {
+    ...builtResults,
+    logger,
+    setupResults,
+    destination,
+    helpersForPackage,
+    organizeImports: false,
+  };
 }
