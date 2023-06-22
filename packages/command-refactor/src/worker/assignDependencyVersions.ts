@@ -1,7 +1,7 @@
-import { readPackageJson, type PackageName, writePackageJson, type FilePath } from "@eartool/utils";
+import { readPackageJson, writePackageJson } from "@eartool/utils";
+import type { PackageJsonDepsRequired, type FilePath, type PackageName } from "@eartool/utils";
 import type { Logger } from "pino";
 import type { Project } from "ts-morph";
-import type { PackageJsonDepsRequired } from "../shared/PackageJsonDepsRequired.js";
 
 export function assignDependencyVersions(
   project: Project,

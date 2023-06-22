@@ -1,15 +1,17 @@
 import * as Assert from "node:assert";
-import { readPackageJson } from "@eartool/utils";
-import type { DependencyDirection, Workspace, FilePath, PackageJson } from "@eartool/utils";
 import type { PackageExportRename } from "@eartool/replacements";
+import { mergePackageJsonDeps, readPackageJson } from "@eartool/utils";
+import type {
+  DependencyDirection,
+  FilePath,
+  PackageJson,
+  PackageName,
+  Workspace,
+  type PackageJsonDepsRequired,
+} from "@eartool/utils";
 import type { SetMultimap } from "@teppeis/multimaps";
 import type { Logger } from "pino";
 import type { FileSystemHost, Project } from "ts-morph";
-import {
-  mergePackageJsonDeps,
-  type PackageJsonDepsRequired,
-} from "../shared/PackageJsonDepsRequired.js";
-import type { PackageName } from "../shared/PackageName.js";
 import { SymbolRenames } from "./SymbolRenames.js";
 import { calculatePackageExportRenamesForFileMoves } from "./calculatePackageExportRenamesForFileMoves.js";
 import { getFileContentsRelatively } from "./getFileContentsRelatively.js";

@@ -4,6 +4,8 @@ export type { PackageName } from "./PackageName.js";
 export { getPossibleFileLocations } from "./getPossibleFileLocations.js";
 export { createConsoleLogger } from "./logging/createConsoleLogger.js";
 export { createLogger } from "./logging/createLogger.js";
+export type { PackageJsonDepsRequired } from "./shared/PackageJsonDepsRequired.js";
+export { mergePackageJsonDeps } from "./shared/PackageJsonDepsRequired.js";
 export { readPackageJson, writePackageJson } from "./tsmorph/PackageJson.js";
 export type { PackageJson } from "./tsmorph/PackageJson.js";
 export { dropDtsFiles } from "./tsmorph/dropDtsFiles.js";

@@ -1,7 +1,6 @@
 import type { PackageExportRename } from "@eartool/replacements";
-import type { PackageName, FilePath } from "@eartool/utils";
+import type { FilePath, PackageJsonDepsRequired, PackageName } from "@eartool/utils";
 import type { RelativeFileInfo } from "../main/setupOverall.js";
-import type { PackageJsonDepsRequired } from "./PackageJsonDepsRequired.js";
 
 export interface JobArgs {
   packageJsonDepsRequired: PackageJsonDepsRequired | undefined;

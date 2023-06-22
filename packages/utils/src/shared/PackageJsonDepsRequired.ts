@@ -1,4 +1,4 @@
-import type { PackageName } from "./PackageName.js";
+import type { PackageName } from "../PackageName.js";
 
 export interface PackageJsonDepsRequired {
   dependencies: Map<PackageName, string>;
