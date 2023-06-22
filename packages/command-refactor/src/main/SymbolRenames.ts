@@ -1,6 +1,7 @@
 import type { PackageExportRename } from "@eartool/replacements";
 import type { FilePath, PackageName } from "@eartool/utils";
 import { ArrayMultimap } from "@teppeis/multimaps";
+import deepEqual from "deep-equal";
 
 export class SymbolRenames {
   raw: ArrayMultimap<PackageName | FilePath, PackageExportRename>;
@@ -23,7 +24,11 @@ export class SymbolRenames {
   }
 
   addRename(packageName: PackageName | FilePath, arg1: PackageExportRename) {
-    this.raw.put(packageName, arg1);
+    const existing =
+      this.raw.has(packageName) && this.raw.get(packageName).find((a) => deepEqual(a, arg1));
+    if (!existing) {
+      this.raw.put(packageName, arg1);
+    }
   }
 
   asRaw() {
