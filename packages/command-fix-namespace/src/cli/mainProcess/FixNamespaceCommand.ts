@@ -28,7 +28,7 @@ const options = {
 export default makeBatchCommand(
   {
     name: "fix-namespaces",
-    description: "Removes real and faux namespaces from the codebase",
+    description: false, // "Removes real and faux namespaces from the codebase",
     options,
     cliMain: async ({
       fauxNamespaces: removeFauxNamespaces,

@@ -88,7 +88,7 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
     cliMain,
   }: {
     name: string;
-    description: string;
+    description: string | false;
     example?: [string, string];
     options: O;
     cliMain: (
@@ -104,7 +104,7 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
     return (yargs: yargs.Argv<NonNullable<unknown>>) =>
       yargs.command(
         name,
-        description,
+        description as string, // if this arg is false its hidden but we cant type it correctly :(
         (yargs) => {
           let ret = yargs.options({ ...standardBatchYargsOptions, ...options }).strict();
           if (example) ret = ret.example(...example);
