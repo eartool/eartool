@@ -1,5 +1,5 @@
 import { readPackageJson, writePackageJson } from "@eartool/utils";
-import type { PackageJsonDepsRequired, type FilePath, type PackageName } from "@eartool/utils";
+import type { PackageJsonDepsRequired, FilePath, PackageName } from "@eartool/utils";
 import type { Logger } from "pino";
 import type { Project } from "ts-morph";
 

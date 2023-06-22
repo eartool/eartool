@@ -7,7 +7,7 @@ import type {
   PackageJson,
   PackageName,
   Workspace,
-  type PackageJsonDepsRequired,
+  PackageJsonDepsRequired,
 } from "@eartool/utils";
 import type { SetMultimap } from "@teppeis/multimaps";
 import type { Logger } from "pino";
