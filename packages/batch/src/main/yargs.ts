@@ -53,7 +53,7 @@ const standardBatchYargsOptions = {
   "organize-imports": {
     describe: "Whether or not to organise imports",
     type: "boolean",
-    default: true,
+    default: false,
   },
   workers: {
     number: true,
