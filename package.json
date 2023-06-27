@@ -8,7 +8,7 @@
     "lib"
   ],
   "scripts": {
-    "ci:publish": "pnpm publish -r --tag next --access public --report-summary.json",
+    "ci:publish": "pnpm publish -r --tag next --access public --report-summary",
     "ci:publish-snapshot": "pnpm prepublishOnly && pnpm check:eslint && pnpm changeset version --snapshot && pnpm publish -r --tag snapshot --access public --report-summary --no-git-checks",
     "cloc": "cloc --exclude-ext=yaml --exclude-ext=log --exclude-ext=txt --exclude-ext=json --match-d='src' --fullpath --not-match-d='node_modules|lib'  . ",
     "prepublishOnly": "pnpm run build && pnpm run check:jest && pnpm run check:prettier && pnpm run check:eslint",
