@@ -65,7 +65,10 @@ describe(setupOverall, () => {
                     export function doThingWithState(state: State) { return identity(state.foo); }
                   ",
               "rootExports": Map {
-                "doThingWithState" => "doThingWithState",
+                "doThingWithState" => {
+                  "exportName": "doThingWithState",
+                  "isType": false,
+                },
               },
             },
           },
@@ -119,7 +122,10 @@ describe(setupOverall, () => {
                 export const word = "hi";
               ",
               "rootExports": Map {
-                "word" => "word",
+                "word" => {
+                  "exportName": "word",
+                  "isType": false,
+                },
               },
             },
           },
@@ -202,7 +208,10 @@ describe(setupOverall, () => {
                     export function doThingWithState(state: State) { return identity(state.foo); }
                   ",
               "rootExports": Map {
-                "doThingWithState" => "doThingWithState",
+                "doThingWithState" => {
+                  "exportName": "doThingWithState",
+                  "isType": false,
+                },
               },
             },
           },
@@ -248,6 +257,12 @@ describe(setupOverall, () => {
                 ],
                 "toFileOrModule": "state",
               },
+              {
+                "from": [
+                  "BazConst",
+                ],
+                "toFileOrModule": "state",
+              },
             ],
           },
           "packageJsonDepsRequired": {
@@ -271,19 +286,30 @@ describe(setupOverall, () => {
           "relativeFileInfoMap": Map {
             "src/doThingWithBaz.ts" => {
               "fileContents": "
-                    import {Baz} from "./Baz";
-                    export function doThingWithBaz(baz: Baz) { return baz.value; }
+                    import {type Baz, BazConst} from "./Baz";
+                    export function doThingWithBaz(baz: Baz) { return baz.value + BazConst; }
                   ",
               "rootExports": Map {
-                "doThingWithBaz" => "doThingWithBaz",
+                "doThingWithBaz" => {
+                  "exportName": "doThingWithBaz",
+                  "isType": false,
+                },
               },
             },
             "src/Baz.ts" => {
               "fileContents": "
                       export interface Baz { value: string }
+                      export const BazConst = 5;
                     ",
               "rootExports": Map {
-                "Baz" => "Baz",
+                "Baz" => {
+                  "exportName": "Baz",
+                  "isType": false,
+                },
+                "BazConst" => {
+                  "exportName": "BazConst",
+                  "isType": false,
+                },
               },
             },
           },

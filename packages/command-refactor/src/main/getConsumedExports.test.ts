@@ -4,83 +4,179 @@ import { getConsumedExports } from "./getConsumedExports.js";
 import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 
 describe(getConsumedExports, () => {
-  it("idk", () => {
+  describe("idk", () => {
     const project = createProjectForTest({
       "index.ts": `
-        export {foo} from "./foo";
-      `,
+      export {foo} from "./foo";
+      export {Foo} from "./exportedType";
+      export {Wtf} from "./exportedType";
+    `,
       "foo.ts": `
-        export const foo = 5;
-      `,
-      "importFrom.ts": `
-        import {foo} from "./foo";
-      `,
-      "reexportAs.ts": `
-        export {foo as baz} from "./foo";
-      `,
-      "reexportAsDefault.ts": `
-        export {foo as default} from "./foo";
-      `,
-      "importFromIndirection.ts": `
-        import fooByAnotherName from "./reexportAsDefault"
-      `,
-      "reassignThenExport.ts": `
-        import {foo} from "./foo";
+      export const foo = 5;
+    `,
+      "exportedType.ts": `
+      export type Foo = number;
 
-        export const baz = foo;
-      `,
+      export interface Wtf {
+        foo: Foo;
+      }
+    `,
+      "importFrom.ts": `
+      import {foo} from "./foo";
+      import {Foo, Wtf} from "./exportedType";
+    `,
+      "importFromAsType.ts": `
+      import type {foo} from "./foo";
+      import type {Foo} from "./exportedType";
+      import {type Wtf} from "./exportedType";
+    `,
+      "reexportAs.ts": `
+      export {foo as baz} from "./foo";
+    `,
+      "reexportAsDefault.ts": `
+      export {foo as default} from "./foo";
+    `,
+      "importFromIndirection.ts": `
+      import fooByAnotherName from "./reexportAsDefault"
+    `,
+      "reassignThenExport.ts": `
+      import {foo} from "./foo";
+
+      export const baz = foo;
+    `,
     });
 
-    const result = getConsumedExports(project.getSourceFileOrThrow("foo.ts"));
+    it("foo.ts", () => {
+      const result = getConsumedExports(project.getSourceFileOrThrow("foo.ts"));
 
-    expect(result).toMatchInlineSnapshot(`
-      Map {
-        "/reexportAs.ts" => {
-          "imports": Set {},
-          "reexports": Map {
-            "foo" => "baz",
+      expect(result).toMatchInlineSnapshot(`
+        Map {
+          "/reexportAs.ts" => {
+            "imports": Map {},
+            "reexports": Map {
+              "foo" => {
+                "exportName": "baz",
+                "isType": false,
+              },
+            },
+            "reexportsFrom": Map {},
           },
-          "reexportsFrom": Map {},
-        },
-        "/reexportAsDefault.ts" => {
-          "imports": Set {},
-          "reexports": Map {
-            "foo" => "default",
+          "/reexportAsDefault.ts" => {
+            "imports": Map {},
+            "reexports": Map {
+              "foo" => {
+                "exportName": "default",
+                "isType": false,
+              },
+            },
+            "reexportsFrom": Map {},
           },
-          "reexportsFrom": Map {},
-        },
-        "/index.ts" => {
-          "imports": Set {},
-          "reexports": Map {
-            "foo" => "foo",
+          "/index.ts" => {
+            "imports": Map {},
+            "reexports": Map {
+              "foo" => {
+                "exportName": "foo",
+                "isType": false,
+              },
+            },
+            "reexportsFrom": Map {},
           },
-          "reexportsFrom": Map {},
-        },
-        "/importFrom.ts" => {
-          "imports": Set {
-            "foo",
+          "/importFrom.ts" => {
+            "imports": Map {
+              "foo" => {
+                "isType": false,
+              },
+            },
+            "reexports": Map {},
+            "reexportsFrom": Map {},
           },
-          "reexports": Map {},
-          "reexportsFrom": Map {},
-        },
-        "/importFromIndirection.ts" => {
-          "imports": Set {
-            "foo",
+          "/importFromAsType.ts" => {
+            "imports": Map {
+              "foo" => {
+                "isType": true,
+              },
+            },
+            "reexports": Map {},
+            "reexportsFrom": Map {},
           },
-          "reexports": Map {},
-          "reexportsFrom": Map {},
-        },
-        "/reassignThenExport.ts" => {
-          "imports": Set {
-            "foo",
+          "/importFromIndirection.ts" => {
+            "imports": Map {
+              "foo" => {
+                "isType": false,
+              },
+            },
+            "reexports": Map {},
+            "reexportsFrom": Map {},
           },
-          "reexports": Map {
-            "foo" => "baz",
+          "/reassignThenExport.ts" => {
+            "imports": Map {
+              "foo" => {
+                "isType": false,
+              },
+            },
+            "reexports": Map {
+              "foo" => {
+                "exportName": "baz",
+                "isType": false,
+              },
+            },
+            "reexportsFrom": Map {},
           },
-          "reexportsFrom": Map {},
-        },
-      }
-    `);
+        }
+      `);
+    });
+
+    it("exportedType.ts", () => {
+      const result = getConsumedExports(project.getSourceFileOrThrow("exportedType.ts"));
+
+      expect(result).toMatchInlineSnapshot(`
+        Map {
+          "/exportedType.ts" => {
+            "imports": Map {},
+            "reexports": Map {},
+            "reexportsFrom": Map {},
+          },
+          "/index.ts" => {
+            "imports": Map {},
+            "reexports": Map {
+              "Foo" => {
+                "exportName": "Foo",
+                "isType": false,
+              },
+              "Wtf" => {
+                "exportName": "Wtf",
+                "isType": false,
+              },
+            },
+            "reexportsFrom": Map {},
+          },
+          "/importFrom.ts" => {
+            "imports": Map {
+              "Foo" => {
+                "isType": false,
+              },
+              "Wtf" => {
+                "isType": false,
+              },
+            },
+            "reexports": Map {},
+            "reexportsFrom": Map {},
+          },
+          "/importFromAsType.ts" => {
+            "imports": Map {
+              "Foo" => {
+                "isType": true,
+              },
+              "Wtf" => {
+                "isType": true,
+              },
+            },
+            "reexports": Map {},
+            "reexportsFrom": Map {},
+          },
+        }
+      `);
+    });
   });
 
   it("renames a named import module specifier ", () => {
@@ -106,10 +202,13 @@ describe(getConsumedExports, () => {
     expect(result).toMatchInlineSnapshot(`
       Map {
         "/workspace/foo/src/index.ts" => {
-          "imports": Set {},
+          "imports": Map {},
           "reexports": Map {},
           "reexportsFrom": Map {
-            "foo" => "/workspace/foo/src/foo.ts",
+            "foo" => {
+              "isType": false,
+              "originFile": "/workspace/foo/src/foo.ts",
+            },
           },
         },
       }

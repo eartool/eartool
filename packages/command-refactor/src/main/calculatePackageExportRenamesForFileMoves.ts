@@ -9,6 +9,11 @@ import { getConsumedExports as getConsumedImportsAndExports } from "./getConsume
 
 const packageNameRegex = /^((@[a-zA-Z0-9_-]+\/)?[a-zA-Z0-9_-]+)/;
 
+export interface Info {
+  exportName: string;
+  isType: boolean;
+}
+
 /**
  * Ignores files that aren't in the project
  *
@@ -30,7 +35,7 @@ export function calculatePackageExportRenamesForFileMoves(
 ): {
   allFilesToMove: Set<FilePath>;
   requiredPackages: Set<PackageName>;
-  rootExportsPerRelativeFilePath: Map<FilePath, Map<string, string>>;
+  rootExportsPerRelativeFilePath: Map<FilePath, Map<string, Info>>;
 } {
   // const packageExportRenames = new Map<string, PackageExportRename[]>();
 
@@ -39,7 +44,7 @@ export function calculatePackageExportRenamesForFileMoves(
   const visitedFiles = new Set<FilePath>();
   const toVisit = [...filesToMove];
 
-  const rootExportsPerRelativeFilePath = new Map<FilePath, Map<string, string>>();
+  const rootExportsPerRelativeFilePath = new Map<FilePath, Map<string, Info>>();
 
   while (toVisit.length > 0) {
     const curFilePath = toVisit.shift()!;
@@ -121,7 +126,7 @@ export function calculatePackageExportRenamesForFileMoves(
     for (const [otherFilePath, info] of consumed) {
       // If the file is moving with us, we don't need to consider it.
       if (visitedFiles.has(otherFilePath)) continue;
-      for (const exportedName of info.imports) {
+      for (const [exportedName] of info.imports) {
         // if (!usedSymbols.has(exportedName)) {
         usedSymbols.add(exportedName);
         renames.addRename(filePath, { from: [exportedName], toFileOrModule: destinationModule });
@@ -129,11 +134,11 @@ export function calculatePackageExportRenamesForFileMoves(
       }
     }
 
-    for (const q of usedSymbols) {
+    for (const exportName of usedSymbols) {
       const relFilePath = path.relative(packagePath, sf.getFilePath());
-      const qq = rootExportsPerRelativeFilePath.get(relFilePath) ?? new Map<string, string>();
+      const qq = rootExportsPerRelativeFilePath.get(relFilePath) ?? new Map<string, Info>();
       rootExportsPerRelativeFilePath.set(relFilePath, qq);
-      qq.set(q, q);
+      qq.set(exportName, { exportName, isType: false }); // fixme: we should record type
     }
   }
 
@@ -169,9 +174,9 @@ function addExistingRenamesForRootExport(
     logger.debug("File isn't re-exported! " + sf.getFilePath());
     return;
   }
-  for (const [_originalName, exportedName] of rootIndexFileExports) {
+  for (const [_originalName, { exportName }] of rootIndexFileExports) {
     renames.addRename(packageName, {
-      from: [exportedName],
+      from: [exportName],
       toFileOrModule: destinationModule,
     });
   }

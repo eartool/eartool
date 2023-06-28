@@ -22,7 +22,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
       p.addFile(
         "src/index.ts",
         `
-             export {State} from "./state${ext}";
+             export type {State} from "./state${ext}";
           `
       )
         .addFile(
@@ -57,19 +57,21 @@ export function createInitialWorkspaceBuilder(esm = false) {
           "src/Baz.ts",
           `
               export interface Baz { value: string }
+              export const BazConst = 5;
             `
         )
         .addFile(
           "src/doThingWithBaz.ts",
           `
-            import {Baz} from "./Baz${ext}";
-            export function doThingWithBaz(baz: Baz) { return baz.value; }
+            import {type Baz, BazConst} from "./Baz${ext}";
+            export function doThingWithBaz(baz: Baz) { return baz.value + BazConst; }
           `
         )
         .addFile(
           "src/alsoUsesBaz.ts",
           `
-            import {Baz} from "./Baz${ext}"; 
+            import type {Baz} from "./Baz${ext}"; 
+            import {BazConst} from "./Baz${ext}";
             function alsoUsesBaz(baz: Baz) { return baz.value; }
           `
         )

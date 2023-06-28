@@ -13,7 +13,10 @@ import type { SetMultimap } from "@teppeis/multimaps";
 import type { Logger } from "pino";
 import type { FileSystemHost, Project } from "ts-morph";
 import { SymbolRenames } from "./SymbolRenames.js";
-import { calculatePackageExportRenamesForFileMoves } from "./calculatePackageExportRenamesForFileMoves.js";
+import {
+  calculatePackageExportRenamesForFileMoves,
+  type Info,
+} from "./calculatePackageExportRenamesForFileMoves.js";
 import { getFileContentsRelatively } from "./getFileContentsRelatively.js";
 import { mapFilesByPackageName } from "./mapFilesByPackageName.js";
 
@@ -21,7 +24,7 @@ export type TsMorphProjectLoader = (packagePath: string) => Project | undefined;
 
 export type RelativeFileInfo = {
   fileContents: string;
-  rootExports: Map<string, string>;
+  rootExports: Map<string, Info>;
 };
 
 export interface SetupResults {

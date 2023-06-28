@@ -63,8 +63,14 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
         "requiredPackages": Set {},
         "rootExportsPerRelativeFilePath": Map {
           "src/foo.ts" => Map {
-            "foo" => "foo",
-            "notOriginallyRootExported" => "notOriginallyRootExported",
+            "foo" => {
+              "exportName": "foo",
+              "isType": false,
+            },
+            "notOriginallyRootExported" => {
+              "exportName": "notOriginallyRootExported",
+              "isType": false,
+            },
           },
         },
       }
@@ -146,7 +152,10 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
         "requiredPackages": Set {},
         "rootExportsPerRelativeFilePath": Map {
           "src/foo.ts" => Map {
-            "foo" => "foo",
+            "foo" => {
+              "exportName": "foo",
+              "isType": false,
+            },
           },
         },
       }
@@ -216,10 +225,16 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
         },
         "rootExportsPerRelativeFilePath": Map {
           "src/foo.ts" => Map {
-            "foo" => "foo",
+            "foo" => {
+              "exportName": "foo",
+              "isType": false,
+            },
           },
           "src/bar.ts" => Map {
-            "bar" => "baz",
+            "bar" => {
+              "exportName": "baz",
+              "isType": false,
+            },
           },
         },
       }

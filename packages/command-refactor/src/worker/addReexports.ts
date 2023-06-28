@@ -3,22 +3,30 @@ import { getProperRelativePathAsModuleSpecifierTo, type FilePath } from "@eartoo
 import { type SourceFile } from "ts-morph";
 
 export function addReexports(
-  rootExports: Map<string, string>,
+  rootExports: Map<string, { exportName: string; isType: boolean }>,
   replacements: Replacements,
   rootFile: SourceFile,
   fullpath: FilePath
 ) {
-  if ([...rootExports].some(([_name, alias]) => alias === "default")) {
+  if ([...rootExports].some(([_name, { exportName }]) => exportName === "default")) {
     throw new Error("Default alias is not currently supported");
   }
 
+  const allAreTypes = [...rootExports].every(([_name, { isType }]) => isType);
+
   const exportSpecifiers = [...rootExports]
-    .map(([name, alias]) => (name === alias ? name : `${name} as ${alias}`))
+    .map(([name, { exportName, isType }]) =>
+      name === exportName
+        ? name
+        : `${allAreTypes || !isType ? "" : "type "}${name} as ${exportName}`
+    )
     .join(", ");
 
   // This hack shouldnt be needed!
   const moduleSpecifier = getProperRelativePathAsModuleSpecifierTo(rootFile, fullpath);
-  const exportLine = `export {${exportSpecifiers}} from "${moduleSpecifier}";`;
+  const exportLine = `export ${
+    allAreTypes ? "type " : ""
+  }{${exportSpecifiers}} from "${moduleSpecifier}";`;
 
   replacements.logger.info("Adding `%s` to %s", exportLine, rootFile.getFilePath());
 

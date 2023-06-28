@@ -157,32 +157,32 @@ describe(processPackageReplacements, () => {
 
         // NOTE THE ORIGINAL HAS NO NEW LINE BETWEEN the import and the export in doThingWithState.ts
         expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
-                  "// ==========================================================
-                  // <>: /workspace/state/src/doThingWithState.ts
-                  //
+          "// ==========================================================
+          // <>: /workspace/state/src/doThingWithState.ts
+          //
 
-                  import { identity } from "util";
-                  import { State } from "./state";
-                  export function doThingWithState(state: State) {
-                    return identity(state.foo);
-                  }
+          import { identity } from "util";
+          import { State } from "./state";
+          export function doThingWithState(state: State) {
+            return identity(state.foo);
+          }
 
-                  //
-                  // </>: /workspace/state/src/doThingWithState.ts
-                  // ==========================================================
+          //
+          // </>: /workspace/state/src/doThingWithState.ts
+          // ==========================================================
 
-                  // ==========================================================
-                  // <>: /workspace/state/src/index.ts
-                  //
+          // ==========================================================
+          // <>: /workspace/state/src/index.ts
+          //
 
-                  export { State } from "./state";
-                  export { doThingWithState } from "./doThingWithState";
+          export type { State } from "./state";
+          export { doThingWithState } from "./doThingWithState";
 
-                  //
-                  // </>: /workspace/state/src/index.ts
-                  // ==========================================================
-                  "
-              `);
+          //
+          // </>: /workspace/state/src/index.ts
+          // ==========================================================
+          "
+        `);
       });
 
       it("handles app project properly", async () => {
@@ -373,7 +373,7 @@ describe(processPackageReplacements, () => {
           // <>: /workspace/state/src/index.ts
           //
 
-          export { State } from "./state.js";
+          export type { State } from "./state.js";
           export { doThingWithState } from "./doThingWithState.js";
 
           //
