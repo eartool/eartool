@@ -101,14 +101,14 @@ function accumulateRenamesForAllDecls(
       if (toFileOrModule) {
         replacements.replaceNode(moduleSpecifier, `"${toFileOrModule}"`);
       } else {
-        accumulateRenamesForDecl(decl, renamesForPackage, replacements, alreadyAdded);
+        accumulateRenamesForDecl(ctx, decl, renamesForPackage, replacements, alreadyAdded);
       }
     }
 
     const renamesForPackage = renames.get(moduleSpecifier.getLiteralText());
     if (!renamesForPackage) continue;
 
-    accumulateRenamesForDecl(decl, renamesForPackage, replacements, alreadyAdded);
+    accumulateRenamesForDecl(ctx, decl, renamesForPackage, replacements, alreadyAdded);
   }
 }
 
@@ -119,6 +119,7 @@ const getFirstWordsAsSet = weakMemo(function getFirstWordsAsSet(
 });
 
 function accumulateRenamesForDecl(
+  ctx: PackageContext,
   decl: ImportDeclaration | ExportDeclaration,
   renamesForPackage: PackageExportRename[],
   replacements: Replacements,
@@ -134,6 +135,7 @@ function accumulateRenamesForDecl(
   const maybeNamespaceIdentifier = getNamespaceIdentifier(decl);
   if (maybeNamespaceIdentifier) {
     accumulateRenamesForImportedIdentifier(
+      ctx,
       maybeNamespaceIdentifier,
       prependRenames(renamesForPackage, maybeNamespaceIdentifier),
       replacements,
@@ -143,6 +145,7 @@ function accumulateRenamesForDecl(
 
   for (const spec of getNamedSpecifiers(decl)) {
     accumulateRenamesForImportedIdentifier(
+      ctx,
       spec.getAliasNode() ?? spec.getNameNode(),
       renamesForPackage,
       replacements,

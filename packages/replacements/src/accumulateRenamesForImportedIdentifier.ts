@@ -1,17 +1,26 @@
 import * as Assert from "assert";
-import { findEntireQualifiedNameTree } from "@eartool/utils";
+import {
+  findEntireQualifiedNameTree,
+  getAllImportsAndExports as notMemoGetAllImportsAndExports,
+  weakMemo,
+  type PackageContext,
+} from "@eartool/utils";
 import type { ExportSpecifier, Identifier, ImportSpecifier } from "ts-morph";
 import { SyntaxKind } from "ts-morph";
 import type { PackageExportRename } from "./PackageExportRename.js";
 import type { Replacements } from "./Replacements.js";
 
+const getAllImportsAndExports = weakMemo(notMemoGetAllImportsAndExports);
+
 export function accumulateRenamesForImportedIdentifier(
+  ctx: PackageContext,
   importedOrExportedIdentifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements,
   skipCleanup: boolean
 ): void;
 export function accumulateRenamesForImportedIdentifier(
+  ctx: PackageContext,
   importedOrExportedIdentifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements,
@@ -20,6 +29,7 @@ export function accumulateRenamesForImportedIdentifier(
   specifier: ImportSpecifier | ExportSpecifier
 ): void;
 export function accumulateRenamesForImportedIdentifier(
+  ctx: PackageContext,
   identifier: Identifier,
   packageExportRenames: PackageExportRename[],
   replacements: Replacements,
@@ -32,6 +42,20 @@ export function accumulateRenamesForImportedIdentifier(
     (alreadyProcessed == null && specifier == null) ||
       (alreadyProcessed != null && specifier != null)
   );
+
+  const isFastMode = packageExportRenames.every((per) => per.from.length === 1 && !per.to);
+  if (isFastMode) {
+    return fastMode(
+      ctx,
+      identifier,
+      packageExportRenames,
+      replacements,
+      skipCleanup,
+      alreadyProcessed,
+      specifier
+    );
+  }
+
   for (const refNode of identifier.findReferencesAsNodes()) {
     const maybeExportSpecifier = refNode.getParentIfKind(SyntaxKind.ExportSpecifier);
 
@@ -83,6 +107,58 @@ export function accumulateRenamesForImportedIdentifier(
           );
         }
       }
+    }
+  }
+  // });
+}
+
+function fastMode(
+  ctx: PackageContext,
+  identifier: Identifier,
+  packageExportRenames: PackageExportRename[],
+  replacements: Replacements,
+  skipCleanup: boolean,
+  // in this case we can skip the add
+  alreadyProcessed?: Set<unknown> | undefined,
+  specifier?: ImportSpecifier | ExportSpecifier | undefined
+) {
+  // I dont think this really improves the speed much
+  const importsAndExports = getAllImportsAndExports(ctx);
+
+  const q = importsAndExports.get(identifier.getSourceFile().getFilePath());
+  if (!q) return;
+
+  for (const packageExportRename of packageExportRenames) {
+    if (
+      identifier.getText() != packageExportRename.from[0] &&
+      packageExportRename.from[0] != "default"
+    )
+      continue;
+    if (!q.imports.get(packageExportRename.from[0])) continue;
+
+    if (packageExportRename.toFileOrModule && specifier) {
+      // TODO: This code causes an import to retain an empty set of braces
+      if (!alreadyProcessed || !alreadyProcessed.has(packageExportRename)) {
+        // console.log(specifier);
+        addImportOrExport(
+          replacements,
+          specifier,
+          packageExportRename.to?.[0],
+          packageExportRename.toFileOrModule,
+          !skipCleanup
+        );
+        alreadyProcessed?.add(packageExportRename);
+      }
+    } else if (packageExportRename.toFileOrModule) {
+      const decl =
+        identifier.getFirstAncestorByKind(SyntaxKind.ExportDeclaration) ??
+        identifier.getFirstAncestorByKindOrThrow(SyntaxKind.ImportDeclaration);
+
+      // This is broken i am positive FIXME
+      replacements.replaceNode(
+        decl.getModuleSpecifier()!,
+        `"${packageExportRename.toFileOrModule}"`
+      );
     }
   }
 }

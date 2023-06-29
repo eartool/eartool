@@ -293,6 +293,7 @@ describe(setupOverall, () => {
                 "doThingWithBaz" => {
                   "exportName": "doThingWithBaz",
                   "isType": false,
+                  "originFile": "/workspace/api/src/doThingWithBaz.ts",
                 },
               },
             },

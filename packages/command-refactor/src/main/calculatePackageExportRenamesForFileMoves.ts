@@ -120,7 +120,10 @@ export function calculatePackageExportRenamesForFileMoves(
   // and local renames that may be needed here.
   for (const filePath of visitedFiles) {
     const sf = project.getSourceFileOrThrow(filePath);
-    const consumed = getConsumedImportsAndExports(sf);
+    const consumed = getConsumedImportsAndExports(
+      { logger, packageName, packagePath, project: sf.getProject() },
+      sf
+    );
 
     const usedSymbols = new Set<string>();
     for (const [otherFilePath, info] of consumed) {
@@ -158,7 +161,10 @@ function addExistingRenamesForRootExport(
   destinationModule: string,
   logger: Logger
 ) {
-  const consumed = getConsumedImportsAndExports(sf); // todo memoize?
+  const consumed = getConsumedImportsAndExports(
+    { logger, packageName, packagePath, project: sf.getProject() },
+    sf
+  ); // todo memoize?
 
   // We should use the package.json for this TODO
   const rootFile = getRootFile(sf.getProject());

@@ -11,6 +11,8 @@ export type { PackageJson } from "./tsmorph/PackageJson.js";
 export { dropDtsFiles } from "./tsmorph/dropDtsFiles.js";
 export { findEntireQualifiedNameTree } from "./tsmorph/findEntireQualifiedNameTree.js";
 export { findNewNameInScope } from "./tsmorph/findNewNameInScope.js";
+export { getAllImportsAndExports } from "./tsmorph/getAllImportsAndExports.js";
+export type { Metadata } from "./tsmorph/getAllImportsAndExports.js";
 export { getDeclaration } from "./tsmorph/getDeclaration.js";
 export { getImportSpecifierOrThrow } from "./tsmorph/getImportSpecifierOrThrow.js";
 export { getNamedSpecifiers } from "./tsmorph/getNamedSpecifiers.js";

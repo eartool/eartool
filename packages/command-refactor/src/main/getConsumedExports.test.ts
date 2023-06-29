@@ -1,5 +1,6 @@
-import { createProjectForTest } from "@eartool/test-utils";
+import { createProjectForTest, createTestLogger } from "@eartool/test-utils";
 import { describe, expect, it } from "@jest/globals";
+import type { Metadata } from "@eartool/utils";
 import { getConsumedExports } from "./getConsumedExports.js";
 import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 
@@ -13,6 +14,7 @@ describe(getConsumedExports, () => {
     `,
       "foo.ts": `
       export const foo = 5;
+      export default 8;
     `,
       "exportedType.ts": `
       export type Foo = number;
@@ -22,7 +24,7 @@ describe(getConsumedExports, () => {
       }
     `,
       "importFrom.ts": `
-      import {foo} from "./foo";
+      import {foo as foofoo} from "./foo";
       import {Foo, Wtf} from "./exportedType";
     `,
       "importFromAsType.ts": `
@@ -47,132 +49,206 @@ describe(getConsumedExports, () => {
     });
 
     it("foo.ts", () => {
-      const result = getConsumedExports(project.getSourceFileOrThrow("foo.ts"));
+      const result = getConsumedExports(
+        {
+          packageName: "foo",
+          packagePath: "/",
+          logger: createTestLogger(),
+          project,
+        },
+        project.getSourceFileOrThrow("foo.ts")
+      );
 
-      expect(result).toMatchInlineSnapshot(`
+      const gfd = new Map<string, Metadata>();
+      for (const fu of [
+        "/reexportAs.ts",
+        "/reexportAsDefault.ts",
+        "/index.ts",
+        "/importFrom.ts",
+        "/importFromAsType.ts",
+        "/reassignThenExport.ts",
+      ]) {
+        gfd.set(fu, result.get(fu)!);
+        result.delete(fu);
+      }
+      for (const [a, b] of result.entries()) {
+        gfd.set(a, b);
+      }
+
+      expect(gfd).toMatchInlineSnapshot(`
         Map {
           "/reexportAs.ts" => {
+            "exports": Map {},
             "imports": Map {},
             "reexports": Map {
               "foo" => {
                 "exportName": "baz",
                 "isType": false,
+                "originFile": "/foo.ts",
               },
             },
-            "reexportsFrom": Map {},
           },
           "/reexportAsDefault.ts" => {
+            "exports": Map {},
             "imports": Map {},
             "reexports": Map {
               "foo" => {
                 "exportName": "default",
                 "isType": false,
+                "originFile": "/foo.ts",
               },
             },
-            "reexportsFrom": Map {},
           },
           "/index.ts" => {
+            "exports": Map {},
             "imports": Map {},
             "reexports": Map {
               "foo" => {
                 "exportName": "foo",
                 "isType": false,
+                "originFile": "/foo.ts",
               },
             },
-            "reexportsFrom": Map {},
           },
           "/importFrom.ts" => {
+            "exports": Map {},
             "imports": Map {
               "foo" => {
                 "isType": false,
+                "localName": "foofoo",
+                "originFile": "/foo.ts",
               },
             },
             "reexports": Map {},
-            "reexportsFrom": Map {},
           },
           "/importFromAsType.ts" => {
+            "exports": Map {},
             "imports": Map {
               "foo" => {
                 "isType": true,
+                "localName": "foo",
+                "originFile": "/foo.ts",
               },
             },
             "reexports": Map {},
-            "reexportsFrom": Map {},
-          },
-          "/importFromIndirection.ts" => {
-            "imports": Map {
-              "foo" => {
-                "isType": false,
-              },
-            },
-            "reexports": Map {},
-            "reexportsFrom": Map {},
           },
           "/reassignThenExport.ts" => {
+            "exports": Map {
+              "baz" => {
+                "type": "concrete",
+              },
+            },
             "imports": Map {
               "foo" => {
                 "isType": false,
+                "localName": "foo",
+                "originFile": "/foo.ts",
               },
             },
-            "reexports": Map {
+            "reexports": Map {},
+          },
+          "/foo.ts" => {
+            "exports": Map {
               "foo" => {
-                "exportName": "baz",
-                "isType": false,
+                "type": "concrete",
+              },
+              "default" => {
+                "type": "concrete",
               },
             },
-            "reexportsFrom": Map {},
+            "imports": Map {},
+            "reexports": Map {},
           },
         }
       `);
     });
 
     it("exportedType.ts", () => {
-      const result = getConsumedExports(project.getSourceFileOrThrow("exportedType.ts"));
+      const result = getConsumedExports(
+        {
+          packageName: "foo",
+          packagePath: "/",
+          logger: createTestLogger(),
+          project,
+        },
+        project.getSourceFileOrThrow("exportedType.ts")
+      );
 
-      expect(result).toMatchInlineSnapshot(`
+      const gfd = new Map<string, Metadata>();
+      for (const fu of [
+        "/exportedType.ts",
+        "/index.ts",
+        "/importFrom.ts",
+        "/importFromAsType.ts",
+      ]) {
+        gfd.set(fu, result.get(fu)!);
+        result.delete(fu);
+      }
+      for (const [a, b] of result.entries()) {
+        gfd.set(a, b);
+      }
+
+      expect(gfd).toMatchInlineSnapshot(`
         Map {
           "/exportedType.ts" => {
+            "exports": Map {
+              "Foo" => {
+                "type": "type",
+              },
+              "Wtf" => {
+                "type": "type",
+              },
+            },
             "imports": Map {},
             "reexports": Map {},
-            "reexportsFrom": Map {},
           },
           "/index.ts" => {
+            "exports": Map {},
             "imports": Map {},
             "reexports": Map {
               "Foo" => {
                 "exportName": "Foo",
                 "isType": false,
+                "originFile": "/exportedType.ts",
               },
               "Wtf" => {
                 "exportName": "Wtf",
                 "isType": false,
+                "originFile": "/exportedType.ts",
               },
             },
-            "reexportsFrom": Map {},
           },
           "/importFrom.ts" => {
+            "exports": Map {},
             "imports": Map {
               "Foo" => {
                 "isType": false,
+                "localName": "Foo",
+                "originFile": "/exportedType.ts",
               },
               "Wtf" => {
                 "isType": false,
+                "localName": "Wtf",
+                "originFile": "/exportedType.ts",
               },
             },
             "reexports": Map {},
-            "reexportsFrom": Map {},
           },
           "/importFromAsType.ts" => {
+            "exports": Map {},
             "imports": Map {
               "Foo" => {
                 "isType": true,
+                "localName": "Foo",
+                "originFile": "/exportedType.ts",
               },
               "Wtf" => {
                 "isType": true,
+                "localName": "Wtf",
+                "originFile": "/exportedType.ts",
               },
             },
             "reexports": Map {},
-            "reexportsFrom": Map {},
           },
         }
       `);
@@ -197,15 +273,24 @@ describe(getConsumedExports, () => {
       .build();
     const project = projectLoader(workspace.getPackageByNameOrThrow("foo").packagePath)!;
 
-    const result = getConsumedExports(project.getSourceFileOrThrow("/workspace/foo/src/index.ts"));
+    const result = getConsumedExports(
+      {
+        packageName: "foo",
+        packagePath: "/",
+        logger: createTestLogger(),
+        project,
+      },
+      project.getSourceFileOrThrow("/workspace/foo/src/index.ts")
+    );
 
     expect(result).toMatchInlineSnapshot(`
       Map {
         "/workspace/foo/src/index.ts" => {
+          "exports": Map {},
           "imports": Map {},
-          "reexports": Map {},
-          "reexportsFrom": Map {
+          "reexports": Map {
             "foo" => {
+              "exportName": "foo",
               "isType": false,
               "originFile": "/workspace/foo/src/foo.ts",
             },

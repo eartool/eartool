@@ -69,7 +69,7 @@ export default async function workerMain({
     }
 
     if (shouldOrganizeImports) {
-      logger.debug("Organizing imports");
+      logger.info("Organizing imports");
       organizeImportsOnFiles(project, changedFiles, false);
     }
 
@@ -77,7 +77,14 @@ export default async function workerMain({
       logger.trace("DRY RUN");
     } else {
       logger.info("Saving");
-      await project.save();
+      await Promise.all(
+        changedFiles.map(async (a) => {
+          // logger.info("Saving: " + a);
+          await project.getSourceFile(a)?.save();
+          // logger.info("Done saving: " + a);
+        })
+      );
+      logger.info("DONE");
     }
   }
   return { changedFiles };

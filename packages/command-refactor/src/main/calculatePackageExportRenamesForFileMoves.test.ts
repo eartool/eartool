@@ -89,13 +89,13 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
         "/workspace/mypackage/src/foo.ts" => [
           {
             "from": [
-              "foo",
+              "notOriginallyRootExported",
             ],
             "toFileOrModule": "baz",
           },
           {
             "from": [
-              "notOriginallyRootExported",
+              "foo",
             ],
             "toFileOrModule": "baz",
           },
@@ -155,6 +155,7 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
             "foo" => {
               "exportName": "foo",
               "isType": false,
+              "originFile": "/workspace/mypackage/src/foo.ts",
             },
           },
         },
@@ -228,12 +229,14 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
             "foo" => {
               "exportName": "foo",
               "isType": false,
+              "originFile": "/workspace/mypackage/src/foo.ts",
             },
           },
           "src/bar.ts" => Map {
             "bar" => {
               "exportName": "baz",
               "isType": false,
+              "originFile": "/workspace/mypackage/src/bar.ts",
             },
           },
         },
