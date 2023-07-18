@@ -26,7 +26,7 @@ export function calculateNamespaceRemovals(
   if (sf.getExportSymbols().length == 1) {
     if (namespaceDecl.getSymbolOrThrow().getDeclarations().length > 1) {
       projectContext.logger.info(
-        "Wanted to remove namespace %s but it has multiple declarations",
+        "Can't do ultra simple replacement, falling back to complicated",
         namespaceDecl.getName()
       );
     } else {
