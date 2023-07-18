@@ -6,7 +6,7 @@ export interface Replacements {
   addReplacement(file: SourceFile | string, start: number, end: number, newValue: string): void;
   remove(file: SourceFile | string, start: number, end: number): void;
   replaceNode(node: Node, newValue: string): void;
-  deleteNode(node: Node): void;
+  deleteNode(node: Node, keepTrivia?: boolean): void;
   insertBefore(node: Node, newValue: string): void;
   insertAfter(node: Node, newValue: string): void;
   removeNextSiblingIfComma(q: Node): void;

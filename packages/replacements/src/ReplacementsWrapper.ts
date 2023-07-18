@@ -32,9 +32,14 @@ export abstract class AbstractReplacementsWrapper implements Replacements {
     this.addReplacement(node, node.getStart(), node.getEnd(), newValue);
   }
 
-  deleteNode(node: Node): void {
+  deleteNode(node: Node, keepTrivia?: boolean): void {
     this.logger.trace({ primaryNode: node }, "Deleting full node: `%s`", node.getFullText());
-    this.addReplacement(node, node.getFullStart(), node.getEnd(), "");
+    this.addReplacement(
+      node,
+      keepTrivia ? node.getStart() : node.getFullStart(),
+      node.getEnd(),
+      ""
+    );
   }
 
   insertBefore(node: Node, newValue: string): void {
