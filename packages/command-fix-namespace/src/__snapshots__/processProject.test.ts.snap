@@ -111,6 +111,32 @@ export { Foo } from "./foo";
 "
 `;
 
+exports[`processProject Doesn't produce extra import statements 1`] = `
+"//
+
+//
+// PATH: '/bar.ts'
+//
+import { createFoo, otherForFoo, Foo } from "./foo";
+
+doStuff(createFoo());
+doStuff(createFoo());
+doStuff(otherForFoo());
+,//
+
+//
+// PATH: '/foo.ts'
+//
+
+export function createFoo() {}
+export function otherForFoo() {}
+
+export interface Foo {
+  readonly foo: string;
+}
+"
+`;
+
 exports[`processProject Generics work 1`] = `
 "//
 

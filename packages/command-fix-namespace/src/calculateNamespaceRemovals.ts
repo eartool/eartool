@@ -26,8 +26,8 @@ export function calculateNamespaceRemovals(
   if (sf.getExportSymbols().length == 1) {
     if (namespaceDecl.getSymbolOrThrow().getDeclarations().length > 1) {
       projectContext.logger.info(
-        "Can't do ultra simple replacement, falling back to complicated",
-        namespaceDecl.getName()
+        "Can't do ultra simple replacement, falling back to complicated for " +
+          namespaceDecl.getName()
       );
     } else {
       replaceImportsAndExports(namespaceDecl, replacements);

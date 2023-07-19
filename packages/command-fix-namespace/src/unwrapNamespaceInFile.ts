@@ -6,7 +6,10 @@ import type {
 } from "ts-morph";
 import { Node, SyntaxKind, SymbolFlags } from "ts-morph";
 import { autorenameIdentifierAndReferences, type Replacements } from "@eartool/replacements";
-import type { NamespaceLikeVariableDeclaration } from "@eartool/utils";
+import {
+  getSimplifiedNodeInfoAsString,
+  type NamespaceLikeVariableDeclaration,
+} from "@eartool/utils";
 import { replaceAllNamesInScope } from "@eartool/replacements";
 import type { Logger } from "pino";
 
@@ -67,7 +70,10 @@ export function unwrapNamespaceInFile(
       // namespace
       // do nothing!
     } else {
-      replacements.logger.error("Unexpected kind %s", propOrMethod.getKindName());
+      replacements.logger.error(
+        "unwrapNamespaceInFile(): Unexpected kind %s",
+        getSimplifiedNodeInfoAsString(propOrMethod)
+      );
     }
     replacements.removeNextSiblingIfComma(propOrMethod);
   }

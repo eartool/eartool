@@ -8,6 +8,7 @@ const cases: {
   additionalRenames?: ProcessProjectOpts["additionalRenames"];
   removeNamespaces?: ProcessProjectOpts["removeNamespaces"];
   removeFauxNamespaces?: ProcessProjectOpts["removeFauxNamespaces"];
+  organizeImports?: ProcessProjectOpts["organizeImports"];
 }[] = [
   {
     name: "redeclare export",
@@ -617,9 +618,30 @@ const cases: {
 
     removeNamespaces: false,
   },
-  /*
-            
-          */
+  {
+    name: "Doesn't produce extra import statements",
+    inputs: {
+      "foo.ts": `
+        export namespace Foo {
+          export function create() {}
+          export function other() {}
+        }
+
+        export interface Foo {
+          readonly foo: string;
+        }
+      `,
+      "bar.ts": `
+        import {Foo} from "./foo";
+
+        doStuff(Foo.create());
+        doStuff(Foo.create());
+        doStuff(Foo.other());
+      `,
+    },
+    removeNamespaces: true,
+    organizeImports: false,
+  },
   {
     name: "Handles local variable name collisions inside functions",
     inputs: {
@@ -665,7 +687,13 @@ const cases: {
 describe("processProject", () => {
   it.each(cases)(
     "$name",
-    async ({ inputs, additionalRenames, removeFauxNamespaces, removeNamespaces }) => {
+    async ({
+      inputs,
+      additionalRenames,
+      removeFauxNamespaces,
+      removeNamespaces,
+      organizeImports,
+    }) => {
       const logger = createTestLogger();
       try {
         const project = createProjectForTest(inputs);
@@ -677,7 +705,7 @@ describe("processProject", () => {
             additionalRenames,
             removeFauxNamespaces: removeFauxNamespaces ?? true,
             dryRun: false,
-            organizeImports: true,
+            organizeImports: organizeImports ?? true,
             removeNamespaces: removeNamespaces ?? true,
           }
         );

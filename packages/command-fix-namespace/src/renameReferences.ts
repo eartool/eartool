@@ -1,4 +1,5 @@
 import * as Assert from "node:assert";
+import type { SourceFile } from "ts-morph";
 import { Node, SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "@eartool/replacements";
 import { getProperRelativePathAsModuleSpecifierTo } from "@eartool/utils";
@@ -18,6 +19,8 @@ export function renameReferences(oldName: string, context: NamespaceContext) {
   context.addReplacementForNode(q, localName);
 
   logger.trace("Count of references: %d", q.findReferencesAsNodes().length);
+
+  const addedToImports = new Map<SourceFile, boolean>();
 
   for (const r of q.findReferencesAsNodes()) {
     logger.trace("Found ref: %s %s", r.print(), r.getKindName());
@@ -68,15 +71,41 @@ export function renameReferences(oldName: string, context: NamespaceContext) {
         filePath: referencingSf.getFilePath(),
       });
 
-      context.addReplacement({
-        start: 0,
-        end: 0,
-        filePath: referencingSf.getFilePath(),
-        newValue: `import { ${localName} as ${importName}} from "${getProperRelativePathAsModuleSpecifierTo(
+      if (!addedToImports.has(referencingSf)) {
+        addedToImports.set(referencingSf, true);
+
+        const moduleSpecifier = getProperRelativePathAsModuleSpecifierTo(
           referencingSf,
           namespaceDecl.getSourceFile()
-        )}";`,
-      });
+        );
+        const newImportSpecifierText =
+          localName === importName ? localName : `${localName} as ${importName}`;
+
+        const namedBindings = referencingSf
+          .getImportDeclarations()
+          .find((a) => a.getModuleSpecifierValue() == moduleSpecifier)
+          ?.getImportClause()
+          ?.getNamedBindings();
+
+        if (!namedBindings || !namedBindings.isKind(SyntaxKind.NamedImports)) {
+          // shouldn't happen in the namespace case but i'm being careful
+          context.addReplacement({
+            start: 0,
+            end: 0,
+            filePath: referencingSf.getFilePath(),
+            newValue: `import { ${newImportSpecifierText}} from "${moduleSpecifier}";`,
+          });
+        } else {
+          const brace = namedBindings.getFirstChildByKindOrThrow(SyntaxKind.OpenBraceToken);
+
+          context.addReplacement({
+            start: brace.getEnd(),
+            end: brace.getEnd(),
+            filePath: referencingSf.getFilePath(),
+            newValue: newImportSpecifierText + ",",
+          });
+        }
+      }
     }
   }
 }
