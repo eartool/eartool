@@ -10,6 +10,7 @@ export { readPackageJson, writePackageJson } from "./tsmorph/PackageJson.js";
 export type { PackageJson } from "./tsmorph/PackageJson.js";
 export { dropDtsFiles } from "./tsmorph/dropDtsFiles.js";
 export { findEntireQualifiedNameTree } from "./tsmorph/findEntireQualifiedNameTree.js";
+export { findFileLocationForImportExport } from "./tsmorph/findFileLocationForImportExport.js";
 export { findNewNameInScope } from "./tsmorph/findNewNameInScope.js";
 export { getAllImportsAndExports } from "./tsmorph/getAllImportsAndExports.js";
 export type { Metadata } from "./tsmorph/getAllImportsAndExports.js";

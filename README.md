@@ -53,3 +53,12 @@ isEmpty,
 
 - Renames real selectors selectFoo instead of getFoo across code base
 - Drop unused exports
+
+# Notes
+
+## Perf Profiling w VSCode
+
+1. Run with `NODE_OPTIONS="--inspect-brk"`.
+2. Connect with vscode debugger
+3. Click run
+4. VS Code will create cpuprofiles for each worker

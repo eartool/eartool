@@ -1,6 +1,7 @@
 import { processReplacements } from "@eartool/replacements";
 import { formatTestTypescript } from "@eartool/test-utils";
 import { describe, expect, it } from "@jest/globals";
+import { getRootFile } from "@eartool/utils";
 import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
 import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 
@@ -36,7 +37,11 @@ describe(addReplacementsForExportsFromRemovedFiles, () => {
 
     const ctx = getPackageContext(name);
 
-    addReplacementsForExportsFromRemovedFiles(ctx, [`/workspace/${PACKAGE_NAME}/src/bar.ts`]);
+    addReplacementsForExportsFromRemovedFiles(
+      ctx,
+      [`/workspace/${PACKAGE_NAME}/src/bar.ts`],
+      getRootFile(ctx.project)
+    );
 
     processReplacements(ctx.project, ctx.replacements.getReplacementsMap());
 

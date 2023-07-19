@@ -56,7 +56,8 @@ export async function processProject(
     packageContext.project,
     logger,
     packageContext.packagePath,
-    packageContext.packageName
+    packageContext.packageName,
+    packageContext.packageJson
   );
   const totalFiles = project.getSourceFiles().length;
   // Three stages:

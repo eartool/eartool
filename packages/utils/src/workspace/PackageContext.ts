@@ -7,6 +7,7 @@ export interface PackageContext extends WithLogger {
   project: Project;
   packagePath: FilePath;
   packageName: PackageName;
+  packageJson: any;
 }
 export interface WithLogger {
   logger: Logger;

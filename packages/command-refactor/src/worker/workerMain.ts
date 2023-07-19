@@ -1,3 +1,4 @@
+import * as path from "node:path";
 import type { WorkerData } from "@eartool/batch";
 import { dropDtsFiles, maybeLoadProject, organizeImportsOnFiles } from "@eartool/utils";
 import { SimpleReplacements } from "@eartool/replacements";
@@ -27,12 +28,16 @@ export default async function workerMain({
 
   dropDtsFiles(project);
 
+  const packageJson = JSON.parse(
+    project.getFileSystem().readFileSync(path.join(packagePath, "package.json"))
+  );
   const ctx: WorkerPackageContext = {
     logger,
     packageName,
     packagePath,
     project,
     replacements: new SimpleReplacements(logger),
+    packageJson,
   };
 
   if (packageJsonDepsRequired) {

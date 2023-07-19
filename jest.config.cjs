@@ -36,7 +36,6 @@ module.exports = {
 
   projects: [
     "command-refactor",
-    "command-foo",
     "command-fix-namespace",
     "utils",
     "test-utils",

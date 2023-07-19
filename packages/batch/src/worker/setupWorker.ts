@@ -27,13 +27,21 @@ export type WorkerFunc<Q extends JobDef<any, any>> = (
   port: MessagePort
 ) => Promise<Q["__ResultType"]>;
 
-export function setupWorker<Q extends JobDef<any, any>>(worker: WorkerFunc<Q>) {
+export function setupWorker<Q extends JobDef<any, any>>(
+  worker: WorkerFunc<Q>,
+  parentProcessIdentifier: string,
+  packageName: string
+) {
   parentPort?.once("message", async (value: { port: MessagePort }) => {
     ok(value != null);
     ok("port" in value);
     ok(value.port instanceof MessagePort);
 
     const { port } = value;
+    // eslint-disable-next-line no-console
+    console.profile(`${parentProcessIdentifier}-${packageName}`);
     await runWorker<Q>(port, worker, workerData);
+    // eslint-disable-next-line no-console
+    console.profileEnd();
   });
 }

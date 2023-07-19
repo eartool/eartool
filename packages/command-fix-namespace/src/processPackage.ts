@@ -1,3 +1,4 @@
+import * as path from "node:path";
 import type { FilePath, PackageName } from "@eartool/utils";
 import { maybeLoadProject } from "@eartool/utils";
 import { processProject, type ProcessProjectOpts } from "./processProject.js";
@@ -27,6 +28,17 @@ export async function processPackage(
     return Promise.resolve({ exportedRenames: [] });
   }
 
-  return await processProject({ project, logger: opts.logger, packageName, packagePath }, opts);
+  return await processProject(
+    {
+      project,
+      logger: opts.logger,
+      packageName,
+      packagePath,
+      packageJson: JSON.parse(
+        project.getFileSystem().readFileSync(path.join(packagePath, "package.json"))
+      ),
+    },
+    opts
+  );
 }
 //

@@ -18,19 +18,12 @@ export function getPossibleFileLocations(
     if (module == ModuleKind.Node16 || module == ModuleKind.NodeNext) {
       //
     }
-    const packageJson = JSON.parse(
-      decl.getProject().getFileSystem().readFileSync(path.join(ctx.packagePath, "package.json"))
-    );
 
-    if (packageJson.type != "module") {
+    if (ctx.packageJson.type != "module") {
       throw new Error("importing a direct js file is a hack right now that requires modules");
     }
 
-    // MAYBE we should move the package.json to the context
-
     esModule = true;
-    // module land
-    // throw new Error("Not implemented: " + moduleSpecifier);
   }
 
   const project = decl.getProject();
@@ -59,6 +52,6 @@ export function getPossibleFileLocations(
   return project
     .getRootDirectories()
     .flatMap((d) =>
-      [".js", ".ts", ".tsx"].map((ext) => path.resolve(d.getPath(), relPathToRootDir + ext))
+      [".ts", ".tsx", ".js"].map((ext) => path.resolve(d.getPath(), relPathToRootDir + ext))
     );
 }

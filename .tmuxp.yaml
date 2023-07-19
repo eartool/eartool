@@ -1,0 +1,7 @@
+session_name: Eartool
+windows:
+  - window_name: Eartool
+    layout: even-horizontal
+    panes:
+      - pnpm check:jest --watch
+      - tsc --build --watch packages/*

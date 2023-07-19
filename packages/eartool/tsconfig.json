@@ -13,9 +13,6 @@
       "path": "../command-fix-namespace"
     },
     {
-      "path": "../command-foo"
-    },
-    {
       "path": "../command-refactor"
     },
     {

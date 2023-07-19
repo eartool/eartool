@@ -101,7 +101,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
       jobArgs: await jobSpec.getJobArgs(jobInfo),
     };
 
-    logger.debug("Forking worker for %s", packageName);
+    logger.debug("%s worker for %s", opts.workers <= 1 ? "Inline running" : "Forking", packageName);
 
     const { port1: myPort, port2: theirPort } = new MessageChannel();
     const result = new Promise<Q["__ResultType"]>((resolve, reject) => {
@@ -141,8 +141,13 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
     });
 
     if (opts.workers == 1) {
+      // eslint-disable-next-line no-console
+      console.profile(`${process.pid}-${packageName}`);
       const f = await jobSpec.runInlineFunc();
-      runWorker(theirPort, f, workerData);
+      await runWorker(theirPort, f, workerData);
+      // eslint-disable-next-line no-console
+      console.profileEnd();
+      theirPort.close();
     } else {
       const worker = new Worker(jobSpec.workerUrl, { workerData });
       worker.postMessage({ port: theirPort }, [theirPort]);

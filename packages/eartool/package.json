@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@eartool/command-fix-namespace": "workspace:*",
-    "@eartool/command-foo": "workspace:*",
     "@eartool/command-refactor": "workspace:*",
     "@eartool/replacements": "workspace:*",
     "@eartool/test-utils": "workspace:*",

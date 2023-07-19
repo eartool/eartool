@@ -1,9 +1,9 @@
 import * as Assert from "node:assert";
 import * as path from "node:path";
-import type { DependencyDirection, FilePath, PackageName } from "@eartool/utils";
+import type { DependencyDirection, FilePath, PackageContext, PackageName } from "@eartool/utils";
 import type { Logger } from "pino";
 import type { Project, SourceFile } from "ts-morph";
-import { getRootFile } from "@eartool/utils";
+import { findFileLocationForImportExport, getRootFile } from "@eartool/utils";
 import type { SymbolRenames } from "./SymbolRenames.js";
 import { getConsumedExports as getConsumedImportsAndExports } from "./getConsumedExports.js";
 
@@ -46,6 +46,10 @@ export function calculatePackageExportRenamesForFileMoves(
 
   const rootExportsPerRelativeFilePath = new Map<FilePath, Map<string, Info>>();
 
+  const packageJson = JSON.parse(
+    project.getFileSystem().readFileSync(path.join(packagePath, "package.json"))
+  );
+
   while (toVisit.length > 0) {
     const curFilePath = toVisit.shift()!;
     if (visitedFiles.has(curFilePath)) {
@@ -59,10 +63,19 @@ export function calculatePackageExportRenamesForFileMoves(
 
     // const renames: PackageExportRename[] = [];
 
+    const ctx: PackageContext = {
+      logger,
+      packageName,
+      packagePath,
+      project: sf.getProject(),
+      packageJson,
+    };
+
     const rootExportsForSf = addExistingRenamesForRootExport(
       sf,
       packagePath,
       packageName,
+      packageJson,
       renames,
       destinationModule,
       logger
@@ -95,9 +108,10 @@ export function calculatePackageExportRenamesForFileMoves(
     }
 
     // Update packages we need
-    for (const literal of sf.getImportStringLiterals()) {
-      if (literal.getLiteralText().startsWith(".")) continue;
-      const depName = packageNameRegex.exec(literal.getLiteralText())?.[0];
+    for (const importDecl of sf.getImportDeclarations()) {
+      const moduleSpecifierValue = importDecl.getModuleSpecifierValue();
+      if (moduleSpecifierValue.startsWith(".")) continue;
+      const depName = packageNameRegex.exec(moduleSpecifierValue)?.[0];
       if (!depName) continue;
       requiredPackages.add(depName);
     }
@@ -108,7 +122,7 @@ export function calculatePackageExportRenamesForFileMoves(
 
       for (const q of sf.getImportDeclarations()) {
         if (q.getModuleSpecifierValue().startsWith(".")) {
-          const filePath = q.getModuleSpecifierSourceFile()?.getFilePath();
+          const filePath = findFileLocationForImportExport(ctx, q);
           Assert.ok(filePath, "How do we not have a filePath for this import: " + q.getText());
           if (!visitedFiles.has(filePath)) toVisit.push(filePath);
         }
@@ -121,7 +135,7 @@ export function calculatePackageExportRenamesForFileMoves(
   for (const filePath of visitedFiles) {
     const sf = project.getSourceFileOrThrow(filePath);
     const consumed = getConsumedImportsAndExports(
-      { logger, packageName, packagePath, project: sf.getProject() },
+      { logger, packageName, packagePath, project: sf.getProject(), packageJson },
       sf
     );
 
@@ -157,12 +171,13 @@ function addExistingRenamesForRootExport(
   sf: SourceFile,
   packagePath: FilePath,
   packageName: PackageName,
+  packageJson: any,
   renames: SymbolRenames,
   destinationModule: string,
   logger: Logger
 ) {
   const consumed = getConsumedImportsAndExports(
-    { logger, packageName, packagePath, project: sf.getProject() },
+    { logger, packageName, packagePath, project: sf.getProject(), packageJson },
     sf
   ); // todo memoize?
 

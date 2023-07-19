@@ -7,6 +7,7 @@ export interface PackageJson {
   devDependencies?: Record<string, string>;
 }
 
+// TODO: USE THESE AND CACHE RESULTS!
 export function readPackageJson(fileSystem: FileSystemHost, packagePath: string): PackageJson {
   return JSON.parse(fileSystem.readFileSync(path.join(packagePath, "package.json"), "utf8"));
 }

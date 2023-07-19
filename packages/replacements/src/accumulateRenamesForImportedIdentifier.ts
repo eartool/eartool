@@ -1,16 +1,13 @@
 import * as Assert from "assert";
 import {
   findEntireQualifiedNameTree,
-  getAllImportsAndExports as notMemoGetAllImportsAndExports,
-  weakMemo,
+  getAllImportsAndExports,
   type PackageContext,
 } from "@eartool/utils";
 import type { ExportSpecifier, Identifier, ImportSpecifier } from "ts-morph";
 import { SyntaxKind } from "ts-morph";
 import type { PackageExportRename } from "./PackageExportRename.js";
 import type { Replacements } from "./Replacements.js";
-
-const getAllImportsAndExports = weakMemo(notMemoGetAllImportsAndExports);
 
 export function accumulateRenamesForImportedIdentifier(
   ctx: PackageContext,

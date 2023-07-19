@@ -7,7 +7,7 @@ import type * as yargs from "yargs";
 import { findWorkspaceDir } from "@pnpm/find-workspace-dir";
 import { createLogger } from "@eartool/utils";
 import type { JobDef } from "../shared/JobDef.js";
-import { setupWorker, type WorkerData } from "../worker/setupWorker.js";
+import { setupWorker, type WireWorkerData, type WorkerData } from "../worker/setupWorker.js";
 import { runBatchJob, type BatchJobOptions, type JobSpec } from "./runBatchJob.js";
 
 const standardBatchYargsOptions = {
@@ -128,7 +128,11 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
           });
           logger.info("Console log level set to: " + consoleLevel);
 
+          // eslint-disable-next-line no-console
+          console.profile(`${process.pid} --- cliMain()`);
           const q = await cliMain({ ...args, logger } as any);
+          // eslint-disable-next-line no-console
+          console.profileEnd();
 
           await runBatchJob<JobDef<W, R>>(await getBatchJobOptionsFromYargs(args), logger, {
             ...q,
@@ -137,14 +141,26 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
               return {
                 ...q.getJobArgs(info),
                 __specialCommandCheck: name,
+                __parentIdentifier: process.pid.toString(),
               };
             },
           });
         }
       );
   } else {
-    if (workerData.jobArgs.__specialCommandCheck === name) {
-      loadWorkerMain().then((a) => setupWorker(a.default));
+    const wireWorkerData = workerData as WireWorkerData<{
+      __specialCommandCheck: string;
+      __parentIdentifier: string;
+    }>;
+
+    if (wireWorkerData.jobArgs.__specialCommandCheck === name) {
+      loadWorkerMain().then((a) =>
+        setupWorker(
+          a.default,
+          wireWorkerData.jobArgs.__parentIdentifier,
+          wireWorkerData.packageName
+        )
+      );
       // setupWorker((await workerMain()).default);
     }
   }

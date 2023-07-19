@@ -671,7 +671,7 @@ describe("processProject", () => {
         const project = createProjectForTest(inputs);
 
         await processProject(
-          { project, logger, packageName: "foo", packagePath: "/" },
+          { project, logger, packageName: "foo", packagePath: "/", packageJson: {} },
           {
             logger,
             additionalRenames,
@@ -724,7 +724,7 @@ describe("processProject", () => {
     });
 
     const result = await processProject(
-      { project, logger, packageName: "foo", packagePath: "/" },
+      { project, logger, packageName: "foo", packagePath: "/", packageJson: {} },
       {
         logger,
         removeNamespaces: true,

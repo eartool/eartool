@@ -12,7 +12,8 @@ export class ProjectContext implements PackageContext {
     public project: Project,
     public logger: Logger,
     public packagePath: string,
-    public packageName: string
+    public packageName: string,
+    public packageJson: any
   ) {}
 
   addReplacement = (replacement: Replacement) => {
@@ -81,6 +82,7 @@ export class NamespaceContext implements Omit<ProjectContext, "createNamespaceCo
   getReplacements: ProjectContext["getReplacements"];
   recordRename: ProjectContext["recordRename"];
   getRecordedRenames: ProjectContext["getRecordedRenames"];
+  packageJson: ProjectContext["packageJson"];
   packageName: string;
   packagePath: string;
   project: Project;
@@ -103,5 +105,6 @@ export class NamespaceContext implements Omit<ProjectContext, "createNamespaceCo
     this.packageName = this.#projectContext.packageName;
     this.packagePath = this.#projectContext.packagePath;
     this.project = this.#projectContext.project;
+    this.packageJson = this.#projectContext.packageJson;
   }
 }

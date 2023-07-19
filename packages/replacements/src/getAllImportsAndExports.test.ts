@@ -2,7 +2,7 @@ import { createProjectForTest, createTestLogger } from "@eartool/test-utils";
 import { getAllImportsAndExports } from "@eartool/utils";
 import { describe, expect, it } from "@jest/globals";
 
-describe(getAllImportsAndExports, () => {
+describe("getAllImportsAndExports", () => {
   it("idk", () => {
     const project = createProjectForTest({
       "index.ts": `
@@ -51,6 +51,7 @@ describe(getAllImportsAndExports, () => {
       packagePath: "/",
       logger: createTestLogger(),
       project,
+      packageJson: {},
     });
 
     expect(result).toMatchInlineSnapshot(`

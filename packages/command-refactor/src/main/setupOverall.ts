@@ -1,6 +1,6 @@
 import * as Assert from "node:assert";
 import type { PackageExportRename } from "@eartool/replacements";
-import { mergePackageJsonDeps, readPackageJson } from "@eartool/utils";
+import { dropDtsFiles, mergePackageJsonDeps, readPackageJson } from "@eartool/utils";
 import type {
   DependencyDirection,
   FilePath,
@@ -82,6 +82,7 @@ export async function setupOverall(
     const packagePath = workspace.getPackageByNameOrThrow(packageName)!.packagePath;
     const project = projectLoader(packagePath);
     Assert.ok(project);
+    dropDtsFiles(project);
 
     const { allFilesToMove, requiredPackages, rootExportsPerRelativeFilePath } =
       calculatePackageExportRenamesForFileMoves(

@@ -35,7 +35,8 @@ export async function processPackageReplacements(
     )
   );
 
-  addReplacementsForExportsFromRemovedFiles(ctx, filesToRemove);
+  const rootFile = getRootFile(ctx.project);
+  addReplacementsForExportsFromRemovedFiles(ctx, filesToRemove, rootFile);
 
   // FIXME this should be much better now that we pre-grouped above
   removeFilesIfInProject(ctx, filesToRemove);
@@ -50,7 +51,6 @@ export async function processPackageReplacements(
 
     // FIXME need to handle namespace exports too
     if (rootExports.size > 0) {
-      const rootFile = getRootFile(ctx.project);
       if (!rootFile) throw new Error("Couldnt find rootfile");
 
       addReexports(rootExports, ctx.replacements, rootFile, fullpath);

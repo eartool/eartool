@@ -1,3 +1,4 @@
+import * as path from "node:path";
 import { SimpleReplacements } from "@eartool/replacements";
 import { type PackageContext } from "@eartool/utils";
 import { createTestLogger, WorkspaceBuilder } from "@eartool/test-utils";
@@ -25,6 +26,9 @@ export function getWorkerPackageContext({
     packagePath: packageInfo.packagePath,
     project,
     replacements: new SimpleReplacements(logger),
+    packageJson: JSON.parse(
+      project.getFileSystem().readFileSync(path.join(packageInfo.packagePath, "package.json"))
+    ),
   };
   return packageContext;
 }

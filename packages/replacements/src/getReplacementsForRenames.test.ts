@@ -25,7 +25,13 @@ describe(getReplacementsForRenames, () => {
     const replacements = new SimpleReplacements(createConsoleLogger("error"));
 
     getReplacementsForRenames(
-      { project, packageName: "foo", packagePath: "/", logger: createTestLogger() },
+      {
+        project,
+        packageName: "foo",
+        packagePath: "/",
+        logger: createTestLogger(),
+        packageJson: {},
+      },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
       false
@@ -53,7 +59,13 @@ describe(getReplacementsForRenames, () => {
     const replacements = new SimpleReplacements(createConsoleLogger("error"));
 
     getReplacementsForRenames(
-      { project, packageName: "foo", packagePath: "/", logger: createTestLogger() },
+      {
+        project,
+        packageName: "foo",
+        packagePath: "/",
+        logger: createTestLogger(),
+        packageJson: {},
+      },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
       false
@@ -80,7 +92,13 @@ describe(getReplacementsForRenames, () => {
     const replacements = new SimpleReplacements(createConsoleLogger("error"));
 
     getReplacementsForRenames(
-      { project, packageName: "foo", packagePath: "/", logger: createTestLogger() },
+      {
+        project,
+        packageName: "foo",
+        packagePath: "/",
+        logger: createTestLogger(),
+        packageJson: {},
+      },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
       false
@@ -109,7 +127,13 @@ describe(getReplacementsForRenames, () => {
     const replacements = new SimpleReplacements(createConsoleLogger("error"));
 
     getReplacementsForRenames(
-      { project, packageName: "foo", packagePath: "/", logger: createTestLogger() },
+      {
+        project,
+        packageName: "foo",
+        packagePath: "/",
+        logger: createTestLogger(),
+        packageJson: {},
+      },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
       false
@@ -139,7 +163,13 @@ describe(getReplacementsForRenames, () => {
     const replacements = new SimpleReplacements(createConsoleLogger("error"));
 
     getReplacementsForRenames(
-      { project, packageName: "foo", packagePath: "/", logger: createTestLogger() },
+      {
+        project,
+        packageName: "foo",
+        packagePath: "/",
+        logger: createTestLogger(),
+        packageJson: {},
+      },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["Baz", "Other"] }]]]),
       replacements,
       false
@@ -172,7 +202,13 @@ describe(getReplacementsForRenames, () => {
     const replacements = new SimpleReplacements(createConsoleLogger("error"));
 
     getReplacementsForRenames(
-      { project, packageName: "foo", packagePath: "/", logger: createTestLogger() },
+      {
+        project,
+        packageName: "foo",
+        packagePath: "/",
+        logger: createTestLogger(),
+        packageJson: {},
+      },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
       false
@@ -206,7 +242,13 @@ describe(getReplacementsForRenames, () => {
     const replacements = new SimpleReplacements(createConsoleLogger("error"));
 
     getReplacementsForRenames(
-      { project, packageName: "foo", packagePath: "/", logger: createTestLogger() },
+      {
+        project,
+        packageName: "foo",
+        packagePath: "/",
+        logger: createTestLogger(),
+        packageJson: {},
+      },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["Merp", "Other"] }]]]),
       replacements,
       false
@@ -240,7 +282,13 @@ describe(getReplacementsForRenames, () => {
     const replacements = new SimpleReplacements(createConsoleLogger("error"));
 
     getReplacementsForRenames(
-      { project, packageName: "foo", packagePath: "/", logger: createTestLogger() },
+      {
+        project,
+        packageName: "foo",
+        packagePath: "/",
+        logger: createTestLogger(),
+        packageJson: {},
+      },
       new Map([
         [
           "lib",
@@ -283,7 +331,13 @@ describe(getReplacementsForRenames, () => {
     const replacements = new SimpleReplacements(createConsoleLogger("error"));
 
     getReplacementsForRenames(
-      { project, packageName: "foo", packagePath: "/", logger: createTestLogger() },
+      {
+        project,
+        packageName: "foo",
+        packagePath: "/",
+        logger: createTestLogger(),
+        packageJson: {},
+      },
       new Map([
         [
           "lib",
@@ -348,7 +402,13 @@ describe(getReplacementsForRenames, () => {
     const replacements = new SimpleReplacements(createConsoleLogger("error"));
 
     getReplacementsForRenames(
-      { project, packageName: "foo", packagePath: "/", logger: createTestLogger() },
+      {
+        project,
+        packageName: "foo",
+        packagePath: "/",
+        logger: createTestLogger(),
+        packageJson: {},
+      },
       new Map([
         [
           "./lib",

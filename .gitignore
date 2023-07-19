@@ -7,3 +7,4 @@ tsconfig.tsbuildinfo
 /config
 .log
 pnpm-publish-summary.json
+*.cpuprofile

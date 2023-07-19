@@ -39,6 +39,7 @@ export class TestBuilder {
       packageName: "foo",
       packagePath: "foo",
       project: this.project,
+      packageJson: {},
     };
   }
 

@@ -14,5 +14,6 @@ export function maybeLoadProject(packagePath: string) {
   return new Project({
     tsConfigFilePath: tsconfigPath,
     skipLoadingLibFiles: true,
+    skipFileDependencyResolution: true,
   });
 }

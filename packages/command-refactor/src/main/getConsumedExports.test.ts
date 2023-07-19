@@ -55,6 +55,7 @@ describe(getConsumedExports, () => {
           packagePath: "/",
           logger: createTestLogger(),
           project,
+          packageJson: {},
         },
         project.getSourceFileOrThrow("foo.ts")
       );
@@ -170,6 +171,7 @@ describe(getConsumedExports, () => {
           packagePath: "/",
           logger: createTestLogger(),
           project,
+          packageJson: {},
         },
         project.getSourceFileOrThrow("exportedType.ts")
       );
@@ -279,6 +281,7 @@ describe(getConsumedExports, () => {
         packagePath: "/",
         logger: createTestLogger(),
         project,
+        packageJson: {},
       },
       project.getSourceFileOrThrow("/workspace/foo/src/index.ts")
     );
