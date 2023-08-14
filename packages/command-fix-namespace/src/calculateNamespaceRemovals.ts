@@ -25,7 +25,7 @@ export function calculateNamespaceRemovals(
 
   if (sf.getExportSymbols().length == 1) {
     if (namespaceDecl.getSymbolOrThrow().getDeclarations().length > 1) {
-      projectContext.logger.info(
+      projectContext.logger.debug(
         "Can't do ultra simple replacement, falling back to complicated for " +
           namespaceDecl.getName()
       );
