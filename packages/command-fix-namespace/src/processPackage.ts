@@ -24,7 +24,7 @@ export async function processPackage(
   const project = maybeLoadProject(packagePath);
 
   if (!project) {
-    opts.logger.warn(`Skipping package due to missing tsconfig: ${packagePath}`);
+    opts.logger.debug(`Skipping package due to missing tsconfig: ${packagePath}`);
     return Promise.resolve({ exportedRenames: [] });
   }
 
