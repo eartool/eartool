@@ -49,11 +49,13 @@ export function getNewName(
 
   // Special case a few things
   if (
-    oldName.endsWith("Props") ||
-    oldName.endsWith("State") ||
-    oldName.endsWith("Args") ||
-    oldName.endsWith("Return") ||
-    oldName.endsWith("Config")
+    oldName[0] >= "A" &&
+    oldName[0] <= "Z" &&
+    (oldName.endsWith("Props") ||
+      oldName.endsWith("State") ||
+      oldName.endsWith("Args") ||
+      oldName.endsWith("Return") ||
+      oldName.endsWith("Config"))
   ) {
     return { localName: `${oldName}`, importName: `${namespaceName}${oldName}` };
   }

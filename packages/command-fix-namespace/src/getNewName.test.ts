@@ -97,6 +97,14 @@ describe("getNewName", () => {
         importName: "UseFooConfig",
       },
     },
+    {
+      name: "getInitialState",
+      namespaceName: "Stuff",
+      expected: {
+        localName: "getInitialState",
+        importName: "getInitialStateForStuff",
+      },
+    },
   ])("$namespaceName . $name => $expected", ({ name, namespaceName, expected }) => {
     expect(getNewName(name, namespaceName)).toEqual(expected);
   });
