@@ -1,10 +1,14 @@
 import { Node, type SourceFile } from "ts-morph";
-import type { Replacements } from "@eartool/replacements";
+import type { ProjectContext, Replacements } from "@eartool/replacements";
 import { isNamespaceLike } from "@eartool/utils";
 import { replaceImportsAndExports } from "./replaceImportsAndExports.js";
 import { unwrapNamespaceInFile } from "./unwrapNamespaceInFile.js";
 
-export function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Replacements) {
+export function calculateNamespaceLikeRemovals(
+  sf: SourceFile,
+  projectContext: ProjectContext,
+  replacements: Replacements
+) {
   // TODO: Should we check the filename too?
 
   const exports = sf.getStatements().filter((s) => {
@@ -26,7 +30,7 @@ export function calculateNamespaceLikeRemovals(sf: SourceFile, replacements: Rep
 
     const varDecl = statement.getDeclarations()[0];
 
-    replaceImportsAndExports(varDecl, replacements);
+    replaceImportsAndExports(varDecl, replacements, projectContext);
     unwrapNamespaceInFile(varDecl, replacements);
   }
 }

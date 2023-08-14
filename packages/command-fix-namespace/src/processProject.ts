@@ -101,7 +101,7 @@ export async function processProject(
     }
 
     if (removeFauxNamespaces) {
-      calculateNamespaceLikeRemovals(sf, replacements);
+      calculateNamespaceLikeRemovals(sf, context, replacements);
       completedWorkUnits++;
       updateState({ totalWorkUnits, completedWorkUnits, stage: "analyzing" });
     }

@@ -137,6 +137,37 @@ export interface Foo {
 "
 `;
 
+exports[`processProject Fixes the exported type 1`] = `
+"//
+
+//
+// PATH: '/index.ts'
+//
+export { Stuff } from "./stuff";
+,//
+
+//
+// PATH: '/cases/index.ts'
+//
+export * as Selectors from "./selectors";
+,//
+
+//
+// PATH: '/cases/selectors.ts'
+//
+
+export const doStuff = () => 5;
+,//
+
+//
+// PATH: '/inbox/Inbox.ts'
+//
+import { Selectors as CaseSelectors } from "./cases";
+
+CaseSelectors.doStuff();
+"
+`;
+
 exports[`processProject Generics work 1`] = `
 "//
 

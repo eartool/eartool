@@ -30,7 +30,7 @@ export function calculateNamespaceRemovals(
           namespaceDecl.getName()
       );
     } else {
-      replaceImportsAndExports(namespaceDecl, replacements);
+      replaceImportsAndExports(namespaceDecl, replacements, projectContext);
       unwrapNamespaceInFile(namespaceDecl, replacements);
       return;
     }
@@ -103,6 +103,7 @@ export function calculateNamespaceRemovals(
   // re exports wont be able to reference the inner bit, just the namespace so we can fix that now
   renameExports(context);
 
+  // Almost done
   context.addReplacement({
     start: namespaceDecl.getStart(),
     end: namespaceDecl.getFirstDescendantByKindOrThrow(SyntaxKind.OpenBraceToken).getEnd(),

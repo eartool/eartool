@@ -101,7 +101,7 @@ describe("getNewName", () => {
       name: "getInitialState",
       namespaceName: "Stuff",
       expected: {
-        localName: "getInitialState",
+        localName: "getInitialStateForStuff",
         importName: "getInitialStateForStuff",
       },
     },

@@ -682,6 +682,72 @@ const cases: {
       `,
     },
   },
+  //Selectors as WatchedCasesSelectors,
+  {
+    name: "Fixes the exported type",
+    inputs: {
+      "index.ts": `
+        export { Stuff } from "./stuff";
+      `,
+      "inbox/Inbox.ts": `
+        import {Selectors as CaseSelectors} from "./cases";
+
+        CaseSelectors.doStuff();
+      `,
+      "cases/index.ts": `
+        export * from "./selectors";
+      `,
+      "cases/selectors.ts": `
+        export namespace Selectors {
+          export const doStuff = () => 5;
+        }
+      `,
+    },
+  },
+  // {
+  //   name: "Fixes the exported type",
+  //   inputs: {
+  //     "index.ts": `
+  //       export { Stuff } from "./stuff";
+  //     `,
+  //     "thing/index.ts": `
+  //       import {Stuff} from "../stuff";
+
+  //       Stuff.getInitialState();
+  //     `,
+  //     "stuff/index.ts": `
+  //       export interface Stuff {
+  //         hi: string;
+  //       }
+  //       export namespace Stuff {
+  //         export const getInitialState = defaultMemoize((): Stuff => {
+  //           return {
+  //             "hi": "mom"
+  //           };
+  //         });
+  //       }
+  //     `,
+  //   },
+  // },
+  // {
+  //   name: "Handles nested export",
+  //   inputs: {
+  //     "index.ts": `
+  //       export { Actions } from "./stuff";
+  //     `,
+  //     "thing/index.ts": `
+  //       import {Actions} from "../stuff";
+  //     `,
+  //     "stuff/index.ts": `
+  //       export * from "./Actions";
+  //     `,
+  //     "stuff/Actions.ts": `
+  //       export namespace Actions {
+  //         export const doThing = () => 5;
+  //       }
+  //     `,
+  //   },
+  // },
 ];
 
 describe("processProject", () => {
