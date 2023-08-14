@@ -684,7 +684,7 @@ const cases: {
   },
   //Selectors as WatchedCasesSelectors,
   {
-    name: "Fixes the exported type",
+    name: "Fixes export star",
     inputs: {
       "index.ts": `
         export { Stuff } from "./stuff";
@@ -704,50 +704,31 @@ const cases: {
       `,
     },
   },
-  // {
-  //   name: "Fixes the exported type",
-  //   inputs: {
-  //     "index.ts": `
-  //       export { Stuff } from "./stuff";
-  //     `,
-  //     "thing/index.ts": `
-  //       import {Stuff} from "../stuff";
+  {
+    name: "Fixes the exported type",
+    inputs: {
+      "index.ts": `
+        export { Stuff } from "./stuff";
+      `,
+      "thing/index.ts": `
+        import {Stuff} from "../stuff";
 
-  //       Stuff.getInitialState();
-  //     `,
-  //     "stuff/index.ts": `
-  //       export interface Stuff {
-  //         hi: string;
-  //       }
-  //       export namespace Stuff {
-  //         export const getInitialState = defaultMemoize((): Stuff => {
-  //           return {
-  //             "hi": "mom"
-  //           };
-  //         });
-  //       }
-  //     `,
-  //   },
-  // },
-  // {
-  //   name: "Handles nested export",
-  //   inputs: {
-  //     "index.ts": `
-  //       export { Actions } from "./stuff";
-  //     `,
-  //     "thing/index.ts": `
-  //       import {Actions} from "../stuff";
-  //     `,
-  //     "stuff/index.ts": `
-  //       export * from "./Actions";
-  //     `,
-  //     "stuff/Actions.ts": `
-  //       export namespace Actions {
-  //         export const doThing = () => 5;
-  //       }
-  //     `,
-  //   },
-  // },
+        Stuff.getInitialState();
+      `,
+      "stuff/index.ts": `
+        export interface Stuff {
+          hi: string;
+        }
+        export namespace Stuff {
+          export const getInitialState = defaultMemoize((): Stuff => {
+            return {
+              "hi": "mom"
+            };
+          });
+        }
+      `,
+    },
+  },
 ];
 
 describe("processProject", () => {

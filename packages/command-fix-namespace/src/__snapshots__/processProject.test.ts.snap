@@ -137,7 +137,7 @@ export interface Foo {
 "
 `;
 
-exports[`processProject Fixes the exported type 1`] = `
+exports[`processProject Fixes export star 1`] = `
 "//
 
 //
@@ -165,6 +165,38 @@ export const doStuff = () => 5;
 import { Selectors as CaseSelectors } from "./cases";
 
 CaseSelectors.doStuff();
+"
+`;
+
+exports[`processProject Fixes the exported type 1`] = `
+"//
+
+//
+// PATH: '/index.ts'
+//
+export { getInitialStateForStuff, type Stuff } from "./stuff";
+,//
+
+//
+// PATH: '/stuff/index.ts'
+//
+export interface Stuff {
+  hi: string;
+}
+
+export const getInitialStateForStuff = defaultMemoize((): Stuff => {
+  return {
+    hi: "mom",
+  };
+});
+,//
+
+//
+// PATH: '/thing/index.ts'
+//
+import { getInitialStateForStuff } from "../stuff";
+
+getInitialStateForStuff();
 "
 `;
 

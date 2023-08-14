@@ -19,7 +19,14 @@ export function renameExports(context: NamespaceContext) {
     const exportDecl = refNode.getFirstAncestorByKind(SyntaxKind.ExportDeclaration);
 
     if (exportDecl) {
-      processSingleExport(refNode, exportDecl, context, hasMultipleDeclarations);
+      const twinIsType = !!namespaceDecl
+        .getParent()
+        .forEachChild(
+          (n) =>
+            n.isKind(SyntaxKind.InterfaceDeclaration) || n.isKind(SyntaxKind.TypeAliasDeclaration)
+        );
+
+      processSingleExport(refNode, exportDecl, context, hasMultipleDeclarations, twinIsType);
     }
   }
 }
@@ -28,7 +35,8 @@ function processSingleExport(
   refNode: Node,
   exportDecl: ExportDeclaration,
   context: NamespaceContext,
-  hasMultipleDeclarations: boolean
+  hasMultipleDeclarations: boolean,
+  twinIsType: boolean
 ) {
   const { typeRenames, concreteRenames, logger, namespaceName } = context;
 
@@ -53,6 +61,13 @@ function processSingleExport(
       end: refNode.getEnd(),
       filePath,
       newValue: "",
+    });
+  } else if (twinIsType) {
+    context.addReplacement({
+      start: refNode.getStart(),
+      end: refNode.getStart(),
+      filePath,
+      newValue: `type `,
     });
   }
 
