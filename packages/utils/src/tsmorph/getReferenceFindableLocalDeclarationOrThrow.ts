@@ -1,5 +1,6 @@
 import * as Assert from "node:assert";
 import { Node, type ReferenceFindableNode } from "ts-morph";
+import { getSimplifiedNodeInfoAsString } from "./getSimplifiedNodeInfo.js";
 
 export function getReferenceFindableLocalDeclarationOrThrow(
   node: Node,
@@ -9,7 +10,10 @@ export function getReferenceFindableLocalDeclarationOrThrow(
   // should ony be one
   // FIXME I think this fails if there is a type by the same name?
   const decls = originalSymbol.getDeclarations();
-  Assert.ok(decls.length == 1, "Got more than one declaration!");
+  Assert.ok(
+    decls.length == 1,
+    `Got more than one declaration! ${decls.map((a) => getSimplifiedNodeInfoAsString(a))}`
+  );
   const ret = decls[0];
   Assert.ok(Node.isReferenceFindable(ret), "Invariant failed. How is this not findable?");
   return ret;
