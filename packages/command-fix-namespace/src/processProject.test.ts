@@ -729,6 +729,23 @@ const cases: {
       `,
     },
   },
+  {
+    name: "Doesnt mess up indirect imports",
+    inputs: {
+      "index.ts": `
+        import {Selectors} from "./cases";
+        export const foo = Selectors.doStuff();
+      `,
+      "cases/index.ts": `
+        export * from "./selectors";
+      `,
+      "cases/selectors.ts": `
+        export namespace Selectors {
+          export const doStuff = () => 5;
+        }
+      `,
+    },
+  },
 ];
 
 describe("processProject", () => {

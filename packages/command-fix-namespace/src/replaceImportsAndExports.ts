@@ -29,9 +29,21 @@ export function replaceImportsAndExports(
         .getSourceFile()
         .getFilePath()} while looking for ${specifier.getText()}`
     );
-    const varName = (specifier.getAliasNode() ?? specifier.getNameNode()).getText();
-    replacements.replaceNode(named, `* as ${varName}`);
-    visitedSpecifiers.add(specifier);
+
+    // Only the first reexport needs the `* as` syntax
+    const decl =
+      specifier.getFirstAncestorByKind(SyntaxKind.ExportDeclaration) ??
+      specifier.getFirstAncestorByKind(SyntaxKind.ImportDeclaration);
+    if (decl) {
+      if (
+        findFileLocationForImportExport(projectContext, decl) ===
+        varDecl.getSourceFile().getFilePath()
+      ) {
+        const varName = (specifier.getAliasNode() ?? specifier.getNameNode()).getText();
+        replacements.replaceNode(named, `* as ${varName}`);
+        visitedSpecifiers.add(specifier);
+      }
+    }
   }
 
   // Note this assumes there is only one of the declarations for the varDecl

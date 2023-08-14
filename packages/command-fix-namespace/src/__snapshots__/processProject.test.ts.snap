@@ -137,6 +137,30 @@ export interface Foo {
 "
 `;
 
+exports[`processProject Doesnt mess up indirect imports 1`] = `
+"//
+
+//
+// PATH: '/index.ts'
+//
+import { Selectors } from "./cases";
+export const foo = Selectors.doStuff();
+,//
+
+//
+// PATH: '/cases/index.ts'
+//
+export * as Selectors from "./selectors";
+,//
+
+//
+// PATH: '/cases/selectors.ts'
+//
+
+export const doStuff = () => 5;
+"
+`;
+
 exports[`processProject Fixes export star 1`] = `
 "//
 
