@@ -75,6 +75,9 @@ export function calculateNamespaceRemovals(
       context.concreteRenames.add(name);
     } else if (Node.isEnumDeclaration(q)) {
       throw new Error("Not implemented"); // FIXME
+    } else if (q.getKind() === SyntaxKind.SingleLineCommentTrivia) {
+      // No special treatment. Don't trigger the logger error.
+      // different style if statement to avoid making q `never` in the fallthrough
     } else {
       context.logger.error("Unknown kind %s", q.getKindName());
     }

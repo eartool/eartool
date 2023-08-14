@@ -50,32 +50,36 @@ export function unwrapNamespaceInFile(
   const kids = Node.isModuleDeclaration(varOrModuleDecl)
     ? varOrModuleDecl.getChildSyntaxListOrThrow().getChildren()
     : varOrModuleDecl.getInitializer().getExpression().getProperties();
-  for (const propOrMethod of kids) {
-    if (Node.isMethodDeclaration(propOrMethod)) {
+  for (const childNode of kids) {
+    if (Node.isMethodDeclaration(childNode)) {
       // namespace like
-      replacements.insertBefore(propOrMethod, "export function ");
-      renameVariablesInBody(exportedNames, replacements, propOrMethod);
-    } else if (Node.isPropertyAssignment(propOrMethod)) {
+      replacements.insertBefore(childNode, "export function ");
+      renameVariablesInBody(exportedNames, replacements, childNode);
+    } else if (Node.isPropertyAssignment(childNode)) {
       // namespace like
       replacements.addReplacement(
         sf,
-        propOrMethod.getStart(),
-        propOrMethod.getFirstChildByKindOrThrow(SyntaxKind.ColonToken).getEnd(),
-        `export const ${(propOrMethod as any).getName()} = `
+        childNode.getStart(),
+        childNode.getFirstChildByKindOrThrow(SyntaxKind.ColonToken).getEnd(),
+        `export const ${(childNode as any).getName()} = `
       );
-    } else if (Node.isFunctionDeclaration(propOrMethod)) {
+    } else if (Node.isFunctionDeclaration(childNode)) {
       // namespace
-      renameVariablesInBody(exportedNames, replacements, propOrMethod);
-    } else if (Node.isVariableStatement(propOrMethod)) {
+      renameVariablesInBody(exportedNames, replacements, childNode);
+    } else if (Node.isVariableStatement(childNode)) {
       // namespace
       // do nothing!
+    } else if (Node.isInterfaceDeclaration(childNode) || Node.isTypeAliasDeclaration(childNode)) {
+      // Do nothign here either. We continue to export if it was exported otherwise we leave it as is.
+    } else if (childNode.isKind(SyntaxKind.SingleLineCommentTrivia)) {
+      // We can just let the comments fall through
     } else {
       replacements.logger.error(
         "unwrapNamespaceInFile(): Unexpected kind %s",
-        getSimplifiedNodeInfoAsString(propOrMethod)
+        getSimplifiedNodeInfoAsString(childNode)
       );
     }
-    replacements.removeNextSiblingIfComma(propOrMethod);
+    replacements.removeNextSiblingIfComma(childNode);
   }
 
   // Its possible there was self referential code, so we need to handle that case
