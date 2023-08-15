@@ -3,16 +3,19 @@ import type { SourceFile } from "ts-morph";
 import { Node, SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "@eartool/replacements";
 import { getProperRelativePathAsModuleSpecifierTo } from "@eartool/utils";
+import { isAnyOf } from "@reduxjs/toolkit";
 import { getNewName } from "./getNewName.js";
 import { getRelevantNodeFromRefOrThrow } from "./getRelevantNodeFromRefOrThrow.js";
 
-export function renameReferences(oldName: string, context: NamespaceContext) {
+const isTypeNode = isAnyOf(Node.isInterfaceDeclaration, Node.isTypeAliasDeclaration);
+
+export function renameReferences(oldName: string, context: NamespaceContext, isType: boolean) {
   const { namespaceDecl } = context;
   const logger = context.logger.child({ oldName });
   const { localName, importName } = getNewName(oldName, namespaceDecl.getName());
   const sym = namespaceDecl.getLocalOrThrow(oldName);
-  // should ony be one
-  const [q] = sym.getDeclarations();
+  const q = sym.getDeclarations().find((a) => isTypeNode(a) === isType);
+  Assert.ok(q != null, `There should definitely be node here for us to rename. ${oldName}`);
   Assert.ok(Node.isReferenceFindable(q), "Invariant failed. How is this not findable?");
 
   logger.trace("Inside renameReferences for '%s' (%s)", q.getText(), q.getKindName());

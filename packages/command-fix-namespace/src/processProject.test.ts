@@ -746,6 +746,18 @@ const cases: {
       `,
     },
   },
+  {
+    name: "Twins in namespace",
+    inputs: {
+      "index.ts": `
+        export interface State {}
+        export namespace State {
+          export const ROOT_KEY = "state";
+          export type ROOT_KEY = typeof ROOT_KEY;
+        }
+      `,
+    },
+  },
 ];
 
 describe("processProject", () => {

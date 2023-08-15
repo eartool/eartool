@@ -572,6 +572,19 @@ export type MyProps = FooProps;
 "
 `;
 
+exports[`processProject Twins in namespace 1`] = `
+"//
+
+//
+// PATH: '/index.ts'
+//
+export interface State {}
+
+export const STATE_ROOT_KEY = "state";
+export type STATE_ROOT_KEY = typeof STATE_ROOT_KEY;
+"
+`;
+
 exports[`processProject combined types 1`] = `
 "//
 
