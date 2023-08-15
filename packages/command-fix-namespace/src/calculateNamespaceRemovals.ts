@@ -67,15 +67,16 @@ export function calculateNamespaceRemovals(
       const name = q.getName();
       Assert.ok(name != null, "name was expected");
       context.typeRenames.add(name);
-    } else if (Node.isFunctionDeclaration(q) || Node.isClassDeclaration(q)) {
+    } else if (
+      Node.isFunctionDeclaration(q) ||
+      Node.isClassDeclaration(q) ||
+      Node.isEnumDeclaration(q)
+    ) {
       // Can't have unnamed functions in namespace unless its invoked,
       // but that would be an expression statement so we are okay
       const name = q.getName();
       Assert.ok(name != null, "name was expected");
       context.concreteRenames.add(name);
-    } else if (Node.isEnumDeclaration(q)) {
-      throw new Error("Not implemented"); // FIXME
-    } else if (q.getKind() === SyntaxKind.SingleLineCommentTrivia) {
       // No special treatment. Don't trigger the logger error.
       // different style if statement to avoid making q `never` in the fallthrough
     } else {

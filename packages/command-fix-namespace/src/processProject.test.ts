@@ -747,6 +747,43 @@ const cases: {
     },
   },
   {
+    name: "Enums rename properly",
+    inputs: {
+      "index.ts": `
+      `,
+      "dialog.ts": `
+        export type DialogMode = A | B;
+
+        export namespace DialogMode {
+          export enum Type {
+            A = "A",
+            B = "B",
+          }
+        
+
+          export function isA(dialog: DialogMode): dialog is A {
+            // Fully qualified
+            return dialog.type === DialogMode.Type.A;
+          }
+          
+          export function isB(dialog: DialogMode): dialog is B {
+            // Local to namespace
+            return dialog.type === Type.B
+          }
+        }
+
+        export interface A {
+          type: DialogMode.Type.A
+        }
+        
+        export interface B {
+          type: DialogMode.Type.B
+          onConfirm: () => void;
+        }        
+      `,
+    },
+  },
+  {
     name: "Twins in namespace",
     inputs: {
       "index.ts": `

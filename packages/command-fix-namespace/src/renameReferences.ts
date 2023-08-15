@@ -2,7 +2,10 @@ import * as Assert from "node:assert";
 import type { SourceFile } from "ts-morph";
 import { Node, SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "@eartool/replacements";
-import { getProperRelativePathAsModuleSpecifierTo } from "@eartool/utils";
+import {
+  getProperRelativePathAsModuleSpecifierTo,
+  getSimplifiedNodeInfoAsString,
+} from "@eartool/utils";
 import { isAnyOf } from "@reduxjs/toolkit";
 import { getNewName } from "./getNewName.js";
 import { getRelevantNodeFromRefOrThrow } from "./getRelevantNodeFromRefOrThrow.js";
@@ -26,7 +29,7 @@ export function renameReferences(oldName: string, context: NamespaceContext, isT
   const addedToImports = new Map<SourceFile, boolean>();
 
   for (const r of q.findReferencesAsNodes()) {
-    logger.trace("Found ref: %s %s", r.print(), r.getKindName());
+    logger.trace("Found ref: %s", getSimplifiedNodeInfoAsString(r));
 
     // Annoyingly, if you are referenced, this triggers on yourself
     // but if you are not referenced it doesn't. So thats cool... eg:
@@ -48,7 +51,7 @@ export function renameReferences(oldName: string, context: NamespaceContext, isT
 
     // This is the identifier for the variable but we need to rename
     // both it AND the access to the namespace so lets get there first
-    const nodeToRename = getRelevantNodeFromRefOrThrow(r, logger);
+    const nodeToRename = getRelevantNodeFromRefOrThrow(r, oldName, logger);
     logger.trace("Found node to replace: %s", nodeToRename.print());
 
     logger.trace("r: {%s, %d, %d}", r.getText(), r.getStart(), r.getEnd());

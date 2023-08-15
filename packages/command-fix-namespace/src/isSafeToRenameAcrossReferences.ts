@@ -15,7 +15,7 @@ export function isSafeToRenameAcrossReferences(
     const isInSameFile = refNode.getSourceFile() === namespaceDecl.getSourceFile();
     // This is the identifier for the variable but we need to rename
     // both it AND the access to the namespace so lets get there first
-    const parent = getRelevantNodeFromRefOrThrow(refNode, logger);
+    const parent = getRelevantNodeFromRefOrThrow(refNode, oldName, logger);
 
     // Too lazy to do deep checks here for finding a safe name. yes or no is good enough
     if (parent.getLocal(isInSameFile ? localName : importName)) {

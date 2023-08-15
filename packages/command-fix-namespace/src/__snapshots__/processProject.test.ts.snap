@@ -161,6 +161,45 @@ export const doStuff = () => 5;
 "
 `;
 
+exports[`processProject Enums rename properly 1`] = `
+"//
+
+//
+// PATH: '/dialog.ts'
+//
+export type DialogMode = A | B;
+
+export enum TypeForDialogMode {
+  A = "A",
+  B = "B",
+}
+
+export function isAForDialogMode(dialog: DialogMode): dialog is A {
+  // Fully qualified
+  return dialog.type === TypeForDialogMode.A;
+}
+
+export function isBForDialogMode(dialog: DialogMode): dialog is B {
+  // Local to namespace
+  return dialog.type === TypeForDialogMode.B;
+}
+
+export interface A {
+  type: TypeForDialogMode.A;
+}
+
+export interface B {
+  type: TypeForDialogMode.B;
+  onConfirm: () => void;
+}
+,//
+
+//
+// PATH: '/index.ts'
+//
+"
+`;
+
 exports[`processProject Fixes export star 1`] = `
 "//
 
