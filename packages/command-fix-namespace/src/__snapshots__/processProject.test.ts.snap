@@ -790,6 +790,32 @@ export const after = 5;
 "
 `;
 
+exports[`processProject reexports only alias a single time 1`] = `
+"//
+
+//
+// PATH: '/index.ts'
+//
+export { Main, type MainProps } from "./main";
+,//
+
+//
+// PATH: '/main/index.ts'
+//
+export { Main, type Props as MainProps } from "./Main";
+,//
+
+//
+// PATH: '/main/Main.ts'
+//
+
+export interface Props {}
+
+export class MainInternal extends React.Component {}
+export const Main = connect()(MainInternal);
+"
+`;
+
 exports[`processProject rename in other file exclusive 1`] = `
 "//
 

@@ -52,6 +52,9 @@ export function getPossibleFileLocations(
   return project
     .getRootDirectories()
     .flatMap((d) =>
-      [".ts", ".tsx", ".js"].map((ext) => path.resolve(d.getPath(), relPathToRootDir + ext))
+      (esModule
+        ? [".ts", ".tsx", ".js"]
+        : [".ts", ".tsx", ".js", "/index.ts", "/index.tsx", "/index.js"]
+      ).map((ext) => path.resolve(d.getPath(), relPathToRootDir + ext))
     );
 }

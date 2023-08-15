@@ -795,6 +795,22 @@ const cases: {
       `,
     },
   },
+  {
+    name: "reexports only alias a single time",
+    inputs: {
+      "index.ts": `export {Main} from "./main";`,
+      "main/index.ts": `export {Main} from "./Main";`,
+      "main/Main.ts": `
+        export namespace Main {
+          export interface Props {
+
+          }
+        }
+        export class MainInternal extends React.Component {}
+        export const Main = connect()(MainInternal);
+      `,
+    },
+  },
 ];
 
 describe("processProject", () => {

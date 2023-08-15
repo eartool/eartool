@@ -2,7 +2,7 @@ import * as Assert from "node:assert";
 import type { ExportDeclaration, Node } from "ts-morph";
 import { SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "@eartool/replacements";
-import { isRootExport } from "@eartool/utils";
+import { findFileLocationForImportExport, isRootExport } from "@eartool/utils";
 import { getNewName } from "./getNewName.js";
 
 export function renameExports(context: NamespaceContext) {
@@ -44,6 +44,9 @@ function processSingleExport(
   const startOfExport = exportDecl.getStart();
   Assert.ok(moduleSpecifier != null);
 
+  const isOneStepAway =
+    findFileLocationForImportExport(context, exportDecl) === context.targetSourceFile.getFilePath();
+
   logger.trace("Found '%s' in %s", exportDecl.print(), exportDecl);
 
   const filePath = exportDecl.getSourceFile().getFilePath();
@@ -73,7 +76,10 @@ function processSingleExport(
 
   function processTypeOrVariable(oldName: string, isType: boolean) {
     const { localName, importName } = getNewName(oldName, namespaceName);
-    const n = () => (localName === importName ? localName : `${localName} as ${importName}`);
+    const n = () => {
+      if (!isOneStepAway) return importName;
+      return localName === importName ? localName : `${localName} as ${importName}`;
+    };
 
     if (isRootExport(exportDecl.getSourceFile())) {
       // TODO Rename this to be clearer
