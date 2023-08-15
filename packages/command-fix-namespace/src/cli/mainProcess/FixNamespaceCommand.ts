@@ -51,7 +51,8 @@ export default makeBatchCommand(
               : new Map(),
           };
         },
-        onComplete: ({ packageName }, { result: exportedRenames }) => {
+        onComplete: ({ packageName }, { result: exportedRenames, logger }) => {
+          logger.debug("Got exported renames %o", exportedRenames);
           store.dispatch(workCompleted({ exportedRenames, packageName }));
         },
         order: "upstreamFirst",

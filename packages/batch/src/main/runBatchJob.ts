@@ -72,7 +72,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
         const result = maybeSkipWithResult ?? (await runInWorker(jobInfo));
 
         if (jobSpec.onComplete) {
-          logger.trace("Calling onComplete for %s %o", packageName);
+          logger.trace("Calling onComplete for %s %o", packageName, result);
           await jobSpec.onComplete(jobInfo, { logger, result });
         }
 

@@ -139,6 +139,8 @@ export async function processProject(
     updateState({ totalWorkUnits, completedWorkUnits, stage: "writing" });
   }
 
+  logger.debug("Exported renames %o", context.getRecordedRenames());
+
   return {
     exportedRenames: context.getRecordedRenames(),
   };

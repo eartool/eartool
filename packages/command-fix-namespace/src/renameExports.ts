@@ -1,6 +1,6 @@
 import * as Assert from "node:assert";
-import type { ExportDeclaration, Node } from "ts-morph";
-import { SyntaxKind } from "ts-morph";
+import type { ExportDeclaration } from "ts-morph";
+import { Node, SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "@eartool/replacements";
 import { findFileLocationForImportExport, isRootExport } from "@eartool/utils";
 import { getNewName } from "./getNewName.js";
@@ -23,7 +23,9 @@ export function renameExports(context: NamespaceContext) {
         .getParent()
         .forEachChild(
           (n) =>
-            n.isKind(SyntaxKind.InterfaceDeclaration) || n.isKind(SyntaxKind.TypeAliasDeclaration)
+            Node.hasName(n) &&
+            n.getName() === namespaceDecl.getName() &&
+            (n.isKind(SyntaxKind.InterfaceDeclaration) || n.isKind(SyntaxKind.TypeAliasDeclaration))
         );
 
       processSingleExport(refNode, exportDecl, context, hasMultipleDeclarations, twinIsType);

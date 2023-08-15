@@ -137,6 +137,37 @@ export interface Foo {
 "
 `;
 
+exports[`processProject Doesnt export as type just because there is extra info 1`] = `
+"//
+
+//
+// PATH: '/index.ts'
+//
+export { Stuff, getInitialStateForStuff } from "./stuff";
+,//
+
+//
+// PATH: '/stuff/index.ts'
+//
+export interface Unrelated {}
+export class Stuff {}
+
+export const getInitialStateForStuff = defaultMemoize((): Stuff => {
+  return {
+    hi: "mom",
+  };
+});
+,//
+
+//
+// PATH: '/thing/index.ts'
+//
+import { getInitialStateForStuff } from "../stuff";
+
+getInitialStateForStuff();
+"
+`;
+
 exports[`processProject Doesnt mess up indirect imports 1`] = `
 "//
 

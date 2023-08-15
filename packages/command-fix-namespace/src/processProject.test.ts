@@ -730,6 +730,32 @@ const cases: {
     },
   },
   {
+    name: "Doesnt export as type just because there is extra info",
+    inputs: {
+      "index.ts": `
+        export { Stuff } from "./stuff";
+      `,
+      "thing/index.ts": `
+        import {Stuff} from "../stuff";
+
+        Stuff.getInitialState();
+      `,
+      "stuff/index.ts": `
+        export interface Unrelated {}
+        export class Stuff {
+        }
+        export namespace Stuff {
+          export const getInitialState = defaultMemoize((): Stuff => {
+            return {
+              "hi": "mom"
+            };
+          });
+        }
+
+      `,
+    },
+  },
+  {
     name: "Doesnt mess up indirect imports",
     inputs: {
       "index.ts": `
