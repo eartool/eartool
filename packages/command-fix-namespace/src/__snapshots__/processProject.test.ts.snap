@@ -589,6 +589,27 @@ export const bar = () => {
 "
 `;
 
+exports[`processProject Properly updates outer and inner 1`] = `
+"//
+
+//
+// PATH: '/index.ts'
+//
+
+export interface Props {
+  slides: readonly InnerForOuter.Props[];
+}
+
+export namespace InnerForOuter {
+  export interface Props {
+    index: number;
+  }
+}
+
+export const Outer = 5;
+"
+`;
+
 exports[`processProject Renames import specifiers as needed 1`] = `
 "//
 

@@ -79,6 +79,10 @@ export function calculateNamespaceRemovals(
       context.concreteRenames.add(name);
       // No special treatment. Don't trigger the logger error.
       // different style if statement to avoid making q `never` in the fallthrough
+    } else if (Node.isModuleDeclaration(q)) {
+      const name = q.getName();
+      Assert.ok(name != null, "name was expected");
+      context.concreteRenames.add(name);
     } else {
       context.logger.error("Unknown kind %s", q.getKindName());
     }

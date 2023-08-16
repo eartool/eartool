@@ -29,7 +29,7 @@ export function getRelevantNodeFromRefOrThrow(
     return parent;
   }
 
-  if (Node.isQualifiedName(parent)) {
+  if (Node.isQualifiedName(parent) && parent.getRight().getText() === oldName) {
     return parent;
   } else {
     return r;

@@ -837,6 +837,26 @@ const cases: {
       `,
     },
   },
+  {
+    name: "Properly updates outer and inner",
+    inputs: {
+      "index.ts": `
+        export namespace Outer {
+          export interface Props {
+            slides: readonly Outer.Inner.Props[];
+          }
+        
+          export namespace Inner {
+            export interface Props {
+              index: number;
+            }
+          }
+        }
+        
+        export const Outer = 5;
+      `,
+    },
+  },
 ];
 
 describe("processProject", () => {
