@@ -96,10 +96,13 @@ export function replaceSelfReferentialUsage(
   for (const refIdentifier of varDecl.findReferencesAsNodes()) {
     if (refIdentifier.getSourceFile() !== varDecl.getSourceFile()) continue;
 
-    const parent = refIdentifier.getParentIfKind(SyntaxKind.PropertyAccessExpression);
-    if (!parent) continue;
+    const parentOfRef = refIdentifier.getParentOrThrow();
 
-    replacements.replaceNode(parent, parent.getNameNode().getFullText());
+    if (parentOfRef.isKind(SyntaxKind.PropertyAccessExpression)) {
+      replacements.replaceNode(parentOfRef, parentOfRef.getNameNode().getFullText());
+    } else if (parentOfRef.isKind(SyntaxKind.QualifiedName)) {
+      replacements.replaceNode(parentOfRef, parentOfRef.getRight().getText());
+    }
   }
 }
 

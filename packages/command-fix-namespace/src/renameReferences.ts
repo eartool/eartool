@@ -16,20 +16,31 @@ export function renameReferences(oldName: string, context: NamespaceContext, isT
   const { namespaceDecl } = context;
   const logger = context.logger.child({ oldName });
   const { localName, importName } = getNewName(oldName, namespaceDecl.getName());
-  const sym = namespaceDecl.getLocalOrThrow(oldName);
-  const q = sym.getDeclarations().find((a) => isTypeNode(a) === isType);
-  Assert.ok(q != null, `There should definitely be node here for us to rename. ${oldName}`);
-  Assert.ok(Node.isReferenceFindable(q), "Invariant failed. How is this not findable?");
 
-  logger.trace("Inside renameReferences for '%s' (%s)", q.getText(), q.getKindName());
-  context.addReplacementForNode(q, localName);
+  const correctNode = namespaceDecl
+    .getLocalOrThrow(oldName)
+    .getDeclarations()
+    .find((a) => isTypeNode(a) === isType);
+  Assert.ok(
+    correctNode != null,
+    `There should definitely be node here for us to rename. ${oldName}`
+  );
+  Assert.ok(Node.isReferenceFindable(correctNode), "Invariant failed. How is this not findable?");
 
-  logger.trace("Count of references: %d", q.findReferencesAsNodes().length);
+  logger.trace(
+    "Inside renameReferences for '%s' (%s) (isType: %s)",
+    correctNode.getText(),
+    correctNode.getKindName(),
+    isType ? "true" : "false"
+  );
+  context.addReplacementForNode(correctNode, localName);
+
+  logger.trace("Count of references: %d", correctNode.findReferencesAsNodes().length);
 
   const addedToImports = new Map<SourceFile, boolean>();
 
-  for (const r of q.findReferencesAsNodes()) {
-    logger.trace("Found ref: %s", getSimplifiedNodeInfoAsString(r));
+  for (const refNode of correctNode.findReferencesAsNodes()) {
+    logger.trace("Found ref: %s", getSimplifiedNodeInfoAsString(refNode));
 
     // Annoyingly, if you are referenced, this triggers on yourself
     // but if you are not referenced it doesn't. So thats cool... eg:
@@ -41,20 +52,20 @@ export function renameReferences(oldName: string, context: NamespaceContext, isT
     //     return 5;
     //   }
     // }
-    if (r == q.getFirstDescendantByKindOrThrow(SyntaxKind.Identifier)) {
+    if (refNode == correctNode.getFirstDescendantByKindOrThrow(SyntaxKind.Identifier)) {
       continue; // sigh. just us again
     }
 
     // We need to save this off because `r` is invalid after we replace
-    const referencingSf = r.getSourceFile();
+    const referencingSf = refNode.getSourceFile();
     const isInSameFile = referencingSf == namespaceDecl.getSourceFile();
 
     // This is the identifier for the variable but we need to rename
     // both it AND the access to the namespace so lets get there first
-    const nodeToRename = getRelevantNodeFromRefOrThrow(r, oldName, logger);
+    const nodeToRename = getRelevantNodeFromRefOrThrow(refNode, oldName, logger);
     logger.trace("Found node to replace: %s", nodeToRename.print());
 
-    logger.trace("r: {%s, %d, %d}", r.getText(), r.getStart(), r.getEnd());
+    logger.trace("r: {%s, %d, %d}", refNode.getText(), refNode.getStart(), refNode.getEnd());
     logger.trace(
       "p: {%s, %d, %d}",
       nodeToRename.getText(),

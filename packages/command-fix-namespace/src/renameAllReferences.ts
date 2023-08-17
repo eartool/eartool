@@ -11,7 +11,7 @@ import { renameReferences } from "./renameReferences.js";
  */
 
 export function renameAllReferences(context: NamespaceContext) {
-  context.logger.trace("Renaming references");
+  context.logger.trace("renameAllReferences");
   for (const oldName of context.typeRenames) {
     renameReferences(oldName, context, true);
   }

@@ -857,6 +857,54 @@ const cases: {
       `,
     },
   },
+  {
+    name: "Properly handles the reference with the unwrap case when outside",
+    inputs: {
+      "index.ts": `
+        export {Outer} from "./foo";
+      `,
+      "foo.ts": `
+        export namespace Outer {
+          export interface Options {
+            api: string;
+          }
+        
+          export function run(options: Options) {
+            
+          }
+        }
+        
+        interface Foo {
+        
+        }
+        
+        function doStuff(): Outer.Options {
+          return {
+            api: 'foo',
+          }
+        }
+      `,
+    },
+  },
+  {
+    name: "Properly handles the reference with the unwrap case when inside",
+    inputs: {
+      "index.ts": `
+        export namespace Foo {
+
+          export const inner = {
+            bleh: (value:string) => 5,
+            other: (value: string) => 6
+          };
+
+          
+          export function asdf(value: string) {
+            return value != null ? Foo.inner.bleh(value) : undefined;
+          }
+        }
+`,
+    },
+  },
 ];
 
 describe("processProject", () => {

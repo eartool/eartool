@@ -1,6 +1,7 @@
 import * as path from "node:path";
 import * as Assert from "assert";
-import { Node, type SourceFile, SyntaxKind } from "ts-morph";
+import { Node, SyntaxKind } from "ts-morph";
+import type { ModuleDeclaration, SourceFile } from "ts-morph";
 import { isNamespaceDeclaration } from "@eartool/utils";
 import type { ProjectContext, Replacements } from "@eartool/replacements";
 import { isSafeToRenameAllAcrossReferences } from "./isSafeToRenameAllAcrossReferences.js";
@@ -32,11 +33,47 @@ export function calculateNamespaceRemovals(
     } else {
       replaceImportsAndExports(namespaceDecl, replacements, projectContext);
       unwrapNamespaceInFile(namespaceDecl, replacements);
+
       return;
     }
   }
 
+  const context = buildContext(projectContext, namespaceDecl);
+  if (!context) return; // we had to abort
+
+  // if we got here, its safe to know we can rename in file but we don't
+  // know what we can do across the rest of the package. lets sanity check
+  if (!isSafeToRenameAllAcrossReferences(context)) {
+    context.logger.warn("Aborting");
+    return;
+  }
+
+  // if we got here its safe to do our job.
+  // find the files that used these old names
+  renameAllReferences(context);
+
+  // re exports wont be able to reference the inner bit, just the namespace so we can fix that now
+  renameExports(context);
+
+  // Almost done
+  context.addReplacement({
+    start: namespaceDecl.getStart(),
+    end: namespaceDecl.getFirstDescendantByKindOrThrow(SyntaxKind.OpenBraceToken).getEnd(),
+    filePath: namespaceDecl.getSourceFile().getFilePath(),
+    newValue: "",
+  });
+
+  context.addReplacement({
+    start: namespaceDecl.getDescendantsOfKind(SyntaxKind.CloseBraceToken).at(-1)!.getStart(),
+    end: namespaceDecl.getEnd(),
+    filePath: namespaceDecl.getSourceFile().getFilePath(),
+    newValue: "",
+  });
+}
+
+function buildContext(projectContext: ProjectContext, namespaceDecl: ModuleDeclaration) {
   const context = projectContext.createNamespaceContext(namespaceDecl);
+  const sf = namespaceDecl.getSourceFile();
 
   const namespaceName = namespaceDecl.getName();
   context.logger.trace(`calculateNamespaceRemovals(): Found namespace %s`, namespaceName);
@@ -56,7 +93,7 @@ export function calculateNamespaceRemovals(
             "Aborting fixing '%s' as it will be too hard to unwrap",
             varDecl.getName()
           );
-          return;
+          return undefined;
         } else {
           context.concreteRenames.add(varDecl.getName());
         }
@@ -97,32 +134,5 @@ export function calculateNamespaceRemovals(
     Array.from(context.concreteRenames).join(", ")
   );
 
-  // if we got here, its safe to know we can rename in file but we don't
-  // know what we can do across the rest of the package. lets sanity check
-  if (!isSafeToRenameAllAcrossReferences(context)) {
-    context.logger.warn("Aborting");
-    return;
-  }
-
-  // if we got here its safe to do our job.
-  // find the files that used these old names
-  renameAllReferences(context);
-
-  // re exports wont be able to reference the inner bit, just the namespace so we can fix that now
-  renameExports(context);
-
-  // Almost done
-  context.addReplacement({
-    start: namespaceDecl.getStart(),
-    end: namespaceDecl.getFirstDescendantByKindOrThrow(SyntaxKind.OpenBraceToken).getEnd(),
-    filePath: namespaceDecl.getSourceFile().getFilePath(),
-    newValue: "",
-  });
-
-  context.addReplacement({
-    start: namespaceDecl.getDescendantsOfKind(SyntaxKind.CloseBraceToken).at(-1)!.getStart(),
-    end: namespaceDecl.getEnd(),
-    filePath: namespaceDecl.getSourceFile().getFilePath(),
-    newValue: "",
-  });
+  return context;
 }

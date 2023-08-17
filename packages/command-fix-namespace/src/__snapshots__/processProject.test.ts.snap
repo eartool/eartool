@@ -589,6 +589,53 @@ export const bar = () => {
 "
 `;
 
+exports[`processProject Properly handles the reference with the unwrap case when inside 1`] = `
+"//
+
+//
+// PATH: '/index.ts'
+//
+
+export const inner = {
+  bleh: (value: string) => 5,
+  other: (value: string) => 6,
+};
+
+export function asdf(value: string) {
+  return value != null ? inner.bleh(value) : undefined;
+}
+"
+`;
+
+exports[`processProject Properly handles the reference with the unwrap case when outside 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+
+export interface Options {
+  api: string;
+}
+
+export function run(options: Options) {}
+
+interface Foo {}
+
+function doStuff(): Options {
+  return {
+    api: "foo",
+  };
+}
+,//
+
+//
+// PATH: '/index.ts'
+//
+export * as Outer from "./foo";
+"
+`;
+
 exports[`processProject Properly updates outer and inner 1`] = `
 "//
 
@@ -977,7 +1024,7 @@ export interface Props {
   what: number;
 }
 
-class Foo extends React.Component<Foo.Props> {}
+class Foo extends React.Component<Props> {}
 ,//
 
 //
