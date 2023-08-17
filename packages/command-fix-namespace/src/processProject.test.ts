@@ -1003,4 +1003,36 @@ describe("processProject", () => {
     expect(result.exportedRenames).toHaveLength(1);
     expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Props"], to: ["FooProps"] });
   });
+
+  it("doesnt reexport renames twice", async () => {
+    const logger = createTestLogger();
+
+    const project = createProjectForTest({
+      "foo.ts": `
+          export interface Foo {}
+          export namespace Foo {
+            export type Bar = string;
+            export namespace Bar {
+              export const of = () => 5;
+            }
+          }
+      `,
+      "index.ts": `
+          export {Foo} from "./foo";
+      `,
+    });
+
+    const result = await processProject(
+      { project, logger, packageName: "foo", packagePath: "/", packageJson: {} },
+      {
+        logger,
+        removeNamespaces: true,
+        removeFauxNamespaces: false,
+        dryRun: false,
+        organizeImports: false,
+      }
+    );
+    expect(result.exportedRenames).toHaveLength(1);
+    expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Bar"], to: ["BarForFoo"] });
+  });
 });

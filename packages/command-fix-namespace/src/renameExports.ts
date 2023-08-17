@@ -1,8 +1,11 @@
-import * as Assert from "node:assert";
 import type { ExportDeclaration } from "ts-morph";
 import { Node, SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "@eartool/replacements";
-import { findFileLocationForImportExport, isRootExport } from "@eartool/utils";
+import {
+  findFileLocationForImportExport,
+  getSimplifiedNodeInfoAsString,
+  isRootExport,
+} from "@eartool/utils";
 import { getNewName } from "./getNewName.js";
 
 export function renameExports(context: NamespaceContext) {
@@ -44,12 +47,23 @@ function processSingleExport(
 
   const moduleSpecifier = exportDecl.getModuleSpecifier()?.getText();
   const startOfExport = exportDecl.getStart();
-  Assert.ok(moduleSpecifier != null);
+  if (moduleSpecifier == null) {
+    logger.warn(
+      "Couldn't find module specifier for export. Ignoring edge case and moving on. %s",
+      getSimplifiedNodeInfoAsString(exportDecl)
+    );
+    return;
+  }
+  // Assert.ok(
+  //   moduleSpecifier != null,
+  //   "Invariant failed. How is this not a module specifier? " +
+  //     getSimplifiedNodeInfoAsString(exportDecl)
+  // );
 
   const isOneStepAway =
     findFileLocationForImportExport(context, exportDecl) === context.targetSourceFile.getFilePath();
 
-  logger.trace("Found '%s' in %s", exportDecl.print(), exportDecl);
+  logger.trace("Found '%s' in %s", exportDecl.print(), getSimplifiedNodeInfoAsString(exportDecl));
 
   const filePath = exportDecl.getSourceFile().getFilePath();
   for (const oldName of typeRenames) {
@@ -83,13 +97,13 @@ function processSingleExport(
       return localName === importName ? localName : `${localName} as ${importName}`;
     };
 
-    if (isRootExport(exportDecl.getSourceFile())) {
-      // TODO Rename this to be clearer
-      context.recordRename([context.namespaceName, oldName], [importName]);
-    }
-
     // we only want to add the export if it doesn't have a twin
     if (!concreteRenames.has(oldName) || !isType) {
+      if (isRootExport(exportDecl.getSourceFile())) {
+        // TODO Rename this to be clearer
+        context.recordRename([context.namespaceName, oldName], [importName]);
+      }
+
       context.addReplacement({
         start: startOfExport,
         end: startOfExport,
