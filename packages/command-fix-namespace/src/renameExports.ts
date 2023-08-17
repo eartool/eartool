@@ -88,11 +88,14 @@ function processSingleExport(
       context.recordRename([context.namespaceName, oldName], [importName]);
     }
 
-    context.addReplacement({
-      start: startOfExport,
-      end: startOfExport,
-      filePath,
-      newValue: `export { ${isType ? "type" : ""} ${n()} } from ${moduleSpecifier};`,
-    });
+    // we only want to add the export if it doesn't have a twin
+    if (!concreteRenames.has(oldName) || !isType) {
+      context.addReplacement({
+        start: startOfExport,
+        end: startOfExport,
+        filePath,
+        newValue: `export { ${isType ? "type" : ""} ${n()} } from ${moduleSpecifier};`,
+      });
+    }
   }
 }

@@ -905,6 +905,22 @@ const cases: {
 `,
     },
   },
+  {
+    name: "Doesnt duplicate the exports from root",
+    inputs: {
+      "index.ts": `
+        export {Foo} from "./foo";
+      `,
+      "foo.ts": `
+        export namespace Foo {
+          export const FOO = 5;
+          export type FOO = typeof FOO;
+        }
+        export const other = 5;
+      `,
+    },
+    organizeImports: false,
+  },
 ];
 
 describe("processProject", () => {

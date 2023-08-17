@@ -137,6 +137,27 @@ export interface Foo {
 "
 `;
 
+exports[`processProject Doesnt duplicate the exports from root 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+
+export const FOO_FOO = 5;
+export type FOO_FOO = typeof FOO_FOO;
+
+export const other = 5;
+,//
+
+//
+// PATH: '/index.ts'
+//
+export { FOO_FOO } from "./foo";
+export {} from "./foo";
+"
+`;
+
 exports[`processProject Doesnt export as type just because there is extra info 1`] = `
 "//
 
