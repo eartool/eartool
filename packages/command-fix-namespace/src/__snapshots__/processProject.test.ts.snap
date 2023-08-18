@@ -119,9 +119,9 @@ exports[`processProject Doesn't produce extra import statements 1`] = `
 //
 import { createFoo, otherForFoo, Foo } from "./foo";
 
-doStuff(createFoo());
-doStuff(createFoo());
-doStuff(otherForFoo());
+console.log(createFoo());
+console.log(createFoo());
+console.log(otherForFoo());
 ,//
 
 //
@@ -353,6 +353,12 @@ export { Stuff } from "./stuff";
 ,//
 
 //
+// PATH: '/stuff.ts'
+//
+export const foo = 5;
+,//
+
+//
 // PATH: '/cases/index.ts'
 //
 export * as Selectors from "./selectors";
@@ -368,7 +374,7 @@ export const doStuff = () => 5;
 //
 // PATH: '/inbox/Inbox.ts'
 //
-import { Selectors as CaseSelectors } from "./cases";
+import { Selectors as CaseSelectors } from "./cases/index.ts";
 
 CaseSelectors.doStuff();
 "
@@ -552,9 +558,15 @@ exports[`processProject Handles local variable name collisions inside functions 
 "//
 
 //
+// PATH: '/sourceInstance.ts'
+//
+export interface SourceInstance {}
+,//
+
+//
 // PATH: '/sourceInstances.ts'
 //
-import { SourceInstance } from "../types/sourceInstance";
+import { SourceInstance } from "./sourceInstance";
 
 interface FromArgs {
   readonly isFirst: boolean;
@@ -848,16 +860,16 @@ export interface OgreProps {
 
 export interface ReduxProps {
   appRealmId: RealmId;
-  mapConfig: GaiaMapConfig;
+  mapConfig: Config;
 }
 
 export interface State {
-  map?: MapSearchResult;
-  user?: IAcmeUser;
+  map?: Map;
+  user?: User;
   isLoading: boolean;
 }
 
-export type Props = OverviewObjectMinProps & OgreProps & ReduxProps;
+export type Props = State & OgreProps & ReduxProps;
 "
 `;
 
@@ -1073,6 +1085,7 @@ const f: BazForWat = "hi";
 //
 // PATH: '/wat.ts'
 //
+export function Wat() {}
 
 export const keyForWat = 3;
 export function fForWat() {
@@ -1082,8 +1095,6 @@ export function fForWat() {
 export class FooForWat {}
 
 export type BazForWat = string;
-
-export function Wat() {}
 "
 `;
 
@@ -1095,6 +1106,8 @@ exports[`processProject simple 1`] = `
 //
 const foo = 5;
 
+export function Wat() {}
+
 export const aasdfForWat = 3;
 export const secondForWat = 5;
 
@@ -1102,8 +1115,6 @@ export const thirdSpacedForWat = 56;
 
 // Foo
 export const fourthWithCommentForWat = 555;
-
-export function Wat() {}
 "
 `;
 

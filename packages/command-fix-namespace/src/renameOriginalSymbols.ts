@@ -4,14 +4,8 @@ import type { NamespaceContext } from "@eartool/replacements";
 import { getNewName } from "./getNewName.js";
 
 export function renameOriginalSymbols(context: NamespaceContext) {
-  for (const [originalName, details] of context.renames) {
-    // FIXMEQ
-    if (details.type) {
-      renameOriginalSymbol(context, originalName);
-    }
-    if (details.concrete) {
-      renameOriginalSymbol(context, originalName);
-    }
+  for (const [originalName] of context.renames) {
+    renameOriginalSymbol(context, originalName);
   }
 }
 

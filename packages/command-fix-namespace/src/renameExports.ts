@@ -16,13 +16,13 @@ export function renameExports(context: NamespaceContext) {
     namespaceDecl.findReferencesAsNodes().length
   );
 
-  const hasMultipleDeclarations = namespaceDecl.getSymbol()?.getDeclarations().length != 1;
+  const namespaceHasTwin = namespaceDecl.getSymbol()?.getDeclarations().length != 1;
 
   for (const refNode of namespaceDecl.findReferencesAsNodes()) {
     const exportDecl = refNode.getFirstAncestorByKind(SyntaxKind.ExportDeclaration);
 
     if (exportDecl) {
-      const twinIsType = !!namespaceDecl
+      const namespacesTwinIsType = !!namespaceDecl
         .getParent()
         .forEachChild(
           (n) =>
@@ -31,7 +31,7 @@ export function renameExports(context: NamespaceContext) {
             (n.isKind(SyntaxKind.InterfaceDeclaration) || n.isKind(SyntaxKind.TypeAliasDeclaration))
         );
 
-      processSingleExport(refNode, exportDecl, context, hasMultipleDeclarations, twinIsType);
+      processSingleExport(refNode, exportDecl, context, namespaceHasTwin, namespacesTwinIsType);
     }
   }
 }
@@ -39,11 +39,11 @@ export function renameExports(context: NamespaceContext) {
 function processSingleExport(
   refNode: Node,
   exportDecl: ExportDeclaration,
-  context: NamespaceContext, // TODO rename this namespaceCtx
-  hasMultipleDeclarations: boolean,
-  twinIsType: boolean
+  namespaceCtx: NamespaceContext,
+  namespaceHasTwin: boolean,
+  namespacesTwinIsType: boolean
 ) {
-  const { renames, logger, namespaceName } = context;
+  const { renames, logger, namespaceName } = namespaceCtx;
 
   const moduleSpecifier = exportDecl.getModuleSpecifier()?.getText();
   const startOfExport = exportDecl.getStart();
@@ -54,14 +54,10 @@ function processSingleExport(
     );
     return;
   }
-  // Assert.ok(
-  //   moduleSpecifier != null,
-  //   "Invariant failed. How is this not a module specifier? " +
-  //     getSimplifiedNodeInfoAsString(exportDecl)
-  // );
 
   const isOneStepAway =
-    findFileLocationForImportExport(context, exportDecl) === context.targetSourceFile.getFilePath();
+    findFileLocationForImportExport(namespaceCtx, exportDecl) ===
+    namespaceCtx.targetSourceFile.getFilePath();
 
   logger.trace("Found '%s' in %s", exportDecl.print(), getSimplifiedNodeInfoAsString(exportDecl));
 
@@ -76,17 +72,17 @@ function processSingleExport(
     }
   }
 
-  if (!hasMultipleDeclarations) {
-    context.addReplacement({
+  if (!namespaceHasTwin) {
+    namespaceCtx.addReplacement({
       start: refNode.getStart(),
       end: refNode.getEnd(),
       filePath,
       newValue: "",
     });
-  } else if (twinIsType) {
+  } else if (namespacesTwinIsType) {
     // We only want to do this if its not already a type export!
     if (!exportDecl.isTypeOnly()) {
-      context.addReplacement({
+      namespaceCtx.addReplacement({
         start: refNode.getStart(),
         end: refNode.getStart(),
         filePath,
@@ -108,10 +104,10 @@ function processSingleExport(
       if (exported) {
         if (isRootExport(exportDecl.getSourceFile())) {
           // TODO Rename this to be clearer
-          context.recordRename([context.namespaceName, oldName], [importName]);
+          namespaceCtx.recordRename([namespaceCtx.namespaceName, oldName], [importName]);
         }
 
-        context.addReplacement({
+        namespaceCtx.addReplacement({
           start: startOfExport,
           end: startOfExport,
           filePath,

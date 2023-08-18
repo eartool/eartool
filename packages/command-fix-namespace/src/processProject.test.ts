@@ -126,24 +126,25 @@ const cases: {
     name: "combined types",
     inputs: {
       "foo.tsx": `
-          export namespace AssociatedMapSection {
+        export namespace AssociatedMapSection {
           export interface OgreProps {
             properties: Property<any>[];
           }
         
           export interface ReduxProps {
             appRealmId: RealmId;
-            mapConfig: GaiaMapConfig;
+            mapConfig: Config;
           }
         
           export interface State {
-            map?: MapSearchResult;
-            user?: IAcmeUser;
+            map?: Map;
+            user?: User;
             isLoading: boolean;
           }
         
-          export type Props = OverviewObjectMinProps & OgreProps & ReduxProps;
-      }`,
+          export type Props = State & OgreProps & ReduxProps;
+        }
+      `,
     },
   },
   {
@@ -183,6 +184,7 @@ const cases: {
       "foo.ts": `
         const foo = 5;
         
+        export function Wat(){}
         export namespace Wat {
           export const aasdf = 3;
           export const second = 5;
@@ -192,7 +194,7 @@ const cases: {
           // Foo
           export const fourthWithComment = 555;
         }
-        export function Wat(){}
+        
         `,
     },
   },
@@ -218,6 +220,8 @@ const cases: {
     name: "rename in other file non-exclusive",
     inputs: {
       "wat.ts": `
+      export function Wat() {}
+
           export namespace Wat {
             export const key = 3;
             export function f() { return 5; }
@@ -226,7 +230,6 @@ const cases: {
 
             export type Baz = string;
           }
-          export function Wat() {}
         `,
 
       "refWat.ts": `
@@ -634,9 +637,9 @@ const cases: {
       "bar.ts": `
         import {Foo} from "./foo";
 
-        doStuff(Foo.create());
-        doStuff(Foo.create());
-        doStuff(Foo.other());
+        console.log(Foo.create());
+        console.log(Foo.create());
+        console.log(Foo.other());
       `,
     },
     removeNamespaces: true,
@@ -646,7 +649,7 @@ const cases: {
     name: "Handles local variable name collisions inside functions",
     inputs: {
       "sourceInstances.ts": `
-        import { SourceInstance } from "../types/sourceInstance";
+        import { SourceInstance } from "./sourceInstance";
 
         interface FromArgs {
           readonly isFirst: boolean;
@@ -680,6 +683,9 @@ const cases: {
 
         } as const;
       `,
+      "sourceInstance.ts": `
+        export interface SourceInstance{}
+      `,
     },
   },
   //Selectors as WatchedCasesSelectors,
@@ -689,8 +695,11 @@ const cases: {
       "index.ts": `
         export { Stuff } from "./stuff";
       `,
+      "stuff.ts": `
+        export const foo = 5;
+      `,
       "inbox/Inbox.ts": `
-        import {Selectors as CaseSelectors} from "./cases";
+        import {Selectors as CaseSelectors} from "./cases/index.ts";
 
         CaseSelectors.doStuff();
       `,
