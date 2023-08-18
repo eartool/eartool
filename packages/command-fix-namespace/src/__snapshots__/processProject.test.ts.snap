@@ -847,6 +847,19 @@ export type STATE_ROOT_KEY = typeof STATE_ROOT_KEY;
 "
 `;
 
+exports[`processProject Works with method references 1`] = `
+"//
+
+//
+// PATH: '/index.ts'
+//
+
+export function bar(): void;
+export function bar(value: string): string;
+export function bar() {}
+"
+`;
+
 exports[`processProject combined types 1`] = `
 "//
 

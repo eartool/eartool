@@ -1008,6 +1008,20 @@ const cases: {
     },
     organizeImports: false,
   },
+  {
+    name: "Works with method references",
+    inputs: {
+      "index.ts": `
+        export namespace Foo {
+          export function bar(): void;
+          export function bar(value: string): string;
+          export function bar() {
+            
+          }
+        }
+      `,
+    },
+  },
 ];
 
 describe("processProject", () => {

@@ -3,6 +3,7 @@ import type {
   MethodDeclaration,
   SyntaxList,
   ModuleDeclaration,
+  Symbol,
 } from "ts-morph";
 import { Node, SyntaxKind, SymbolFlags } from "ts-morph";
 import { autorenameIdentifierAndReferences, type Replacements } from "@eartool/replacements";
@@ -151,7 +152,14 @@ export function getSymbolsExclusiveToFunctionBody(
 ) {
   const logger = passedLogger.child({ primaryNode: node });
 
-  const body = Node.isSyntaxList(node) ? node : node.getBodyOrThrow();
+  const body = Node.isSyntaxList(node) ? node : node.getBody();
+  if (!body) {
+    passedLogger.info(
+      "Skipping over a node without a body: %s",
+      getSimplifiedNodeInfoAsString(node)
+    );
+    return new Set<Symbol>();
+  }
   const set = new Set(body.getSymbolsInScope(SymbolFlags.Value));
 
   // logger.info([...set].map((a) => a.getName()));
