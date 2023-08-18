@@ -213,6 +213,97 @@ export const doStuff = () => 5;
 "
 `;
 
+exports[`processProject Doesnt try to reexport an inner const that wasnt exported 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+
+const dontExportThisForOuter = 5;
+
+export interface ExportedForOuter {
+  bar: typeof dontExportThisForOuter;
+}
+
+export interface Outer {}
+,//
+
+//
+// PATH: '/index.ts'
+//
+export { type ExportedForOuter, type Outer } from "./foo";
+"
+`;
+
+exports[`processProject Doesnt try to reexport an inner interface that wasnt exported 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+export function Outer() {}
+
+interface DOntExportForOuter {
+  foo: number;
+}
+
+export interface ExportedForOuter extends DOntExportForOuter {
+  bar: number;
+}
+,//
+
+//
+// PATH: '/index.ts'
+//
+export { Outer, type ExportedForOuter } from "./foo";
+"
+`;
+
+exports[`processProject Dont mix up export styles 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+export interface Outer {}
+
+export interface ExportedForOuter {
+  bar: number;
+}
+,//
+
+//
+// PATH: '/index.ts'
+//
+export { type ExportedForOuter } from "./foo";
+export type { Outer } from "./foo";
+"
+`;
+
+exports[`processProject Dont reexport the wrong things in mixed case 1 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+export interface Outer {}
+
+function dontExportThisForOuter() {}
+interface DontThinkAboutItForOuter {}
+
+export interface ExportedForOuter {
+  bar: typeof dontExportThisForOuter;
+}
+,//
+
+//
+// PATH: '/index.ts'
+//
+export { type ExportedForOuter, type Outer } from "./foo";
+"
+`;
+
 exports[`processProject Enums rename properly 1`] = `
 "//
 

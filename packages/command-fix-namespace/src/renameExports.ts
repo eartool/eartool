@@ -39,11 +39,11 @@ export function renameExports(context: NamespaceContext) {
 function processSingleExport(
   refNode: Node,
   exportDecl: ExportDeclaration,
-  context: NamespaceContext,
+  context: NamespaceContext, // TODO rename this namespaceCtx
   hasMultipleDeclarations: boolean,
   twinIsType: boolean
 ) {
-  const { typeRenames, concreteRenames, logger, namespaceName } = context;
+  const { renames, logger, namespaceName } = context;
 
   const moduleSpecifier = exportDecl.getModuleSpecifier()?.getText();
   const startOfExport = exportDecl.getStart();
@@ -66,12 +66,14 @@ function processSingleExport(
   logger.trace("Found '%s' in %s", exportDecl.print(), getSimplifiedNodeInfoAsString(exportDecl));
 
   const filePath = exportDecl.getSourceFile().getFilePath();
-  for (const oldName of typeRenames) {
-    processTypeOrVariable(oldName, true);
-  }
+  for (const [oldName, details] of renames) {
+    if (details.type) {
+      processTypeOrVariable(oldName, true, details.type.exported);
+    }
 
-  for (const oldName of concreteRenames) {
-    processTypeOrVariable(oldName, false);
+    if (details.concrete) {
+      processTypeOrVariable(oldName, false, details.concrete.exported);
+    }
   }
 
   if (!hasMultipleDeclarations) {
@@ -82,15 +84,18 @@ function processSingleExport(
       newValue: "",
     });
   } else if (twinIsType) {
-    context.addReplacement({
-      start: refNode.getStart(),
-      end: refNode.getStart(),
-      filePath,
-      newValue: `type `,
-    });
+    // We only want to do this if its not already a type export!
+    if (!exportDecl.isTypeOnly()) {
+      context.addReplacement({
+        start: refNode.getStart(),
+        end: refNode.getStart(),
+        filePath,
+        newValue: `type `,
+      });
+    }
   }
 
-  function processTypeOrVariable(oldName: string, isType: boolean) {
+  function processTypeOrVariable(oldName: string, isType: boolean, exported: boolean) {
     const { localName, importName } = getNewName(oldName, namespaceName);
     const n = () => {
       if (!isOneStepAway) return importName;
@@ -98,18 +103,21 @@ function processSingleExport(
     };
 
     // we only want to add the export if it doesn't have a twin
-    if (!concreteRenames.has(oldName) || !isType) {
-      if (isRootExport(exportDecl.getSourceFile())) {
-        // TODO Rename this to be clearer
-        context.recordRename([context.namespaceName, oldName], [importName]);
-      }
+    if (!renames.get(oldName)!.concrete || !isType) {
+      // FIXME this logic is going to be brittle
+      if (exported) {
+        if (isRootExport(exportDecl.getSourceFile())) {
+          // TODO Rename this to be clearer
+          context.recordRename([context.namespaceName, oldName], [importName]);
+        }
 
-      context.addReplacement({
-        start: startOfExport,
-        end: startOfExport,
-        filePath,
-        newValue: `export { ${isType ? "type" : ""} ${n()} } from ${moduleSpecifier};`,
-      });
+        context.addReplacement({
+          start: startOfExport,
+          end: startOfExport,
+          filePath,
+          newValue: `export { ${isType ? "type" : ""} ${n()} } from ${moduleSpecifier};`,
+        });
+      }
     }
   }
 }

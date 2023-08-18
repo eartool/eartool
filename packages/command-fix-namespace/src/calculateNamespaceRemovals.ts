@@ -31,6 +31,7 @@ export function calculateNamespaceRemovals(
           namespaceDecl.getName()
       );
     } else {
+      projectContext.logger.debug("Doing the ultra simple replacement");
       replaceImportsAndExports(namespaceDecl, replacements, projectContext);
       unwrapNamespaceInFile(namespaceDecl, replacements);
 
@@ -95,7 +96,7 @@ function buildContext(projectContext: ProjectContext, namespaceDecl: ModuleDecla
           );
           return undefined;
         } else {
-          context.concreteRenames.add(varDecl.getName());
+          context.addConcreteRename(varDecl.getName(), varDecl.isExported());
         }
       }
     } else if (Node.isInterfaceDeclaration(q) || Node.isTypeAliasDeclaration(q)) {
@@ -103,7 +104,7 @@ function buildContext(projectContext: ProjectContext, namespaceDecl: ModuleDecla
       // but that would be an expression statement so we are okay
       const name = q.getName();
       Assert.ok(name != null, "name was expected");
-      context.typeRenames.add(name);
+      context.addTypeRename(name, q.isExported());
     } else if (
       Node.isFunctionDeclaration(q) ||
       Node.isClassDeclaration(q) ||
@@ -113,13 +114,14 @@ function buildContext(projectContext: ProjectContext, namespaceDecl: ModuleDecla
       // but that would be an expression statement so we are okay
       const name = q.getName();
       Assert.ok(name != null, "name was expected");
-      context.concreteRenames.add(name);
+      context.addConcreteRename(name, q.isExported());
       // No special treatment. Don't trigger the logger error.
       // different style if statement to avoid making q `never` in the fallthrough
     } else if (Node.isModuleDeclaration(q)) {
+      // TODO This could be a type rename if all its kids are types
       const name = q.getName();
       Assert.ok(name != null, "name was expected");
-      context.concreteRenames.add(name);
+      context.addConcreteRename(name, q.isExported());
     } else {
       context.logger.error("Unknown kind %s", q.getKindName());
     }
@@ -127,11 +129,7 @@ function buildContext(projectContext: ProjectContext, namespaceDecl: ModuleDecla
 
   context.logger.trace(
     "calculateNamespaceRemovals(): Type rename: %s",
-    Array.from(context.typeRenames).join(", ")
-  );
-  context.logger.trace(
-    "calculateNamespaceRemovals(): Concrete rename: %s",
-    Array.from(context.concreteRenames).join(", ")
+    Array.from(context.renames).join(", ")
   );
 
   return context;

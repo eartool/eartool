@@ -12,7 +12,12 @@ import { getRelevantNodeFromRefOrThrow } from "./getRelevantNodeFromRefOrThrow.j
 
 const isTypeNode = isAnyOf(Node.isInterfaceDeclaration, Node.isTypeAliasDeclaration);
 
-export function renameReferences(oldName: string, context: NamespaceContext, isType: boolean) {
+export function renameReferences(
+  oldName: string,
+  context: NamespaceContext,
+  isType: boolean,
+  _exported: boolean
+) {
   const { namespaceDecl } = context;
   const logger = context.logger.child({ oldName });
   const { localName, importName } = getNewName(oldName, namespaceDecl.getName());

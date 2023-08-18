@@ -921,6 +921,84 @@ const cases: {
     },
     organizeImports: false,
   },
+  {
+    name: "Doesnt try to reexport an inner interface that wasnt exported",
+    inputs: {
+      "index.ts": `
+        export {Outer} from "./foo";
+      `,
+      "foo.ts": `
+        export function Outer() {}
+        export namespace Outer {
+          interface DOntExport {
+            foo: number;
+          }
+
+          export interface Exported extends DOntExport {
+            bar: number;
+          }
+        }
+      `,
+    },
+  },
+  {
+    name: "Doesnt try to reexport an inner const that wasnt exported",
+    inputs: {
+      "index.ts": `
+        export {Outer} from "./foo";
+      `,
+      "foo.ts": `
+        export namespace Outer {
+          const dontExportThis = 5;
+
+          export interface Exported {
+            bar: typeof dontExportThis;
+          }
+        }
+        export interface Outer {}
+      `,
+    },
+  },
+  {
+    name: "Dont reexport the wrong things in mixed case 1",
+    inputs: {
+      "index.ts": `
+        export {Outer} from "./foo";
+      `,
+      "foo.ts": `
+        export interface Outer {
+
+        }
+        export namespace Outer {
+          function dontExportThis() {}
+          interface DontThinkAboutIt {}
+
+          export interface Exported {
+            bar: typeof dontExportThis;
+          }
+        }
+        
+      `,
+    },
+  },
+  {
+    name: "Dont mix up export styles",
+    inputs: {
+      "index.ts": `
+        export type {Outer} from "./foo";
+      `,
+      "foo.ts": `
+        export interface Outer {
+        }
+        export namespace Outer {
+          export interface Exported {
+            bar: number;
+          }
+        }
+      `,
+    },
+    organizeImports: false,
+  },
 ];
 
 describe("processProject", () => {

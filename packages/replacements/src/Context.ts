@@ -67,15 +67,14 @@ export class ProjectContext implements PackageContext {
   }
 }
 
+// THIS BELONGS SOMEWHERE ELSE
 export class NamespaceContext implements Omit<ProjectContext, "createNamespaceContext"> {
   targetSourceFile: SourceFile;
   namespaceDecl: ModuleDeclaration;
   namespaceName: string;
-  // namespaceHasConcretePair: boolean;
-  typeRenames: Set<string>;
-  concreteRenames: Set<string>;
   logger: Logger;
   #projectContext: ProjectContext;
+  renames = new Map<string, { type?: { exported: boolean }; concrete?: { exported: boolean } }>();
 
   addReplacement: ProjectContext["addReplacement"];
   addReplacementForNode: ProjectContext["addReplacementForNode"];
@@ -92,8 +91,6 @@ export class NamespaceContext implements Omit<ProjectContext, "createNamespaceCo
     this.targetSourceFile = decl.getSourceFile();
     this.namespaceDecl = decl;
     this.namespaceName = decl.getName();
-    this.typeRenames = new Set();
-    this.concreteRenames = new Set();
     this.logger = projectContext.logger.child({ namespaceName: this.namespaceName });
 
     this.addReplacement = this.#projectContext.addReplacement;
@@ -107,4 +104,16 @@ export class NamespaceContext implements Omit<ProjectContext, "createNamespaceCo
     this.project = this.#projectContext.project;
     this.packageJson = this.#projectContext.packageJson;
   }
+
+  addConcreteRename = (name: string, exported: boolean) => {
+    const r = this.renames.get(name) ?? {};
+    this.renames.set(name, r);
+    r.concrete = { exported };
+  };
+
+  addTypeRename = (name: string, exported: boolean) => {
+    const r = this.renames.get(name) ?? {};
+    this.renames.set(name, r);
+    r.type = { exported };
+  };
 }

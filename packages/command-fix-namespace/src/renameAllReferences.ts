@@ -12,11 +12,13 @@ import { renameReferences } from "./renameReferences.js";
 
 export function renameAllReferences(context: NamespaceContext) {
   context.logger.trace("renameAllReferences");
-  for (const oldName of context.typeRenames) {
-    renameReferences(oldName, context, true);
-  }
 
-  for (const oldName of context.concreteRenames) {
-    renameReferences(oldName, context, false);
+  for (const [oldName, details] of context.renames) {
+    if (details.type) {
+      renameReferences(oldName, context, true, details.type.exported);
+    }
+    if (details.concrete) {
+      renameReferences(oldName, context, false, details.concrete.exported);
+    }
   }
 }
