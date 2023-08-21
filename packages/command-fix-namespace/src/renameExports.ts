@@ -3,6 +3,7 @@ import { Node, SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "@eartool/replacements";
 import {
   findFileLocationForImportExport,
+  getAllImportsAndExports,
   getSimplifiedNodeInfoAsString,
   isRootExport,
 } from "@eartool/utils";
@@ -32,6 +33,27 @@ export function renameExports(context: NamespaceContext) {
         );
 
       processSingleExport(refNode, exportDecl, context, namespaceHasTwin, namespacesTwinIsType);
+    }
+  }
+
+  const importsAndExports = getAllImportsAndExports(context.projectContext);
+
+  for (const [filePath, metadata] of importsAndExports) {
+    if (!isRootExport(context.project.getSourceFile(filePath)!)) continue;
+
+    for (const [oldName] of context.renames) {
+      const { localName } = getNewName(oldName, namespaceName);
+
+      for (const [, exportInfo] of metadata.exports) {
+        if (
+          exportInfo.type === "alias" &&
+          exportInfo.indirect &&
+          exportInfo.targetName === namespaceName
+        ) {
+          const parts = exportInfo.name.split(".");
+          context.recordRename([...parts, oldName], [...parts.slice(0, -1), localName]);
+        }
+      }
     }
   }
 }

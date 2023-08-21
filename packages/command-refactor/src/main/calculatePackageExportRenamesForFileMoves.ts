@@ -10,7 +10,7 @@ import { getConsumedExports as getConsumedImportsAndExports } from "./getConsume
 const packageNameRegex = /^((@[a-zA-Z0-9_-]+\/)?[a-zA-Z0-9_-]+)/;
 
 export interface Info {
-  exportName: string;
+  exportName: string[];
   isType: boolean;
 }
 
@@ -155,7 +155,7 @@ export function calculatePackageExportRenamesForFileMoves(
       const relFilePath = path.relative(packagePath, sf.getFilePath());
       const qq = rootExportsPerRelativeFilePath.get(relFilePath) ?? new Map<string, Info>();
       rootExportsPerRelativeFilePath.set(relFilePath, qq);
-      qq.set(exportName, { exportName, isType: false }); // fixme: we should record type
+      qq.set(exportName, { exportName: [exportName], isType: false }); // fixme: we should record type
     }
   }
 
@@ -197,7 +197,7 @@ function addExistingRenamesForRootExport(
   }
   for (const [_originalName, { exportName }] of rootIndexFileExports) {
     renames.addRename(packageName, {
-      from: [exportName],
+      from: exportName,
       toFileOrModule: destinationModule,
     });
   }

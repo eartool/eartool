@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 importers:
 
   .:
@@ -677,6 +673,9 @@ importers:
       cli-progress:
         specifier: ^3.12.0
         version: 3.12.0
+      iter-ops:
+        specifier: ^3.1.1
+        version: 3.1.1
       p-queue:
         specifier: ^7.3.4
         version: 7.3.4
@@ -6227,6 +6226,11 @@ packages:
       istanbul-lib-report: 3.0.0
     dev: true
 
+  /iter-ops@3.1.1:
+    resolution: {integrity: sha512-PelZCVYx+R7MEY6DykEXBANPT2I+Hrdz/Xk9G1vQvZlf+ORdoakNUrSbnvdQGx6AlxojziOnFHRrNEU7QllxAQ==}
+    engines: {node: '>=16'}
+    dev: false
+
   /jackspeak@2.2.1:
     resolution: {integrity: sha512-MXbxovZ/Pm42f6cDIDkl3xpwv1AGwObKwfmjs2nQePiy85tP3fatofl3FC1aBsOtP/6fq5SbtgHwWcMsLP+bDw==}
     engines: {node: '>=14'}
@@ -9980,3 +9984,7 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false

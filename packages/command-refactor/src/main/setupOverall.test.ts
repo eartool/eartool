@@ -66,7 +66,9 @@ describe(setupOverall, () => {
                   ",
               "rootExports": Map {
                 "doThingWithState" => {
-                  "exportName": "doThingWithState",
+                  "exportName": [
+                    "doThingWithState",
+                  ],
                   "isType": false,
                 },
               },
@@ -123,7 +125,9 @@ describe(setupOverall, () => {
               ",
               "rootExports": Map {
                 "word" => {
-                  "exportName": "word",
+                  "exportName": [
+                    "word",
+                  ],
                   "isType": false,
                 },
               },
@@ -209,7 +213,9 @@ describe(setupOverall, () => {
                   ",
               "rootExports": Map {
                 "doThingWithState" => {
-                  "exportName": "doThingWithState",
+                  "exportName": [
+                    "doThingWithState",
+                  ],
                   "isType": false,
                 },
               },
@@ -291,7 +297,9 @@ describe(setupOverall, () => {
                   ",
               "rootExports": Map {
                 "doThingWithBaz" => {
-                  "exportName": "doThingWithBaz",
+                  "exportName": [
+                    "doThingWithBaz",
+                  ],
                   "isType": false,
                   "originFile": "/workspace/api/src/doThingWithBaz.ts",
                 },
@@ -304,11 +312,15 @@ describe(setupOverall, () => {
                     ",
               "rootExports": Map {
                 "Baz" => {
-                  "exportName": "Baz",
+                  "exportName": [
+                    "Baz",
+                  ],
                   "isType": false,
                 },
                 "BazConst" => {
-                  "exportName": "BazConst",
+                  "exportName": [
+                    "BazConst",
+                  ],
                   "isType": false,
                 },
               },

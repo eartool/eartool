@@ -3,12 +3,16 @@ import { getProperRelativePathAsModuleSpecifierTo, type FilePath } from "@eartoo
 import { type SourceFile } from "ts-morph";
 
 export function addReexports(
-  rootExports: Map<string, { exportName: string; isType: boolean }>,
+  rootExports: Map<string, { exportName: string[]; isType: boolean }>,
   replacements: Replacements,
   rootFile: SourceFile,
   fullpath: FilePath
 ) {
-  if ([...rootExports].some(([_name, { exportName }]) => exportName === "default")) {
+  if (
+    [...rootExports].some(
+      ([_name, { exportName }]) => exportName.length == 1 && exportName[0] === "default"
+    )
+  ) {
     throw new Error("Default alias is not currently supported");
   }
 
@@ -16,7 +20,7 @@ export function addReexports(
 
   const exportSpecifiers = [...rootExports]
     .map(([name, { exportName, isType }]) =>
-      name === exportName
+      name === exportName[0]
         ? name
         : `${allAreTypes || !isType ? "" : "type "}${name} as ${exportName}`
     )

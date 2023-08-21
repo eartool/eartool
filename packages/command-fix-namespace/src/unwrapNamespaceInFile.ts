@@ -175,7 +175,7 @@ export function getSymbolsExclusiveToFunctionBody(
     }
   }
 
-  logger.info(
+  logger.debug(
     "Discovered exclusive in body scope: %s",
     [...set].map((a) => a.getName()).join(", ")
   );

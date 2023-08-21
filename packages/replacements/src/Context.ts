@@ -116,4 +116,8 @@ export class NamespaceContext implements Omit<ProjectContext, "createNamespaceCo
     this.renames.set(name, r);
     r.type = { exported };
   };
+
+  get projectContext() {
+    return this.#projectContext;
+  }
 }

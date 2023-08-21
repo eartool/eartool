@@ -1,5 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import { createTestLogger, createProjectForTest, formatTestTypescript } from "@eartool/test-utils";
+import type { Project } from "ts-morph";
 import { processProject, type ProcessProjectOpts } from "./processProject.js";
 
 const cases: {
@@ -1050,24 +1051,7 @@ describe("processProject", () => {
           }
         );
 
-        const fs = project.getFileSystem();
-
-        const output = project
-          .getSourceFiles()
-          .map((sf) => {
-            const filePath = sf.getFilePath();
-            return formatTestTypescript(
-              `
-        //
-
-        //
-        // PATH: '${filePath}'
-        //
-        ${fs.readFileSync(filePath)}
-        `
-            );
-          })
-          .join();
+        const output = calculateOutput(project);
 
         expect(output).toMatchSnapshot();
       } finally {
@@ -1076,18 +1060,134 @@ describe("processProject", () => {
     }
   );
 
+  it("handles deeply nested reexports", async () => {
+    const logger = createTestLogger();
+
+    const project = createProjectForTest({
+      "foo.ts": `
+        export namespace Foo {
+          export type Props = {};
+        }
+        export function Foo(){}
+      `,
+      "bar.ts": `
+        export * as Bar from "./foo";
+      `,
+      "other.ts": `
+        export * from "./bar";
+        export * as Bleh from "./bar";
+      `,
+      "index.ts": `
+          export {Foo} from "./foo";
+          export * from "./other";
+      `,
+    });
+
+    const result = await processProject(
+      { project, logger, packageName: "foo", packagePath: "/", packageJson: {} },
+      {
+        logger,
+        // additionalRenames: {},
+        removeFauxNamespaces: false,
+        dryRun: false,
+        organizeImports: false,
+        removeNamespaces: true,
+      }
+    );
+
+    expect(result.exportedRenames).toMatchInlineSnapshot(`
+      [
+        {
+          "from": [
+            "Foo",
+            "Props",
+          ],
+          "to": [
+            "FooProps",
+          ],
+        },
+        {
+          "from": [
+            "Bar",
+            "Foo",
+            "Props",
+          ],
+          "to": [
+            "Bar",
+            "Props",
+          ],
+        },
+        {
+          "from": [
+            "Bleh",
+            "Bar",
+            "Foo",
+            "Props",
+          ],
+          "to": [
+            "Bleh",
+            "Bar",
+            "Props",
+          ],
+        },
+      ]
+    `);
+
+    const output = calculateOutput(project);
+    expect(output).toMatchInlineSnapshot(`
+      "//
+
+      //
+      // PATH: '/bar.ts'
+      //
+      export * as Bar from "./foo";
+      ,//
+
+      //
+      // PATH: '/foo.ts'
+      //
+
+      export type Props = {};
+
+      export function Foo() {}
+      ,//
+
+      //
+      // PATH: '/index.ts'
+      //
+      export { type Props as FooProps } from "./foo";
+      export { Foo } from "./foo";
+      export * from "./other";
+      ,//
+
+      //
+      // PATH: '/other.ts'
+      //
+      export * from "./bar";
+      export * as Bleh from "./bar";
+      "
+    `);
+  });
+
   it("records renames from root", async () => {
     const logger = createTestLogger();
 
     const project = createProjectForTest({
       "foo.ts": `
-          export namespace Foo {
-            export type Props = {};
-          }
-          export function Foo(){}
+        export namespace Foo {
+          export type Props = {};
+        }
+        export function Foo(){}
+      `,
+      "bar.ts": `
+        export namespace Bar {
+          export interface Props {}
+        }
+        export function Bar() {}
       `,
       "index.ts": `
           export {Foo} from "./foo";
+          export * from "./bar";
       `,
     });
 
@@ -1101,8 +1201,29 @@ describe("processProject", () => {
         organizeImports: true,
       }
     );
-    expect(result.exportedRenames).toHaveLength(1);
-    expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Props"], to: ["FooProps"] });
+
+    expect(result.exportedRenames).toMatchInlineSnapshot(`
+      [
+        {
+          "from": [
+            "Bar",
+            "Props",
+          ],
+          "to": [
+            "Props",
+          ],
+        },
+        {
+          "from": [
+            "Foo",
+            "Props",
+          ],
+          "to": [
+            "FooProps",
+          ],
+        },
+      ]
+    `);
   });
 
   it("doesnt reexport renames twice", async () => {
@@ -1136,4 +1257,59 @@ describe("processProject", () => {
     expect(result.exportedRenames).toHaveLength(1);
     expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Bar"], to: ["BarForFoo"] });
   });
+
+  it("calculates renames correctly when export star", async () => {
+    const logger = createTestLogger();
+
+    const project = createProjectForTest({
+      "foo.ts": `
+          export interface Foo {}
+          export namespace Foo {
+            export type Bar = string;
+            export namespace Bar {
+              export const of = () => 5;
+            }
+          }
+      `,
+      "index.ts": `
+          export * from "./foo";
+      `,
+    });
+
+    const result = await processProject(
+      { project, logger, packageName: "foo", packagePath: "/", packageJson: {} },
+      {
+        logger,
+        removeNamespaces: true,
+        removeFauxNamespaces: false,
+        dryRun: false,
+        organizeImports: false,
+      }
+    );
+
+    expect(result.exportedRenames).toHaveLength(1);
+    expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Bar"], to: ["BarForFoo"] });
+  });
 });
+
+function calculateOutput(project: Project) {
+  const fs = project.getFileSystem();
+
+  const output = project
+    .getSourceFiles()
+    .map((sf) => {
+      const filePath = sf.getFilePath();
+      return formatTestTypescript(
+        `
+        //
+
+        //
+        // PATH: '${filePath}'
+        //
+        ${fs.readFileSync(filePath)}
+        `
+      );
+    })
+    .join();
+  return output;
+}

@@ -79,33 +79,88 @@ describe(getConsumedExports, () => {
       expect(gfd).toMatchInlineSnapshot(`
         Map {
           "/reexportAs.ts" => {
-            "exports": Map {},
+            "exports": Map {
+              "baz" => {
+                "indirect": false,
+                "isType": false,
+                "name": "baz",
+                "originFile": "/foo.ts",
+                "targetName": "foo",
+                "type": "alias",
+              },
+            },
+            "filePath": "/reexportAs.ts",
             "imports": Map {},
+            "reexportStars": [],
             "reexports": Map {
               "foo" => {
-                "exportName": "baz",
+                "exportName": [
+                  "baz",
+                ],
                 "isType": false,
                 "originFile": "/foo.ts",
               },
             },
           },
           "/reexportAsDefault.ts" => {
-            "exports": Map {},
+            "exports": Map {
+              "default" => {
+                "indirect": false,
+                "isType": false,
+                "name": "default",
+                "originFile": "/foo.ts",
+                "targetName": "foo",
+                "type": "alias",
+              },
+            },
+            "filePath": "/reexportAsDefault.ts",
             "imports": Map {},
+            "reexportStars": [],
             "reexports": Map {
               "foo" => {
-                "exportName": "default",
+                "exportName": [
+                  "default",
+                ],
                 "isType": false,
                 "originFile": "/foo.ts",
               },
             },
           },
           "/index.ts" => {
-            "exports": Map {},
+            "exports": Map {
+              "foo" => {
+                "indirect": false,
+                "isType": false,
+                "name": "foo",
+                "originFile": "/foo.ts",
+                "targetName": "foo",
+                "type": "alias",
+              },
+              "Foo" => {
+                "indirect": false,
+                "isType": false,
+                "name": "Foo",
+                "originFile": "/exportedType.ts",
+                "targetName": "Foo",
+                "type": "alias",
+              },
+              "Wtf" => {
+                "indirect": false,
+                "isType": false,
+                "name": "Wtf",
+                "originFile": "/exportedType.ts",
+                "targetName": "Wtf",
+                "type": "alias",
+              },
+            },
+            "filePath": "/index.ts",
             "imports": Map {},
+            "reexportStars": [],
             "reexports": Map {
               "foo" => {
-                "exportName": "foo",
+                "exportName": [
+                  "foo",
+                ],
                 "isType": false,
                 "originFile": "/foo.ts",
               },
@@ -113,6 +168,7 @@ describe(getConsumedExports, () => {
           },
           "/importFrom.ts" => {
             "exports": Map {},
+            "filePath": "/importFrom.ts",
             "imports": Map {
               "foo" => {
                 "isType": false,
@@ -120,10 +176,12 @@ describe(getConsumedExports, () => {
                 "originFile": "/foo.ts",
               },
             },
+            "reexportStars": [],
             "reexports": Map {},
           },
           "/importFromAsType.ts" => {
             "exports": Map {},
+            "filePath": "/importFromAsType.ts",
             "imports": Map {
               "foo" => {
                 "isType": true,
@@ -131,14 +189,18 @@ describe(getConsumedExports, () => {
                 "originFile": "/foo.ts",
               },
             },
+            "reexportStars": [],
             "reexports": Map {},
           },
           "/reassignThenExport.ts" => {
             "exports": Map {
               "baz" => {
+                "name": "baz",
+                "originFile": "/reassignThenExport.ts",
                 "type": "concrete",
               },
             },
+            "filePath": "/reassignThenExport.ts",
             "imports": Map {
               "foo" => {
                 "isType": false,
@@ -146,18 +208,25 @@ describe(getConsumedExports, () => {
                 "originFile": "/foo.ts",
               },
             },
+            "reexportStars": [],
             "reexports": Map {},
           },
           "/foo.ts" => {
             "exports": Map {
               "foo" => {
+                "name": "foo",
+                "originFile": "/foo.ts",
                 "type": "concrete",
               },
               "default" => {
+                "name": "default",
+                "originFile": "/foo.ts",
                 "type": "concrete",
               },
             },
+            "filePath": "/foo.ts",
             "imports": Map {},
+            "reexportStars": [],
             "reexports": Map {},
           },
         }
@@ -195,26 +264,63 @@ describe(getConsumedExports, () => {
           "/exportedType.ts" => {
             "exports": Map {
               "Foo" => {
+                "name": "Foo",
+                "originFile": "/exportedType.ts",
                 "type": "type",
               },
               "Wtf" => {
+                "name": "Wtf",
+                "originFile": "/exportedType.ts",
                 "type": "type",
               },
             },
+            "filePath": "/exportedType.ts",
             "imports": Map {},
+            "reexportStars": [],
             "reexports": Map {},
           },
           "/index.ts" => {
-            "exports": Map {},
+            "exports": Map {
+              "foo" => {
+                "indirect": false,
+                "isType": false,
+                "name": "foo",
+                "originFile": "/foo.ts",
+                "targetName": "foo",
+                "type": "alias",
+              },
+              "Foo" => {
+                "indirect": false,
+                "isType": false,
+                "name": "Foo",
+                "originFile": "/exportedType.ts",
+                "targetName": "Foo",
+                "type": "alias",
+              },
+              "Wtf" => {
+                "indirect": false,
+                "isType": false,
+                "name": "Wtf",
+                "originFile": "/exportedType.ts",
+                "targetName": "Wtf",
+                "type": "alias",
+              },
+            },
+            "filePath": "/index.ts",
             "imports": Map {},
+            "reexportStars": [],
             "reexports": Map {
               "Foo" => {
-                "exportName": "Foo",
+                "exportName": [
+                  "Foo",
+                ],
                 "isType": false,
                 "originFile": "/exportedType.ts",
               },
               "Wtf" => {
-                "exportName": "Wtf",
+                "exportName": [
+                  "Wtf",
+                ],
                 "isType": false,
                 "originFile": "/exportedType.ts",
               },
@@ -222,6 +328,7 @@ describe(getConsumedExports, () => {
           },
           "/importFrom.ts" => {
             "exports": Map {},
+            "filePath": "/importFrom.ts",
             "imports": Map {
               "Foo" => {
                 "isType": false,
@@ -234,10 +341,12 @@ describe(getConsumedExports, () => {
                 "originFile": "/exportedType.ts",
               },
             },
+            "reexportStars": [],
             "reexports": Map {},
           },
           "/importFromAsType.ts" => {
             "exports": Map {},
+            "filePath": "/importFromAsType.ts",
             "imports": Map {
               "Foo" => {
                 "isType": true,
@@ -250,6 +359,7 @@ describe(getConsumedExports, () => {
                 "originFile": "/exportedType.ts",
               },
             },
+            "reexportStars": [],
             "reexports": Map {},
           },
         }
@@ -289,11 +399,24 @@ describe(getConsumedExports, () => {
     expect(result).toMatchInlineSnapshot(`
       Map {
         "/workspace/foo/src/index.ts" => {
-          "exports": Map {},
+          "exports": Map {
+            "foo" => {
+              "indirect": false,
+              "isType": false,
+              "name": "foo",
+              "originFile": "/workspace/foo/src/foo.ts",
+              "targetName": "foo",
+              "type": "alias",
+            },
+          },
+          "filePath": "/workspace/foo/src/index.ts",
           "imports": Map {},
+          "reexportStars": [],
           "reexports": Map {
             "foo" => {
-              "exportName": "foo",
+              "exportName": [
+                "foo",
+              ],
               "isType": false,
               "originFile": "/workspace/foo/src/foo.ts",
             },
