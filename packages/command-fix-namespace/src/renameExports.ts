@@ -20,6 +20,12 @@ export function renameExports(context: NamespaceContext) {
   const namespaceHasTwin = namespaceDecl.getSymbol()?.getDeclarations().length != 1;
 
   for (const refNode of namespaceDecl.findReferencesAsNodes()) {
+    // `import { Foo as Bar } ...` has two refs to `Foo`, one for `Foo` and one for `Bar`.
+    // We only need to calculate the renames for the one
+    // An alternative would be to make sure we only visit the exportDecl once and may be required
+    // if this has consequences i cant see yet.
+    if (refNode.getText() !== context.namespaceName) continue;
+
     const exportDecl = refNode.getFirstAncestorByKind(SyntaxKind.ExportDeclaration);
 
     if (exportDecl) {
@@ -114,6 +120,7 @@ function processSingleExport(
   }
 
   function processTypeOrVariable(oldName: string, isType: boolean, exported: boolean) {
+    // console.log({ oldName, isType, exported });
     const { localName, importName } = getNewName(oldName, namespaceName);
     const n = () => {
       if (!isOneStepAway) return importName;
@@ -122,10 +129,10 @@ function processSingleExport(
 
     // we only want to add the export if it doesn't have a twin
     if (!renames.get(oldName)!.concrete || !isType) {
-      // FIXME this logic is going to be brittle
       if (exported) {
         if (isRootExport(exportDecl.getSourceFile())) {
           // TODO Rename this to be clearer
+          // console.log("Record rename", [namespaceCtx.namespaceName, oldName], [importName]);
           namespaceCtx.recordRename([namespaceCtx.namespaceName, oldName], [importName]);
         }
 

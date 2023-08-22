@@ -304,6 +304,33 @@ export { type ExportedForOuter, type Outer } from "./foo";
 "
 `;
 
+exports[`processProject Double reexport check 1`] = `
+"//
+
+//
+// PATH: '/index.ts'
+//
+export { type ErrForResult, type OkForResult } from "./result";
+export type { Result as Type } from "./result";
+,//
+
+//
+// PATH: '/result.ts'
+//
+export type Result<T, E = Error> = OkForResult<T> | ErrForResult<E>;
+
+export interface OkForResult<T> {
+  readonly type: "ok";
+  readonly ok: T;
+}
+
+export interface ErrForResult<E> {
+  readonly type: "err";
+  readonly err: E;
+}
+"
+`;
+
 exports[`processProject Enums rename properly 1`] = `
 "//
 

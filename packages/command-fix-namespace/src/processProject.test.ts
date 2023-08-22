@@ -1022,6 +1022,30 @@ const cases: {
         }
       `,
     },
+    organizeImports: false,
+  },
+  {
+    name: "Double reexport check",
+    inputs: {
+      "index.ts": `
+        export type {Result as Type} from "./result";
+      `,
+      "result.ts": `
+        export type Result<T, E = Error> = Result.Ok<T> | Result.Err<E>;
+
+        export namespace Result {
+          export interface Ok<T> {
+            readonly type: "ok";
+            readonly ok: T;
+          }
+        
+          export interface Err<E> {
+            readonly type: "err";
+            readonly err: E;
+          }
+        }
+      `,
+    },
   },
 ];
 
