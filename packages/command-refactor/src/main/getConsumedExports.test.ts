@@ -170,10 +170,10 @@ describe(getConsumedExports, () => {
             "exports": Map {},
             "filePath": "/importFrom.ts",
             "imports": Map {
-              "foo" => {
+              "foofoo" => {
                 "isType": false,
-                "localName": "foofoo",
                 "originFile": "/foo.ts",
+                "targetName": "foo",
               },
             },
             "reexportStars": [],
@@ -185,8 +185,8 @@ describe(getConsumedExports, () => {
             "imports": Map {
               "foo" => {
                 "isType": true,
-                "localName": "foo",
                 "originFile": "/foo.ts",
+                "targetName": "foo",
               },
             },
             "reexportStars": [],
@@ -204,8 +204,8 @@ describe(getConsumedExports, () => {
             "imports": Map {
               "foo" => {
                 "isType": false,
-                "localName": "foo",
                 "originFile": "/foo.ts",
+                "targetName": "foo",
               },
             },
             "reexportStars": [],
@@ -332,13 +332,13 @@ describe(getConsumedExports, () => {
             "imports": Map {
               "Foo" => {
                 "isType": false,
-                "localName": "Foo",
                 "originFile": "/exportedType.ts",
+                "targetName": "Foo",
               },
               "Wtf" => {
                 "isType": false,
-                "localName": "Wtf",
                 "originFile": "/exportedType.ts",
+                "targetName": "Wtf",
               },
             },
             "reexportStars": [],
@@ -350,13 +350,13 @@ describe(getConsumedExports, () => {
             "imports": Map {
               "Foo" => {
                 "isType": true,
-                "localName": "Foo",
                 "originFile": "/exportedType.ts",
+                "targetName": "Foo",
               },
               "Wtf" => {
                 "isType": true,
-                "localName": "Wtf",
                 "originFile": "/exportedType.ts",
+                "targetName": "Wtf",
               },
             },
             "reexportStars": [],

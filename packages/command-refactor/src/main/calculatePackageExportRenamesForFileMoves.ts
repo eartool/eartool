@@ -143,10 +143,10 @@ export function calculatePackageExportRenamesForFileMoves(
     for (const [otherFilePath, info] of consumed) {
       // If the file is moving with us, we don't need to consider it.
       if (visitedFiles.has(otherFilePath)) continue;
-      for (const [exportedName] of info.imports) {
+      for (const [_importedName, { targetName }] of info.imports) {
         // if (!usedSymbols.has(exportedName)) {
-        usedSymbols.add(exportedName);
-        renames.addRename(filePath, { from: [exportedName], toFileOrModule: destinationModule });
+        usedSymbols.add(targetName);
+        renames.addRename(filePath, { from: [targetName], toFileOrModule: destinationModule });
         // }
       }
     }

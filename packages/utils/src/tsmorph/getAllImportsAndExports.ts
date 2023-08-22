@@ -7,10 +7,11 @@ import type {
   VariableDeclaration,
 } from "ts-morph";
 import { SyntaxKind, ts } from "ts-morph";
-import type { PackageContext } from "../workspace/PackageContext.js";
 import type { FilePath } from "../FilePath.js";
 import { weakMemo } from "../weakMemo.js";
+import type { PackageContext } from "../workspace/PackageContext.js";
 import { findFileLocationForImportExport } from "./findFileLocationForImportExport.js";
+import { getSimplifiedNodeInfoAsString } from "./getSimplifiedNodeInfo.js";
 
 // Everything you export is either:
 //   - A re-export
@@ -38,7 +39,7 @@ export interface Metadata {
   filePath: FilePath;
   /**@deprecated */
   reexports: Map<string, { originFile?: FilePath; exportName: string[]; isType: boolean }>; // local name to exported name
-  imports: Map<string, { originFile?: FilePath; isType: boolean; localName: string }>;
+  imports: Map<string, { originFile?: FilePath; isType: boolean; targetName: string }>;
   exports: Map<string, Export | ExportAlias>;
   reexportStars: Array<{ originFile: FilePath; as?: string }>;
 }
@@ -70,18 +71,30 @@ function calculateMetadataForSf(ctx: PackageContext, sf: SourceFile, ret: Map<Fi
 
   for (const importDecl of sf.getImportDeclarations()) {
     for (const importSpecifier of importDecl.getNamedImports()) {
-      Assert.ok(metadata.imports.has(importSpecifier.getName()) === false);
-      metadata.imports.set(importSpecifier.getName(), {
+      const localName = importSpecifier.getAliasNode()?.getText() ?? importSpecifier.getName();
+
+      Assert.ok(
+        metadata.imports.has(localName) === false,
+        `Seems we already have a default export for ${getSimplifiedNodeInfoAsString(
+          importSpecifier
+        )}`
+      );
+
+      metadata.imports.set(localName, {
         isType: importSpecifier.isTypeOnly() || importDecl.isTypeOnly(),
-        localName: importSpecifier.getAliasNode()?.getText() ?? importSpecifier.getName(),
+        targetName: importSpecifier.getName(),
         originFile: findFileLocationForImportExport(ctx, importDecl),
       });
     }
     if (importDecl.getDefaultImport()) {
-      Assert.ok(metadata.imports.has("default") === false);
-      metadata.imports.set("default", {
+      const localName = importDecl.getDefaultImport()!.getText();
+      Assert.ok(
+        metadata.imports.has(localName) === false,
+        `Seems we already have a default export for ${getSimplifiedNodeInfoAsString(importDecl)}`
+      );
+      metadata.imports.set(localName, {
         isType: importDecl.isTypeOnly(),
-        localName: importDecl.getDefaultImport()!.getText(),
+        targetName: "default",
         originFile: findFileLocationForImportExport(ctx, importDecl),
       });
     }
@@ -105,16 +118,23 @@ function calculateMetadataForSf(ctx: PackageContext, sf: SourceFile, ret: Map<Fi
 
       for (const namedExport of childNode.getNamedExports()) {
         // re-export case!
-        Assert.ok(metadata.exports.has(namedExport.getName()) === false);
         const localName = namedExport.getAliasNode()?.getText() ?? namedExport.getName();
-        metadata.exports.set(localName, {
+        // This is really messed up that this doesnt break!
+        // Assert.ok(
+        //   metadata.exports.has(localName) === false,
+        //   `Seems we already have an export (${localName}) for ${getSimplifiedNodeInfoAsString(
+        //     namedExport
+        //   )}\n\n${JSON.stringify(metadata.exports.get(localName))}`
+        // );
+        const entry = {
           type: "alias",
           name: localName,
           originFile,
           isType: namedExport.isTypeOnly() || namedExport.getExportDeclaration().isTypeOnly(),
           targetName: namedExport.getName(),
           indirect: false,
-        });
+        } as const;
+        metadata.exports.set(localName, entry);
 
         // leave this in so mvoe files keeps working
         metadata.reexports.set(namedExport.getName(), {

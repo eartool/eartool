@@ -186,20 +186,20 @@ describe("getAllImportsAndExports", () => {
           "exports": Map {},
           "filePath": "/importFrom.ts",
           "imports": Map {
-            "foo" => {
+            "foofoo" => {
               "isType": false,
-              "localName": "foofoo",
               "originFile": "/foo.ts",
+              "targetName": "foo",
             },
             "Foo" => {
               "isType": false,
-              "localName": "Foo",
               "originFile": "/exportedType.ts",
+              "targetName": "Foo",
             },
             "Wtf" => {
               "isType": false,
-              "localName": "Wtf",
               "originFile": "/exportedType.ts",
+              "targetName": "Wtf",
             },
           },
           "reexportStars": [],
@@ -211,18 +211,18 @@ describe("getAllImportsAndExports", () => {
           "imports": Map {
             "foo" => {
               "isType": true,
-              "localName": "foo",
               "originFile": "/foo.ts",
+              "targetName": "foo",
             },
             "Foo" => {
               "isType": true,
-              "localName": "Foo",
               "originFile": "/exportedType.ts",
+              "targetName": "Foo",
             },
             "Wtf" => {
               "isType": true,
-              "localName": "Wtf",
               "originFile": "/exportedType.ts",
+              "targetName": "Wtf",
             },
           },
           "reexportStars": [],
@@ -232,10 +232,10 @@ describe("getAllImportsAndExports", () => {
           "exports": Map {},
           "filePath": "/importFromIndirection.ts",
           "imports": Map {
-            "default" => {
+            "fooByAnotherName" => {
               "isType": false,
-              "localName": "fooByAnotherName",
               "originFile": "/reexportAsDefault.ts",
+              "targetName": "default",
             },
           },
           "reexportStars": [],
@@ -307,8 +307,8 @@ describe("getAllImportsAndExports", () => {
           "imports": Map {
             "foo" => {
               "isType": false,
-              "localName": "foo",
               "originFile": "/foo.ts",
+              "targetName": "foo",
             },
           },
           "reexportStars": [],
