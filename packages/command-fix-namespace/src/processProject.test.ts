@@ -1282,6 +1282,79 @@ describe("processProject", () => {
     expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Bar"], to: ["BarForFoo"] });
   });
 
+  it("calculates the export correctly if index was renamer", async () => {
+    const logger = createTestLogger();
+
+    const project = createProjectForTest({
+      "foo.ts": `
+          export type Foo = Foo.Bar | Foo.Baz
+          export namespace Foo {
+            export type Bar = string;
+            export type Baz = number;
+          }
+      `,
+      "index.ts": `
+          export {Foo as Type} from "./foo";
+      `,
+    });
+
+    const result = await processProject(
+      { project, logger, packageName: "foo", packagePath: "/", packageJson: {} },
+      {
+        logger,
+        removeNamespaces: true,
+        removeFauxNamespaces: false,
+        dryRun: false,
+        organizeImports: false,
+      }
+    );
+
+    const output = calculateOutput(project);
+    expect(output).toMatchInlineSnapshot(`
+      "//
+
+      //
+      // PATH: '/foo.ts'
+      //
+      export type Foo = BarForFoo | BazForFoo;
+
+      export type BarForFoo = string;
+      export type BazForFoo = number;
+      ,//
+
+      //
+      // PATH: '/index.ts'
+      //
+      export { type BarForFoo } from "./foo";
+      export { type BazForFoo } from "./foo";
+      export { type Foo as Type } from "./foo";
+      "
+    `);
+
+    expect(result.exportedRenames).toMatchInlineSnapshot(`
+      [
+        {
+          "from": [
+            "Type",
+            "Bar",
+          ],
+          "to": [
+            "BarForFoo",
+          ],
+        },
+        {
+          "from": [
+            "Type",
+            "Baz",
+          ],
+          "to": [
+            "BazForFoo",
+          ],
+        },
+      ]
+    `);
+  });
+
   it("calculates renames correctly when export star", async () => {
     const logger = createTestLogger();
 

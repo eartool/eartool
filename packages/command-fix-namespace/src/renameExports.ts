@@ -132,8 +132,10 @@ function processSingleExport(
       if (exported) {
         if (isRootExport(exportDecl.getSourceFile())) {
           // TODO Rename this to be clearer
-          // console.log("Record rename", [namespaceCtx.namespaceName, oldName], [importName]);
-          namespaceCtx.recordRename([namespaceCtx.namespaceName, oldName], [importName]);
+          const firstPart =
+            refNode.getParentIfKind(SyntaxKind.ExportSpecifier)?.getAliasNode()?.getText() ??
+            refNode.getText();
+          namespaceCtx.recordRename([firstPart, oldName], [importName]);
         }
 
         namespaceCtx.addReplacement({
