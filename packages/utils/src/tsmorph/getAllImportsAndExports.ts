@@ -2,6 +2,7 @@ import * as Assert from "node:assert/strict";
 import type {
   FunctionDeclaration,
   InterfaceDeclaration,
+  ModuleDeclaration,
   SourceFile,
   TypeAliasDeclaration,
   VariableDeclaration,
@@ -173,17 +174,23 @@ function calculateMetadataForSf(ctx: PackageContext, sf: SourceFile, ret: Map<Fi
       childNode.isKind(SyntaxKind.FunctionDeclaration) ||
       childNode.isKind(SyntaxKind.VariableDeclaration) ||
       childNode.isKind(SyntaxKind.TypeAliasDeclaration) ||
-      childNode.isKind(SyntaxKind.InterfaceDeclaration)
+      childNode.isKind(SyntaxKind.InterfaceDeclaration) ||
+      childNode.isKind(SyntaxKind.ModuleDeclaration)
     ) {
       handleDeclaration(childNode, metadata);
     } else {
-      // console.log(getSimplifiedNodeInfoAsString(decl));
+      // console.log(getSimplifiedNodeInfoAsString(childNode));
     }
   }
 }
 
 function handleDeclaration(
-  decl: FunctionDeclaration | VariableDeclaration | TypeAliasDeclaration | InterfaceDeclaration,
+  decl:
+    | FunctionDeclaration
+    | VariableDeclaration
+    | TypeAliasDeclaration
+    | InterfaceDeclaration
+    | ModuleDeclaration,
   metadata: Metadata
 ) {
   const expectedType =

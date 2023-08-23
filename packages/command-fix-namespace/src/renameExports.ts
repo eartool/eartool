@@ -19,6 +19,17 @@ export function renameExports(context: NamespaceContext) {
 
   const namespaceHasTwin = namespaceDecl.getSymbol()?.getDeclarations().length != 1;
 
+  const twins =
+    namespaceDecl
+      .getSymbol()
+      ?.getDeclarations()
+      .filter(
+        (n) => Node.hasName(n) && n.getName() === namespaceDecl.getName() && n !== namespaceDecl
+      ) ?? [];
+  const namespacesTwinIsType = twins.every(
+    (n) => n.isKind(SyntaxKind.InterfaceDeclaration) || n.isKind(SyntaxKind.TypeAliasDeclaration)
+  );
+
   for (const refNode of namespaceDecl.findReferencesAsNodes()) {
     // `import { Foo as Bar } ...` has two refs to `Foo`, one for `Foo` and one for `Bar`.
     // We only need to calculate the renames for the one
@@ -27,19 +38,9 @@ export function renameExports(context: NamespaceContext) {
     if (refNode.getText() !== context.namespaceName) continue;
 
     const exportDecl = refNode.getFirstAncestorByKind(SyntaxKind.ExportDeclaration);
+    if (!exportDecl) continue; // we only care about exported refs
 
-    if (exportDecl) {
-      const namespacesTwinIsType = !!namespaceDecl
-        .getParent()
-        .forEachChild(
-          (n) =>
-            Node.hasName(n) &&
-            n.getName() === namespaceDecl.getName() &&
-            (n.isKind(SyntaxKind.InterfaceDeclaration) || n.isKind(SyntaxKind.TypeAliasDeclaration))
-        );
-
-      processSingleExport(refNode, exportDecl, context, namespaceHasTwin, namespacesTwinIsType);
-    }
+    processSingleExport(refNode, exportDecl, context, namespaceHasTwin, namespacesTwinIsType);
   }
 
   const importsAndExports = getAllImportsAndExports(context.projectContext);

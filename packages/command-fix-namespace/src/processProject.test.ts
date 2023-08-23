@@ -1355,7 +1355,7 @@ describe("processProject", () => {
     `);
   });
 
-  it("calculates renames correctly when export star", async () => {
+  it("calculates renames correctly when export star has a twin", async () => {
     const logger = createTestLogger();
 
     const project = createProjectForTest({
@@ -1386,6 +1386,127 @@ describe("processProject", () => {
 
     expect(result.exportedRenames).toHaveLength(1);
     expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Bar"], to: ["BarForFoo"] });
+  });
+
+  it("calculates renames correctly when export star has no twin", async () => {
+    const logger = createTestLogger();
+
+    const project = createProjectForTest({
+      "foo.ts": `
+          export interface Bleh {}
+          export namespace Foo {
+            export type Bar = string;
+            export namespace Bar {
+              export const of = () => 5;
+            }
+          }
+      `,
+      "index.ts": `
+          export * from "./foo";
+      `,
+    });
+
+    const result = await processProject(
+      { project, logger, packageName: "foo", packagePath: "/", packageJson: {} },
+      {
+        logger,
+        removeNamespaces: true,
+        removeFauxNamespaces: false,
+        dryRun: false,
+        organizeImports: false,
+      }
+    );
+
+    expect(result.exportedRenames).toHaveLength(1);
+    expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Bar"], to: ["BarForFoo"] });
+  });
+
+  it("calculates renames correctly when export star has two twins", async () => {
+    const logger = createTestLogger();
+
+    const project = createProjectForTest({
+      "foo.ts": `
+        import { OneOrMultiple } from "helpers";
+        export const MyEvent = {
+          NAME: "MyEvent",
+        } as const;
+        export namespace MyEvent {
+          export interface Payload {
+            readonly id: OneOrMultiple<string>;
+          }
+        }
+        
+        export type MyEvent = CustomEvent<MyEvent.Payload>;
+        
+        export function emitMyEvent(id: OneOrMultiple<string>): void {
+          const event = new CustomEvent(MyEvent.NAME, { detail: { id } });
+          window.dispatchEvent(event);
+        }
+      `,
+      "index.ts": `
+        export {
+          emitMyEvent,
+          MyEvent,
+        } from "./foo";
+      `,
+    });
+
+    const result = await processProject(
+      { project, logger, packageName: "foo", packagePath: "/", packageJson: {} },
+      {
+        logger,
+        removeNamespaces: true,
+        removeFauxNamespaces: false,
+        dryRun: false,
+        organizeImports: false,
+      }
+    );
+
+    const output = calculateOutput(project);
+    expect(output).toMatchInlineSnapshot(`
+      "//
+
+      //
+      // PATH: '/foo.ts'
+      //
+      import { OneOrMultiple } from "helpers";
+      export const MyEvent = {
+        NAME: "MyEvent",
+      } as const;
+
+      export interface PayloadForMyEvent {
+        readonly id: OneOrMultiple<string>;
+      }
+
+      export type MyEvent = CustomEvent<PayloadForMyEvent>;
+
+      export function emitMyEvent(id: OneOrMultiple<string>): void {
+        const event = new CustomEvent(MyEvent.NAME, { detail: { id } });
+        window.dispatchEvent(event);
+      }
+      ,//
+
+      //
+      // PATH: '/index.ts'
+      //
+      export { type PayloadForMyEvent } from "./foo";
+      export { emitMyEvent, MyEvent } from "./foo";
+      "
+    `);
+
+    expect(result.exportedRenames).toMatchInlineSnapshot(`
+      [
+        {
+          "from": [
+            "MyEvent",
+            "Payload",
+          ],
+          "to": [
+            "PayloadForMyEvent",
+          ],
+        },
+      ]
+    `);
   });
 });
 
