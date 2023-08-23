@@ -1421,6 +1421,92 @@ describe("processProject", () => {
     expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Bar"], to: ["BarForFoo"] });
   });
 
+  it("doesnt mess up in package replacements for duplicated type and const in namespace", async () => {
+    const logger = createTestLogger();
+
+    const project = createProjectForTest({
+      "foo.ts": `
+        export namespace FiltersExtension {
+          export type DEFER = string & {
+            brand: "defer";
+          };
+        
+          export const DEFER: DEFER = "DEFER" as DEFER;
+        }
+        export const somethingElse = 5;
+      `,
+      "index.ts": `
+        export { FiltersExtension } from "./foo";
+      `,
+      "other.ts": `
+        import {FiltersExtension} from "./foo";
+
+        export type Bleh = FiltersExtension.DEFER;
+        export const bleh = FiltersExtension.DEFER;
+      `,
+    });
+
+    const result = await processProject(
+      { project, logger, packageName: "foo", packagePath: "/", packageJson: {} },
+      {
+        logger,
+        removeNamespaces: true,
+        removeFauxNamespaces: false,
+        dryRun: false,
+        organizeImports: false,
+      }
+    );
+
+    const output = calculateOutput(project);
+    expect(output).toMatchInlineSnapshot(`
+      "//
+
+      //
+      // PATH: '/foo.ts'
+      //
+
+      export type FILTERS_EXTENSION_DEFER = string & {
+        brand: "defer";
+      };
+
+      export const FILTERS_EXTENSION_DEFER: FILTERS_EXTENSION_DEFER =
+        "DEFER" as FILTERS_EXTENSION_DEFER;
+
+      export const somethingElse = 5;
+      ,//
+
+      //
+      // PATH: '/index.ts'
+      //
+      export { FILTERS_EXTENSION_DEFER } from "./foo";
+      export {} from "./foo";
+      ,//
+
+      //
+      // PATH: '/other.ts'
+      //
+      import { FILTERS_EXTENSION_DEFER, FiltersExtension } from "./foo";
+
+      export type Bleh = FILTERS_EXTENSION_DEFER;
+      export const bleh = FILTERS_EXTENSION_DEFER;
+      "
+    `);
+
+    expect(result.exportedRenames).toMatchInlineSnapshot(`
+      [
+        {
+          "from": [
+            "FiltersExtension",
+            "DEFER",
+          ],
+          "to": [
+            "FILTERS_EXTENSION_DEFER",
+          ],
+        },
+      ]
+    `);
+  });
+
   it("calculates renames correctly when export star has two twins", async () => {
     const logger = createTestLogger();
 
