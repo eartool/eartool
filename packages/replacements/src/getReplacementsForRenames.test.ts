@@ -38,8 +38,8 @@ describe(getReplacementsForRenames, () => {
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
-      createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "FooProps"),
+      createReplacement("/index.ts", indexFileParts, 1, 2, "FooProps"),
     ]);
   });
 
@@ -140,8 +140,8 @@ describe(getReplacementsForRenames, () => {
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
-      createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "FooProps"),
+      createReplacement("/index.ts", indexFileParts, 1, 2, "FooProps"),
     ]);
   });
 
@@ -176,8 +176,8 @@ describe(getReplacementsForRenames, () => {
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
-      createReplacement("/index.ts", indexFileParts, 1, 1, "Baz,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "Baz.Other"),
+      createReplacement("/index.ts", indexFileParts, 1, 2, "Baz"),
     ]);
   });
 
@@ -215,9 +215,9 @@ describe(getReplacementsForRenames, () => {
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
-      createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "FooProps"),
       createReplacement("/index.ts", indexFileParts, 7, 8, "FooProps"),
+      createReplacement("/index.ts", indexFileParts, 1, 2, "FooProps"),
     ]);
   });
 
@@ -255,9 +255,9 @@ describe(getReplacementsForRenames, () => {
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
-      createReplacement("/index.ts", indexFileParts, 1, 1, "Merp,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "Merp.Other"),
       createReplacement("/index.ts", indexFileParts, 7, 8, "Merp.Other"),
+      createReplacement("/index.ts", indexFileParts, 1, 2, "Merp"),
     ]);
   });
 
@@ -303,10 +303,9 @@ describe(getReplacementsForRenames, () => {
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
-      createReplacement("/index.ts", indexFileParts, 1, 1, "FooProps,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "FooProps"),
-      createReplacement("/index.ts", indexFileParts, 1, 1, "FooState,"),
       createReplacement("/index.ts", indexFileParts, 7, 8, "FooState"),
+      createReplacement("/index.ts", indexFileParts, 1, 2, "FooProps, FooState"),
     ]);
   });
 
@@ -352,10 +351,10 @@ describe(getReplacementsForRenames, () => {
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
-      createReplacement("/index.ts", indexFileParts, 1, 1, "Baz,"),
       createReplacement("/index.ts", indexFileParts, 4, 5, "Baz.Other"),
-      createReplacement("/index.ts", indexFileParts, 1, 1, "Bar,"),
+      // createReplacement("/index.ts", indexFileParts, 1, 1, "Bar"),
       createReplacement("/index.ts", indexFileParts, 7, 8, "Bar.Moo"),
+      createReplacement("/index.ts", indexFileParts, 1, 2, "Baz, Bar"),
     ]);
   });
 
@@ -430,14 +429,12 @@ describe(getReplacementsForRenames, () => {
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
-      createReplacement("/foo.ts", indexFileParts, 1, 1, "FooProps,"),
       createReplacement("/foo.ts", indexFileParts, 4, 5, "FooProps"),
-      createReplacement("/foo.ts", indexFileParts, 1, 1, "FooState,"),
       createReplacement("/foo.ts", indexFileParts, 7, 8, "FooState"),
-      createReplacement("/index.ts", fooFileParts, 1, 1, "FooProps,"),
+      createReplacement("/foo.ts", indexFileParts, 1, 2, "FooProps, FooState"),
       createReplacement("/index.ts", fooFileParts, 4, 5, "FooProps"),
-      createReplacement("/index.ts", fooFileParts, 1, 1, "FooState,"),
       createReplacement("/index.ts", fooFileParts, 7, 8, "FooState"),
+      createReplacement("/index.ts", fooFileParts, 1, 2, "FooProps, FooState"),
     ]);
   });
 });

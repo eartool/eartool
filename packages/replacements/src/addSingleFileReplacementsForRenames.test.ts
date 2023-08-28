@@ -76,8 +76,7 @@ describe(addSingleFileReplacementsForRenames, () => {
       // </index.ts>
       //
 
-      import { bar } from "baz";
-      import { bleh } from "baz";
+      import { bar, bleh } from "baz";
       doThing(bar);
       doThing(bleh);
 
@@ -219,6 +218,56 @@ describe(addSingleFileReplacementsForRenames, () => {
       "
     `);
     //
+  });
+
+  it("deeploy handles the renames", () => {
+    const { output } = new TestBuilder()
+      .addFile(
+        "/index.ts",
+        `
+          export const bar =5;
+      `
+      )
+      .addFile(
+        "/nested/foo.ts",
+        `
+          import {bar} from "barModule"; 
+          export function* insideGenerator() {
+            yield bar();
+          }
+          `
+      )
+      .performWork(({ replacements, files, ctx }) => {
+        addSingleFileReplacementsForRenames(
+          ctx,
+          files.get("/nested/foo.ts")!,
+          new Map([
+            ["barModule", [{ from: ["bar"], to: ["otherImport"], toFileOrModule: "otherModule" }]],
+          ]),
+          replacements,
+          false
+        );
+      })
+      .build();
+
+    expect(output).toMatchInlineSnapshot(`
+      "
+      //
+      // </nested/foo.ts>
+      //
+
+      import { otherImport } from "otherModule";
+      export function* insideGenerator() {
+        yield otherImport();
+      }
+
+
+      //
+      // <//nested/foo.ts>
+      //
+
+      "
+    `);
   });
 
   it("properly handles full file paths", () => {

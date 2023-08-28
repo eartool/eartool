@@ -1,21 +1,25 @@
-import {
-  SyntaxKind,
-  type ExportDeclaration,
-  type Identifier,
-  type ImportDeclaration,
-  type NamespaceExport,
-  type SourceFile,
+import type {
+  Node,
+  ImportSpecifier,
+  ExportSpecifier,
+  ExportDeclaration,
+  Identifier,
+  ImportDeclaration,
+  NamespaceExport,
+  SourceFile,
 } from "ts-morph";
 import type { PackageContext } from "@eartool/utils";
 import {
+  findEntireQualifiedNameTree,
   getNamedSpecifiers,
+  getDefaultIdentifier,
   getNamespaceIdentifier,
   getPossibleFileLocations,
-  weakMemo,
 } from "@eartool/utils";
+import { pipe, filter, flatMap } from "iter-ops";
 import type { PackageExportRename, PackageExportRenames } from "./PackageExportRename.js";
 import type { Replacements } from "./Replacements.js";
-import { accumulateRenamesForImportedIdentifier } from "./accumulateRenamesForImportedIdentifier.js";
+import { addImportOrExport } from "./accumulateRenamesForImportedIdentifier.js";
 
 // FIXME: This function is way too complex now because I tried to reuse the
 // renames structure for the full file path support to deal with moved files
@@ -70,7 +74,6 @@ function accumulateRenamesForAllDecls(
   replacements: Replacements,
   renames: PackageExportRenames
 ) {
-  const alreadyAdded = new Set();
   for (const decl of decls) {
     const moduleSpecifier = decl.getModuleSpecifier();
     if (!moduleSpecifier) continue;
@@ -93,97 +96,131 @@ function accumulateRenamesForAllDecls(
           }
         }
       }
-
-      // FUTURE ME: One day we will probably want to rename some variables and
-      // where they come from and this logic will need to be udpated
-
-      const { toFileOrModule } = renamesForPackage[0];
-      if (toFileOrModule) {
-        replacements.replaceNode(moduleSpecifier, `"${toFileOrModule}"`);
-      } else {
-        accumulateRenamesForDecl(ctx, decl, renamesForPackage, replacements, alreadyAdded);
-      }
+      accumulateRenamesForDecl(ctx, decl, renamesForPackage, replacements);
     }
 
     const renamesForPackage = renames.get(moduleSpecifier.getLiteralText());
     if (!renamesForPackage) continue;
 
-    accumulateRenamesForDecl(ctx, decl, renamesForPackage, replacements, alreadyAdded);
+    accumulateRenamesForDecl(ctx, decl, renamesForPackage, replacements);
   }
 }
 
-const getFirstWordsAsSet = weakMemo(function getFirstWordsAsSet(
-  renamesForPackage: PackageExportRename[]
-) {
-  return new Set(renamesForPackage.map((a) => a.from[0]));
-});
-
+// This is called once per declaration per file.
 function accumulateRenamesForDecl(
   ctx: PackageContext,
   decl: ImportDeclaration | ExportDeclaration,
   renamesForPackage: PackageExportRename[],
-  replacements: Replacements,
-  alreadyAdded: Set<unknown>
-) {
-  // For this single decl, we don't want to do individual replacements
-  // unless there are leftovers.
-
-  const skipCleanup =
-    renamesForPackage.every((a) => a.toFileOrModule != undefined) &&
-    bulkRemoveMaybe(renamesForPackage, decl, replacements);
-
-  const maybeNamespaceIdentifier = getNamespaceIdentifier(decl);
-  if (maybeNamespaceIdentifier) {
-    accumulateRenamesForImportedIdentifier(
-      ctx,
-      maybeNamespaceIdentifier,
-      prependRenames(renamesForPackage, maybeNamespaceIdentifier),
-      replacements,
-      skipCleanup
-    );
-  }
-
-  for (const spec of getNamedSpecifiers(decl)) {
-    accumulateRenamesForImportedIdentifier(
-      ctx,
-      spec.getAliasNode() ?? spec.getNameNode(),
-      renamesForPackage,
-      replacements,
-      skipCleanup,
-      alreadyAdded,
-      spec
-    );
-  }
-}
-
-function bulkRemoveMaybe(
-  renamesForPackage: PackageExportRename[],
-  decl: ImportDeclaration | ExportDeclaration,
   replacements: Replacements
 ) {
-  const toRename = getFirstWordsAsSet(renamesForPackage);
-  const removeAllNamed = getNamedSpecifiers(decl).every((a) => toRename.has(a.getName()));
-  if (!removeAllNamed) return false;
+  // {
+  const maybeNamespaceIdentifier = getNamespaceIdentifier(decl);
+  if (maybeNamespaceIdentifier) {
+    let found;
+    for (const { fullyQualifiedInstance, packageExportRename } of getFullyQualifiedReferences(
+      maybeNamespaceIdentifier,
+      prependRenames(renamesForPackage, maybeNamespaceIdentifier)
+    )) {
+      found = packageExportRename; // only one in this case
+      if (packageExportRename.to) {
+        const fullReplacement = packageExportRename.to.join(".");
+        replacements.replaceNode(fullyQualifiedInstance, fullReplacement);
+      }
+    }
 
-  if (getNamedSpecifiers(decl).length == 0) return false;
+    // TODO HANDLE DEFAULT
+    if (getDefaultIdentifier(decl)) throw new Error("OOops");
 
-  if (decl.isKind(SyntaxKind.ImportDeclaration)) {
-    const importNamedBindings = decl
-      .getImportClauseOrThrow()
-      .getNamedBindingsOrThrow()
-      .asKindOrThrow(SyntaxKind.NamedImports);
-
-    if (decl.getDefaultImport()) {
-      replacements.deleteNode(importNamedBindings);
-      const comma = importNamedBindings.getPreviousSiblingIfKindOrThrow(SyntaxKind.CommaToken);
-      replacements.deleteNode(comma);
-      return true;
+    if (found && found.toFileOrModule) {
+      replacements.replaceNode(decl.getModuleSpecifier()!, `"${found.toFileOrModule}"`);
     }
   }
 
-  // Otherwise there are named elements and nothing else, import or export
-  replacements.deleteNode(decl);
-  return true;
+  const toMigrate: [ImportSpecifier | ExportSpecifier, string | undefined, string][] = [];
+  for (const spec of getNamedSpecifiers(decl)) {
+    for (const { fullyQualifiedInstance, packageExportRename } of getFullyQualifiedReferences(
+      spec.getAliasNode() ?? spec.getNameNode(),
+      renamesForPackage
+    )) {
+      if (packageExportRename.to) {
+        const fullReplacement = packageExportRename.to.join(".");
+        replacements.replaceNode(fullyQualifiedInstance, fullReplacement);
+      }
+    }
+  }
+
+  for (const spec of getNamedSpecifiers(decl)) {
+    const matches = renamesForPackage.filter(
+      (a) => a.from && a.from[0] === (spec.getAliasNode() ?? spec.getNameNode()).getText()
+    );
+
+    if (matches.length > 0) {
+      const expectedTo = matches[0].toFileOrModule;
+      const allMatch = matches.every((a) => a.toFileOrModule === expectedTo);
+      if (!allMatch)
+        throw new Error("We don't support moving a file import to multiple locations!");
+
+      toMigrate.push([
+        spec,
+        matches.map((a) => a.to?.[0] ?? a.from[0]).join(", "),
+        expectedTo ?? decl.getModuleSpecifierValue()!,
+      ]);
+    }
+  }
+
+  if (
+    toMigrate.length === getNamedSpecifiers(decl).length &&
+    toMigrate.length > 0 &&
+    !getDefaultIdentifier(decl)
+  ) {
+    // this will break when there are different destinations
+    if (decl.getModuleSpecifier()?.getLiteralText() != toMigrate[0][2]) {
+      replacements.replaceNode(decl.getModuleSpecifier()!, `"${toMigrate[0][2]}"`);
+    }
+    for (const [spec, newName] of toMigrate) {
+      if (newName) {
+        replacements.replaceNode(spec.getAliasNode() ?? spec.getNameNode(), newName);
+      }
+    }
+  } else {
+    for (const q of toMigrate) {
+      addImportOrExport(replacements, q[0], q[1], q[2], true);
+    }
+  }
+}
+
+function getFullyQualifiedReferences(
+  maybeNamespaceIdentifier: Identifier,
+  renamesToFind: PackageExportRename[]
+) {
+  return pipe(
+    maybeNamespaceIdentifier.findReferencesAsNodes(),
+    filter<Node>(notEqualTo(maybeNamespaceIdentifier)),
+    filter(sameSourceFile(maybeNamespaceIdentifier)),
+    flatMap((refNode) =>
+      pipe(
+        renamesToFind,
+        flatMap((packageExportRename) => {
+          const fullyQualifiedInstance = findEntireQualifiedNameTree(
+            refNode,
+            packageExportRename.from
+          );
+
+          return fullyQualifiedInstance
+            ? [{ fullyQualifiedInstance, packageExportRename, refNode }]
+            : [];
+        })
+      )
+    )
+  );
+}
+
+function sameSourceFile(maybeNamespaceIdentifier: Node) {
+  return (refNode: Node) => refNode.getSourceFile() === maybeNamespaceIdentifier.getSourceFile();
+}
+
+function notEqualTo(maybeNamespaceIdentifier: Node) {
+  return (refNode: Node): refNode is Node => refNode !== maybeNamespaceIdentifier;
 }
 
 function prependRenames(

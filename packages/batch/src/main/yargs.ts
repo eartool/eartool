@@ -79,6 +79,17 @@ async function getBatchJobOptionsFromYargs(args: StandardBatchArgs): Promise<Bat
   };
 }
 
+export type BatchCommand<O extends { [key: string]: yargs.Options }, W, R extends {}> =
+  | ((yargs: yargs.Argv<{}>) => yargs.Argv<{}>)
+  | undefined;
+
+export type CliMainArgs<O extends { [key: string]: yargs.Options }> = yargs.ArgumentsCamelCase<
+  yargs.InferredOptionTypes<O>
+> &
+  StandardBatchArgs & { logger: Logger };
+
+export type CliMainResult<W, R> = Promise<Omit<JobSpec<W, R>, "runInlineFunc">>;
+
 export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, R extends {}>(
   {
     name,
@@ -91,15 +102,12 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
     description: string | false;
     example?: [string, string];
     options: O;
-    cliMain: (
-      args: yargs.ArgumentsCamelCase<yargs.InferredOptionTypes<O>> &
-        StandardBatchArgs & { logger: Logger }
-    ) => Promise<Omit<JobSpec<W, R>, "runInlineFunc">>;
+    cliMain: (args: CliMainArgs<O>) => CliMainResult<W, R>;
   },
   loadWorkerMain: () => Promise<{
     default: (workerArgs: WorkerData<W>, port: MessagePort) => Promise<R>;
   }>
-) {
+): BatchCommand<O, W, R> {
   if (isMainThread) {
     return (yargs: yargs.Argv<NonNullable<unknown>>) =>
       yargs.command(
@@ -109,7 +117,7 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
           let ret = yargs.options({ ...standardBatchYargsOptions, ...options }).strict();
           if (example) ret = ret.example(...example);
 
-          return ret;
+          return ret as yargs.Argv<StandardBatchOptionTypes & yargs.InferredOptionTypes<O>>;
         },
         async (args) => {
           const batchJobOpts = await getBatchJobOptionsFromYargs(args);

@@ -15,6 +15,7 @@ export { findNewNameInScope } from "./tsmorph/findNewNameInScope.js";
 export { getAllImportsAndExports, mapGetOrInitialize } from "./tsmorph/getAllImportsAndExports.js";
 export type { Metadata } from "./tsmorph/getAllImportsAndExports.js";
 export { getDeclaration } from "./tsmorph/getDeclaration.js";
+export { getDefaultIdentifier } from "./tsmorph/getDefaultIdentifier.js";
 export { getImportSpecifierOrThrow } from "./tsmorph/getImportSpecifierOrThrow.js";
 export { getNamedSpecifiers } from "./tsmorph/getNamedSpecifiers.js";
 export { getNamespaceIdentifier } from "./tsmorph/getNamespaceIdentifier.js";
