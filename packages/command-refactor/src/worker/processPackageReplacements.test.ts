@@ -24,7 +24,7 @@ describe(processPackageReplacements, () => {
           "other"
         );
 
-        expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+        expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
                   "// ==========================================================
                   // <>: /workspace/other/src/index.ts
                   //
@@ -50,7 +50,7 @@ describe(processPackageReplacements, () => {
             "oversized"
           );
 
-          expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+          expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
                       "// ==========================================================
                       // <>: /workspace/oversized/src/index.ts
                       //
@@ -107,7 +107,7 @@ describe(processPackageReplacements, () => {
 
         const { filesChanged, helpers } = await standardProcessPackageReplacmements(result, "api");
 
-        expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+        expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
                   "// ==========================================================
                   // <>: /workspace/api/src/index.ts
                   //
@@ -156,7 +156,7 @@ describe(processPackageReplacements, () => {
         );
 
         // NOTE THE ORIGINAL HAS NO NEW LINE BETWEEN the import and the export in doThingWithState.ts
-        expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+        expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
           "// ==========================================================
           // <>: /workspace/state/src/doThingWithState.ts
           //
@@ -190,7 +190,7 @@ describe(processPackageReplacements, () => {
 
         const { filesChanged, helpers } = await standardProcessPackageReplacmements(result, "app");
 
-        expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+        expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
                   "// ==========================================================
                   // <>: /workspace/app/src/cli.ts
                   //
@@ -222,7 +222,7 @@ describe(processPackageReplacements, () => {
           "other"
         );
 
-        expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+        expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
                   "// ==========================================================
                   // <>: /workspace/other/src/index.ts
                   //
@@ -248,7 +248,7 @@ describe(processPackageReplacements, () => {
             "oversized"
           );
 
-          expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+          expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
                       "// ==========================================================
                       // <>: /workspace/oversized/src/index.ts
                       //
@@ -305,7 +305,7 @@ describe(processPackageReplacements, () => {
 
         const { filesChanged, helpers } = await standardProcessPackageReplacmements(result, "api");
 
-        expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+        expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
                   "// ==========================================================
                   // <>: /workspace/api/src/index.ts
                   //
@@ -354,7 +354,7 @@ describe(processPackageReplacements, () => {
         );
 
         // NOTE THE ORIGINAL HAS NO NEW LINE BETWEEN the import and the export in doThingWithState.ts
-        expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+        expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
           "// ==========================================================
           // <>: /workspace/state/src/doThingWithState.ts
           //
@@ -388,7 +388,7 @@ describe(processPackageReplacements, () => {
 
         const { filesChanged, helpers } = await standardProcessPackageReplacmements(result, "app");
 
-        expect(helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
+        expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
                   "// ==========================================================
                   // <>: /workspace/app/src/cli.ts
                   //

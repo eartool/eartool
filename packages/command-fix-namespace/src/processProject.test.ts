@@ -1075,7 +1075,7 @@ describe("processProject", () => {
           }
         );
 
-        const output = calculateOutput(project);
+        const output = await calculateOutput(project);
 
         expect(output).toMatchSnapshot();
       } finally {
@@ -1157,7 +1157,7 @@ describe("processProject", () => {
       ]
     `);
 
-    const output = calculateOutput(project);
+    const output = await calculateOutput(project);
     expect(output).toMatchInlineSnapshot(`
       "//
 
@@ -1309,7 +1309,7 @@ describe("processProject", () => {
       }
     );
 
-    const output = calculateOutput(project);
+    const output = await calculateOutput(project);
     expect(output).toMatchInlineSnapshot(`
       "//
 
@@ -1457,7 +1457,7 @@ describe("processProject", () => {
       }
     );
 
-    const output = calculateOutput(project);
+    const output = await calculateOutput(project);
     expect(output).toMatchInlineSnapshot(`
       "//
 
@@ -1548,7 +1548,7 @@ describe("processProject", () => {
       }
     );
 
-    const output = calculateOutput(project);
+    const output = await calculateOutput(project);
     expect(output).toMatchInlineSnapshot(`
       "//
 
@@ -1596,15 +1596,15 @@ describe("processProject", () => {
   });
 });
 
-function calculateOutput(project: Project) {
+async function calculateOutput(project: Project) {
   const fs = project.getFileSystem();
 
-  const output = project
-    .getSourceFiles()
-    .map((sf) => {
-      const filePath = sf.getFilePath();
-      return formatTestTypescript(
-        `
+  const output = (
+    await Promise.all(
+      project.getSourceFiles().map((sf) => {
+        const filePath = sf.getFilePath();
+        return formatTestTypescript(
+          `
         //
 
         //
@@ -1612,8 +1612,9 @@ function calculateOutput(project: Project) {
         //
         ${fs.readFileSync(filePath)}
         `
-      );
-    })
-    .join();
+        );
+      })
+    )
+  ).join();
   return output;
 }

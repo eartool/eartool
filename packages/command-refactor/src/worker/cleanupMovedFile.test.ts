@@ -5,7 +5,7 @@ import { createCtxHelperFunctions } from "./createCtxHelperFunctions.js";
 import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 
 describe(cleanupMovedFile, () => {
-  it("handles imports from own package", () => {
+  it("handles imports from own package", async () => {
     const PACKAGE_NAME = "foo";
 
     const { workspace, projectLoader, getPackageContext } = new RefactorWorkspaceBuilder(
@@ -40,7 +40,7 @@ describe(cleanupMovedFile, () => {
     cleanupMovedFile(ctx, sf);
 
     const { processReplacementsAndGetTestResultsForFiles } = createCtxHelperFunctions(ctx);
-    const { testResults } = processReplacementsAndGetTestResultsForFiles();
+    const { testResults } = await processReplacementsAndGetTestResultsForFiles();
     expect(testResults).toMatchInlineSnapshot(`
       "// ==========================================================
       // <>: /workspace/foo/src/foo.ts
@@ -57,7 +57,7 @@ describe(cleanupMovedFile, () => {
     `);
   });
 
-  it("updates reference in target package when nested", () => {
+  it("updates reference in target package when nested", async () => {
     const PACKAGE_NAME = "foo";
 
     const { workspace, projectLoader, getPackageContext } = new RefactorWorkspaceBuilder(
@@ -91,7 +91,7 @@ describe(cleanupMovedFile, () => {
     cleanupMovedFile(ctx, sf);
 
     const { processReplacementsAndGetTestResultsForFiles } = createCtxHelperFunctions(ctx);
-    const { testResults } = processReplacementsAndGetTestResultsForFiles();
+    const { testResults } = await processReplacementsAndGetTestResultsForFiles();
     expect(testResults).toMatchInlineSnapshot(`
       "// ==========================================================
       // <>: /workspace/foo/src/foo.ts

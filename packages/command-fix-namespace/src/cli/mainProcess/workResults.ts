@@ -7,7 +7,7 @@ interface JobResult {
   exportedRenames: PackageExportRename[];
 }
 
-const adapter = createEntityAdapter<JobResult>({
+const adapter = createEntityAdapter<JobResult, string>({
   selectId: (a) => a.packageName,
 });
 
@@ -27,10 +27,10 @@ const slice = createSlice({
     },
   },
 });
-
+import "reselect";
 export const { selectAdditionalRenames } = slice.selectors;
 export const { workCompleted } = slice.actions;
 
 // it needs to be declared for the reducer export
-export default slice.reducer as Reducer<EntityState<JobResult>>;
+export default slice.reducer as Reducer<EntityState<JobResult, string>>;
 export const initialState = slice.getInitialState();
