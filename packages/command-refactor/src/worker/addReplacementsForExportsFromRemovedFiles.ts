@@ -5,7 +5,7 @@ import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 export function addReplacementsForExportsFromRemovedFiles(
   ctx: WorkerPackageContext,
   filesToRemove: Iterable<FilePath>,
-  rootFile: SourceFile | undefined
+  rootFile: SourceFile | undefined,
 ) {
   const setOfFilesToRemove = new Set(filesToRemove);
   if (setOfFilesToRemove.size === 0) return;

@@ -38,7 +38,7 @@ export interface BatchJobOptions {
 export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
   opts: BatchJobOptions,
   logger: Logger,
-  jobSpec: JobSpec<Q["__ArgsType"], Q["__ResultType"]>
+  jobSpec: JobSpec<Q["__ArgsType"], Q["__ResultType"]>,
 ) {
   const progress: Progress = opts.progress ? new RealProgress() : new NoopProgress();
 
@@ -82,10 +82,10 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
         logger.flush();
         throw new AggregateError(
           [err],
-          `Failed while trying to run job for ${jobInfo.packagePath}`
+          `Failed while trying to run job for ${jobInfo.packagePath}`,
         );
       }
-    }
+    },
   );
 
   progress.stop();
@@ -111,7 +111,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
           logger.levels.labels[message.payload.level];
           logger[logger.levels.labels[level] as Level](
             { ...remaining, packageName: jobInfo.packageName },
-            msg
+            msg,
           );
 
           return;
@@ -121,7 +121,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
             jobInfo.packageName,
             message.payload.completedWorkUnits,
             message.payload.totalWorkUnits,
-            message.payload.stage
+            message.payload.stage,
           );
         } else if (MessagesToMain.workComplete.match(message)) {
           logger.trace("Recieved workComplete form worker %s, %o", packagePath, message.payload);

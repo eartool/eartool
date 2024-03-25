@@ -8,7 +8,7 @@ export function autorenameIdentifierAndReferences(
   replacements: Replacements,
   nameNode: Identifier,
   scope: Node,
-  banNames: Set<string>
+  banNames: Set<string>,
 ) {
   const logger = replacements.logger.child({ primaryNode: nameNode });
 
@@ -26,13 +26,13 @@ export function autorenameIdentifierAndReferences(
 
     if (parent.getPropertyNameNode() == null) {
       logger.trace(
-        "!!! " + parent.getNameNode().getText() + " - " + parent.getPropertyNameNode()?.getText()
+        "!!! " + parent.getNameNode().getText() + " - " + parent.getPropertyNameNode()?.getText(),
       );
       replacements.addReplacement(
         nameNode.getSourceFile(),
         nameNode.getEnd(),
         nameNode.getEnd(),
-        `: ${newName}`
+        `: ${newName}`,
       );
     } else {
       logger.trace("alt case");

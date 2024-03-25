@@ -16,8 +16,8 @@ export function processReplacements(project: Project, replacementsMap: Map<strin
       if (prevEnd > replacement.start)
         throw new Error(
           `invairant violated. overlapping replacements arent allowed. check: ${JSON.stringify(
-            sortedReplacements
-          )}`
+            sortedReplacements,
+          )}`,
         );
       parts.push(original.slice(prevEnd, replacement.start));
       parts.push(replacement.newValue);

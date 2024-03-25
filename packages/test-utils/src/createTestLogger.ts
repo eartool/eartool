@@ -55,7 +55,7 @@ export function createTestLogger(): Logger {
             }),
           }),
         },
-      ])
+      ]),
     );
 
     logger.setBindings({ currentTestName });

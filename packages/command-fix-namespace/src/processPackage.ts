@@ -19,7 +19,7 @@ import { processProject, type ProcessProjectOpts } from "./processProject.js";
 export async function processPackage(
   packageName: PackageName,
   packagePath: FilePath,
-  opts: ProcessProjectOpts
+  opts: ProcessProjectOpts,
 ) {
   const project = maybeLoadProject(packagePath);
 
@@ -35,10 +35,10 @@ export async function processPackage(
       packageName,
       packagePath,
       packageJson: JSON.parse(
-        project.getFileSystem().readFileSync(path.join(packagePath, "package.json"))
+        project.getFileSystem().readFileSync(path.join(packagePath, "package.json")),
       ),
     },
-    opts
+    opts,
   );
 }
 //

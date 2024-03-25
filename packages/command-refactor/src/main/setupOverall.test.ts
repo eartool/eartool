@@ -13,7 +13,7 @@ describe(setupOverall, () => {
         projectLoader,
         new Set(["/workspace/api/src/doThingWithState.ts"]),
         "state",
-        createTestLogger()
+        createTestLogger(),
       );
 
       expect(result).toMatchInlineSnapshot(`
@@ -85,7 +85,7 @@ describe(setupOverall, () => {
         projectLoader,
         new Set(["/workspace/oversized/src/components/nested/icons/word.ts"]),
         "other",
-        createTestLogger()
+        createTestLogger(),
       );
 
       expect(result).toMatchInlineSnapshot(`
@@ -146,10 +146,10 @@ describe(setupOverall, () => {
           projectLoader,
           new Set(["/workspace/app/src/helper/prepareTest.ts"]),
           "test-utils",
-          createTestLogger()
-        )
+          createTestLogger(),
+        ),
       ).rejects.toMatchInlineSnapshot(
-        `[Error: Cannot complete task. It would create a circular dependency as the destination 'test-utils' is upstream of a dependency it would have to take: 'state']`
+        `[Error: Cannot complete task. It would create a circular dependency as the destination 'test-utils' is upstream of a dependency it would have to take: 'state']`,
       );
     });
 
@@ -161,7 +161,7 @@ describe(setupOverall, () => {
         projectLoader,
         new Set(["/workspace/api/src/doThingWithState.ts"]),
         "app",
-        createTestLogger()
+        createTestLogger(),
       );
       expect(result).toMatchInlineSnapshot(`
         {
@@ -235,7 +235,7 @@ describe(setupOverall, () => {
         projectLoader,
         new Set(["/workspace/api/src/doThingWithBaz.ts"]),
         "state",
-        createTestLogger()
+        createTestLogger(),
       );
 
       expect(result).toMatchInlineSnapshot(`

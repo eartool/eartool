@@ -9,7 +9,7 @@ export function addReplacementsForRenamedIdentifier(
   replacements: Replacements,
   localIdentifier: Identifier,
   scope: Node,
-  newName: string
+  newName: string,
 ) {
   const logger = replacements.logger.child({ func: addReplacementsForRenamedIdentifier.name });
   for (const node of localIdentifier.findReferencesAsNodes()) {
@@ -24,7 +24,7 @@ export function addReplacementsForRenamedIdentifier(
         node.getSourceFile(),
         node.getEnd(),
         node.getEnd(),
-        `: ${newName}`
+        `: ${newName}`,
       );
     } else if (Node.isBindingElement(parent)) {
       const propertyNameNode = parent.getPropertyNameNode();
@@ -33,7 +33,7 @@ export function addReplacementsForRenamedIdentifier(
           node.getSourceFile(),
           node.getEnd(),
           node.getEnd(),
-          `: ${newName}`
+          `: ${newName}`,
         );
       } else {
         replacements.replaceNode(parent.getNameNode(), " " + newName);

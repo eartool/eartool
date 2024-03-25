@@ -8,10 +8,10 @@ import type {
 export function getNamedSpecifiers(decl: ExportDeclaration): Array<ExportSpecifier>;
 export function getNamedSpecifiers(decl: ImportDeclaration): Array<ImportSpecifier>;
 export function getNamedSpecifiers(
-  decl: ImportDeclaration | ExportDeclaration
+  decl: ImportDeclaration | ExportDeclaration,
 ): Array<ImportSpecifier | ExportSpecifier>;
 export function getNamedSpecifiers(
-  decl: ImportDeclaration | ExportDeclaration
+  decl: ImportDeclaration | ExportDeclaration,
 ): Array<ImportSpecifier | ExportSpecifier> {
   return "getNamedImports" in decl ? decl.getNamedImports() : decl.getNamedExports();
 }

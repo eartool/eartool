@@ -45,13 +45,13 @@ export class WorkspaceBuilder<T extends PackageContext> {
   createProject(
     packageName: PackageName,
     opts: CreateProjectOpts,
-    callback: (projectBuilder: ProjectBuilder) => void
+    callback: (projectBuilder: ProjectBuilder) => void,
   ): this;
   createProject(packageName: PackageName, callback: (projectBuilder: ProjectBuilder) => void): this;
   createProject(
     packageName: PackageName,
     opts: CreateProjectOpts | ((projectBuilder: ProjectBuilder) => void),
-    callback?: (projectBuilder: ProjectBuilder) => void
+    callback?: (projectBuilder: ProjectBuilder) => void,
   ) {
     const realCallback = callback ?? (opts as (projectBuilder: ProjectBuilder) => void);
     const esm = callback ? (opts as CreateProjectOpts).esm : false;
@@ -68,7 +68,7 @@ export class WorkspaceBuilder<T extends PackageContext> {
           rootDir: "src",
           moduleResolution: esm ? "Node16" : "Node10",
         },
-      })
+      }),
     );
 
     writePackageJson(this.#fs, packagePath, {

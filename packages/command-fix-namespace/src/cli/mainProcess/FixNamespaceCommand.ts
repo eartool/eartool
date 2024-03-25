@@ -59,5 +59,5 @@ export default makeBatchCommand(
       };
     },
   },
-  () => import("../worker/workerMain.js")
+  () => import("../worker/workerMain.js"),
 );

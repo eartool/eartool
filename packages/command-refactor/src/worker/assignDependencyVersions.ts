@@ -9,7 +9,7 @@ export function assignDependencyVersions(
   packageName: PackageName,
   packageJsonDepsRequired: PackageJsonDepsRequired,
   logger: Logger,
-  dryRun: boolean
+  dryRun: boolean,
 ) {
   const packageJson = readPackageJson(project.getFileSystem(), packagePath);
   for (const type of ["dependencies", "devDependencies"] as const) {
@@ -25,7 +25,7 @@ export function assignDependencyVersions(
               "Overwritting dependency version for '%s': '%s' with version '%s'",
               depName,
               typeObj[depName],
-              depVersion
+              depVersion,
             );
           }
         }

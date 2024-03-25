@@ -15,27 +15,27 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
           `
             export const foo = 5;
             export const notOriginallyRootExported = 6;
-          `
+          `,
         )
           .addFile(
             "src/baz.ts",
             `
               import {foo} from "./foo";
               export const bas = foo+1;
-            `
+            `,
           )
           .addFile(
             "src/index.ts",
             `
             export {foo} from "./foo";
-          `
+          `,
           )
           .addFile(
             "src/bar.ts",
             `
           import {notOriginallyRootExported} from "./foo";
           doStuff(notOriginallyRootExported);
-        `
+        `,
           );
       })
       .build();
@@ -52,7 +52,7 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
       "baz",
       "upstream",
       renames,
-      createTestLogger()
+      createTestLogger(),
     );
 
     expect(result).toMatchInlineSnapshot(`
@@ -116,19 +116,19 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
           `
             import {bar} from "./bar";
             export const foo = bar;
-          `
+          `,
         )
           .addFile(
             "src/bar.ts",
             `
               export const bar = 5;
-            `
+            `,
           )
           .addFile(
             "src/index.ts",
             `
               export {foo} from "./foo";
-            `
+            `,
           );
       })
       .build();
@@ -144,7 +144,7 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
       "baz",
       "upstream",
       renames,
-      createTestLogger()
+      createTestLogger(),
     );
 
     expect(result).toMatchInlineSnapshot(`
@@ -190,20 +190,20 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
           import {bar} from "./bar";
           import {runAlgo} from "algolib";
           export const foo = runAlgo(bar);
-        `
+        `,
         )
           .addFile(
             "src/bar.ts",
             `
           export const bar = 5;
-        `
+        `,
           )
           .addFile(
             "src/index.ts",
             `
           export {foo} from "./foo";
           export {bar as baz} from "./bar";
-        `
+        `,
           );
       })
       .build();
@@ -218,7 +218,7 @@ describe(calculatePackageExportRenamesForFileMoves, () => {
       "baz",
       "upstream",
       renames,
-      createTestLogger()
+      createTestLogger(),
     );
 
     expect(result).toMatchInlineSnapshot(`

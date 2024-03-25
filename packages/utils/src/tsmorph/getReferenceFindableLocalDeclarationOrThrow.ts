@@ -4,7 +4,7 @@ import { Node, type ReferenceFindableNode } from "ts-morph";
 /** returns the first findable local declaration */
 export function getReferenceFindableLocalDeclarationOrThrow(
   node: Node,
-  name: string
+  name: string,
 ): ReferenceFindableNode & Node {
   const originalSymbol = node.getLocalOrThrow(name);
   const decls = originalSymbol.getDeclarations();

@@ -6,11 +6,11 @@ export function addReexports(
   rootExports: Map<string, { exportName: string[]; isType: boolean }>,
   replacements: Replacements,
   rootFile: SourceFile,
-  fullpath: FilePath
+  fullpath: FilePath,
 ) {
   if (
     [...rootExports].some(
-      ([_name, { exportName }]) => exportName.length == 1 && exportName[0] === "default"
+      ([_name, { exportName }]) => exportName.length == 1 && exportName[0] === "default",
     )
   ) {
     throw new Error("Default alias is not currently supported");
@@ -22,7 +22,7 @@ export function addReexports(
     .map(([name, { exportName, isType }]) =>
       name === exportName[0]
         ? name
-        : `${allAreTypes || !isType ? "" : "type "}${name} as ${exportName}`
+        : `${allAreTypes || !isType ? "" : "type "}${name} as ${exportName}`,
     )
     .join(", ");
 
@@ -38,6 +38,6 @@ export function addReexports(
     rootFile.getFilePath(),
     rootFile.getTrailingTriviaEnd(),
     rootFile.getTrailingTriviaEnd(),
-    exportLine
+    exportLine,
   );
 }

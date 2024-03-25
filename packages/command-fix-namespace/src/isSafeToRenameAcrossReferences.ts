@@ -5,7 +5,7 @@ import { getRelevantNodeFromRefOrThrow } from "./getRelevantNodeFromRefOrThrow.j
 
 export function isSafeToRenameAcrossReferences(
   oldName: string,
-  { namespaceDecl, logger }: NamespaceContext
+  { namespaceDecl, logger }: NamespaceContext,
 ) {
   const node = getReferenceFindableLocalDeclarationOrThrow(namespaceDecl, oldName);
 
@@ -25,7 +25,7 @@ export function isSafeToRenameAcrossReferences(
         namespaceDecl.getName(),
         oldName,
         importName,
-        parent.getSourceFile().getFilePath()
+        parent.getSourceFile().getFilePath(),
       );
       throw new Error();
       return false;

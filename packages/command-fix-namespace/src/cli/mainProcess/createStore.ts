@@ -18,7 +18,7 @@ export function createStore(): { listenerMiddleware: ListenerMiddlewareInstance;
     },
     middleware: (getDefaultMiddleware) => {
       return getDefaultMiddleware({ serializableCheck: false }).prepend(
-        listenerMiddleware.middleware
+        listenerMiddleware.middleware,
       );
     },
   });

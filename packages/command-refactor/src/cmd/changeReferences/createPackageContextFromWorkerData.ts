@@ -20,7 +20,7 @@ export function createPackageContextFromWorkerData({
     packageName,
     packagePath,
     packageJson: JSON.parse(
-      project.getFileSystem().readFileSync(path.join(packagePath, "package.json"))
+      project.getFileSystem().readFileSync(path.join(packagePath, "package.json")),
     ),
   };
 }

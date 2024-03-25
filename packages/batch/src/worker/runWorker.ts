@@ -9,7 +9,7 @@ import { type WorkerFunc, type WireWorkerData } from "./setupWorker.js";
 export async function runWorker<Q extends JobDef<any, any>>(
   port: MessagePort,
   worker: WorkerFunc<Q>,
-  data: WireWorkerData<any>
+  data: WireWorkerData<any>,
 ) {
   const { logDir, ...jobData }: WireWorkerData<any> = data;
 
@@ -24,7 +24,7 @@ export async function runWorker<Q extends JobDef<any, any>>(
           port.postMessage(MessagesToMain.updateStatus(status));
         },
       },
-      port
+      port,
     );
     port.postMessage(MessagesToMain.workComplete({ status: "success", result }));
   } catch (err) {

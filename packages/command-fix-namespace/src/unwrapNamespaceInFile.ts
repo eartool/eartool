@@ -16,7 +16,7 @@ import type { Logger } from "pino";
 
 export function unwrapNamespaceInFile(
   varOrModuleDecl: NamespaceLikeVariableDeclaration | ModuleDeclaration,
-  replacements: Replacements
+  replacements: Replacements,
 ) {
   const logger = replacements.logger.child({ primaryNode: varOrModuleDecl });
 
@@ -30,7 +30,7 @@ export function unwrapNamespaceInFile(
       .getChildren()
       .flatMap((a) => (Node.isVariableStatement(a) ? a.getDeclarations() : a))
       .filter(Node.hasName)
-      .map((a) => a.getName())
+      .map((a) => a.getName()),
   );
 
   logger.trace("Exported names: %s", [...exportedNames].join(", "));
@@ -62,7 +62,7 @@ export function unwrapNamespaceInFile(
         sf,
         childNode.getStart(),
         childNode.getFirstChildByKindOrThrow(SyntaxKind.ColonToken).getEnd(),
-        `export const ${(childNode as any).getName()} = `
+        `export const ${(childNode as any).getName()} = `,
       );
     } else if (Node.isFunctionDeclaration(childNode)) {
       // namespace
@@ -77,7 +77,7 @@ export function unwrapNamespaceInFile(
     } else {
       replacements.logger.error(
         "unwrapNamespaceInFile(): Unexpected kind %s",
-        getSimplifiedNodeInfoAsString(childNode)
+        getSimplifiedNodeInfoAsString(childNode),
       );
     }
     replacements.removeNextSiblingIfComma(childNode);
@@ -92,7 +92,7 @@ export function unwrapNamespaceInFile(
 
 export function replaceSelfReferentialUsage(
   varDecl: NamespaceLikeVariableDeclaration | ModuleDeclaration,
-  replacements: Replacements
+  replacements: Replacements,
 ) {
   for (const refIdentifier of varDecl.findReferencesAsNodes()) {
     if (refIdentifier.getSourceFile() !== varDecl.getSourceFile()) continue;
@@ -110,7 +110,7 @@ export function replaceSelfReferentialUsage(
 export function renameVariablesInBody(
   banNames: Set<string>,
   replacements: Replacements,
-  propOrMethod: MethodDeclaration | FunctionDeclaration | SyntaxList
+  propOrMethod: MethodDeclaration | FunctionDeclaration | SyntaxList,
 ) {
   const logger = replacements.logger.child({
     banNames: [...banNames].join(", "),
@@ -120,7 +120,7 @@ export function renameVariablesInBody(
 
   logger.trace(
     "propOrMethod name: %s",
-    Node.hasName(propOrMethod) ? propOrMethod.getName() : propOrMethod.getKindName()
+    Node.hasName(propOrMethod) ? propOrMethod.getName() : propOrMethod.getKindName(),
   );
   logger.trace("Symbols in scope: %s", [...symbolsInScope].map((a) => a.getName()).join(", "));
 
@@ -148,7 +148,7 @@ export function renameVariablesInBody(
 // This is wrong, it should be the symbols in scope that are not in the parent scope
 export function getSymbolsExclusiveToFunctionBody(
   node: MethodDeclaration | FunctionDeclaration | SyntaxList,
-  passedLogger: Logger
+  passedLogger: Logger,
 ) {
   const logger = passedLogger.child({ primaryNode: node });
 
@@ -156,7 +156,7 @@ export function getSymbolsExclusiveToFunctionBody(
   if (!body) {
     passedLogger.info(
       "Skipping over a node without a body: %s",
-      getSimplifiedNodeInfoAsString(node)
+      getSimplifiedNodeInfoAsString(node),
     );
     return new Set<Symbol>();
   }
@@ -177,7 +177,7 @@ export function getSymbolsExclusiveToFunctionBody(
 
   logger.debug(
     "Discovered exclusive in body scope: %s",
-    [...set].map((a) => a.getName()).join(", ")
+    [...set].map((a) => a.getName()).join(", "),
   );
 
   return set;

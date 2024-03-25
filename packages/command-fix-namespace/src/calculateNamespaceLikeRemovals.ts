@@ -7,7 +7,7 @@ import { unwrapNamespaceInFile } from "./unwrapNamespaceInFile.js";
 export function calculateNamespaceLikeRemovals(
   sf: SourceFile,
   projectContext: ProjectContext,
-  replacements: Replacements
+  replacements: Replacements,
 ) {
   // TODO: Should we check the filename too?
 

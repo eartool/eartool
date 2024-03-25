@@ -31,7 +31,7 @@ export function calculatePackageExportRenamesForFileMoves(
   destinationModule: PackageName,
   direction: DependencyDirection,
   renames: SymbolRenames,
-  logger: Logger
+  logger: Logger,
 ): {
   allFilesToMove: Set<FilePath>;
   requiredPackages: Set<PackageName>;
@@ -47,7 +47,7 @@ export function calculatePackageExportRenamesForFileMoves(
   const rootExportsPerRelativeFilePath = new Map<FilePath, Map<string, Info>>();
 
   const packageJson = JSON.parse(
-    project.getFileSystem().readFileSync(path.join(packagePath, "package.json"))
+    project.getFileSystem().readFileSync(path.join(packagePath, "package.json")),
   );
 
   while (toVisit.length > 0) {
@@ -78,7 +78,7 @@ export function calculatePackageExportRenamesForFileMoves(
       packageJson,
       renames,
       destinationModule,
-      logger
+      logger,
     );
 
     // if (renames.length > 0) {
@@ -102,7 +102,7 @@ export function calculatePackageExportRenamesForFileMoves(
       .filter((a) => a.getModuleSpecifierValue() === destinationModule)) {
       if (decl.getNamespaceImport()) {
         throw new Error(
-          `We don't currently handle namespace imports. See file: ${sf.getFilePath()}`
+          `We don't currently handle namespace imports. See file: ${sf.getFilePath()}`,
         );
       }
     }
@@ -136,7 +136,7 @@ export function calculatePackageExportRenamesForFileMoves(
     const sf = project.getSourceFileOrThrow(filePath);
     const consumed = getConsumedImportsAndExports(
       { logger, packageName, packagePath, project: sf.getProject(), packageJson },
-      sf
+      sf,
     );
 
     const usedSymbols = new Set<string>();
@@ -174,11 +174,11 @@ function addExistingRenamesForRootExport(
   packageJson: any,
   renames: SymbolRenames,
   destinationModule: string,
-  logger: Logger
+  logger: Logger,
 ) {
   const consumed = getConsumedImportsAndExports(
     { logger, packageName, packagePath, project: sf.getProject(), packageJson },
-    sf
+    sf,
   ); // todo memoize?
 
   // We should use the package.json for this TODO

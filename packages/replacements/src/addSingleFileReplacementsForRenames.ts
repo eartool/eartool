@@ -31,14 +31,14 @@ export function addSingleFileReplacementsForRenames(
   renames: PackageExportRenames,
   replacements: Replacements,
   dryRun: boolean,
-  mode: "full" | "imports" | "exports" = "full"
+  mode: "full" | "imports" | "exports" = "full",
 ) {
   const { logger } = ctx;
   // Keep this separated out so we can use conditional break points
   const filename = sf.getFilePath();
 
   const fullFilePathRenames = new Map(
-    [...renames].filter(([packageName]) => packageName.startsWith("/"))
+    [...renames].filter(([packageName]) => packageName.startsWith("/")),
   );
   logger.debug("TOP OF FILE %s", filename);
   if (fullFilePathRenames.size > 0) {
@@ -47,8 +47,8 @@ export function addSingleFileReplacementsForRenames(
       [...fullFilePathRenames].flatMap(([filePathOrModule, renames]) =>
         renames
           .map((a) => `  - ${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
-          .join("\n")
-      )
+          .join("\n"),
+      ),
     );
   } else {
     logger.debug("addSingleFileReplacementsForRenames(): Full file path renames: NONE");
@@ -72,7 +72,7 @@ function accumulateRenamesForAllDecls(
   decls: ImportDeclaration[] | ExportDeclaration[],
   fullFilePathRenames: PackageExportRenames,
   replacements: Replacements,
-  renames: PackageExportRenames
+  renames: PackageExportRenames,
 ) {
   for (const decl of decls) {
     const moduleSpecifier = decl.getModuleSpecifier();
@@ -111,7 +111,7 @@ function accumulateRenamesForDecl(
   ctx: PackageContext,
   decl: ImportDeclaration | ExportDeclaration,
   renamesForPackage: PackageExportRename[],
-  replacements: Replacements
+  replacements: Replacements,
 ) {
   // {
   const maybeNamespaceIdentifier = getNamespaceIdentifier(decl);
@@ -119,7 +119,7 @@ function accumulateRenamesForDecl(
     let found;
     for (const { fullyQualifiedInstance, packageExportRename } of getFullyQualifiedReferences(
       maybeNamespaceIdentifier,
-      prependRenames(renamesForPackage, maybeNamespaceIdentifier)
+      prependRenames(renamesForPackage, maybeNamespaceIdentifier),
     )) {
       found = packageExportRename; // only one in this case
       if (packageExportRename.to) {
@@ -140,7 +140,7 @@ function accumulateRenamesForDecl(
   for (const spec of getNamedSpecifiers(decl)) {
     for (const { fullyQualifiedInstance, packageExportRename } of getFullyQualifiedReferences(
       spec.getAliasNode() ?? spec.getNameNode(),
-      renamesForPackage
+      renamesForPackage,
     )) {
       if (packageExportRename.to) {
         const fullReplacement = packageExportRename.to.join(".");
@@ -151,7 +151,7 @@ function accumulateRenamesForDecl(
 
   for (const spec of getNamedSpecifiers(decl)) {
     const matches = renamesForPackage.filter(
-      (a) => a.from && a.from[0] === (spec.getAliasNode() ?? spec.getNameNode()).getText()
+      (a) => a.from && a.from[0] === (spec.getAliasNode() ?? spec.getNameNode()).getText(),
     );
 
     if (matches.length > 0) {
@@ -191,7 +191,7 @@ function accumulateRenamesForDecl(
 
 function getFullyQualifiedReferences(
   maybeNamespaceIdentifier: Identifier,
-  renamesToFind: PackageExportRename[]
+  renamesToFind: PackageExportRename[],
 ) {
   return pipe(
     maybeNamespaceIdentifier.findReferencesAsNodes(),
@@ -203,15 +203,15 @@ function getFullyQualifiedReferences(
         flatMap((packageExportRename) => {
           const fullyQualifiedInstance = findEntireQualifiedNameTree(
             refNode,
-            packageExportRename.from
+            packageExportRename.from,
           );
 
           return fullyQualifiedInstance
             ? [{ fullyQualifiedInstance, packageExportRename, refNode }]
             : [];
-        })
-      )
-    )
+        }),
+      ),
+    ),
   );
 }
 
@@ -225,7 +225,7 @@ function notEqualTo(maybeNamespaceIdentifier: Node) {
 
 function prependRenames(
   renamesForPackage: PackageExportRename[],
-  maybeNamepsaceImport: Identifier | NamespaceExport
+  maybeNamepsaceImport: Identifier | NamespaceExport,
 ) {
   return renamesForPackage.map<PackageExportRename>(
     (a) =>
@@ -233,6 +233,6 @@ function prependRenames(
         from: [maybeNamepsaceImport.getText(), ...a.from],
         to: a.to ? [maybeNamepsaceImport.getText(), ...a.to] : undefined,
         toFileOrModule: a.toFileOrModule,
-      } as PackageExportRename)
+      }) as PackageExportRename,
   );
 }

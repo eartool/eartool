@@ -7,7 +7,7 @@ const needsJsSuffix: Set<ModuleResolutionKind | undefined> = new Set([
 ]);
 export function getProperRelativePathAsModuleSpecifierTo(
   rootFile: SourceFile,
-  fullpath: SourceFile | FilePath
+  fullpath: SourceFile | FilePath,
 ) {
   return (
     rootFile.getRelativePathAsModuleSpecifierTo(fullpath as SourceFile) +

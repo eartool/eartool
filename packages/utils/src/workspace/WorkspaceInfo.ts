@@ -161,7 +161,7 @@ export class Workspace {
     lookup: undefined | (PackageInfo | PackageLookupCriteria)[],
     order: "any" | "upstreamFirst",
     concurrency: number,
-    performTask: RunTaskCallback
+    performTask: RunTaskCallback,
   ) {
     const startNodes = lookup ? [...this.nodesFor(lookup)] : [];
     const statuses = this.#createInitialTaskStatuses(startNodes);

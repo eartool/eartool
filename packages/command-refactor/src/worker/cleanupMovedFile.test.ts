@@ -9,7 +9,7 @@ describe(cleanupMovedFile, () => {
     const PACKAGE_NAME = "foo";
 
     const { workspace, projectLoader, getPackageContext } = new RefactorWorkspaceBuilder(
-      "/workspace"
+      "/workspace",
     )
       .createProject(PACKAGE_NAME, (p) => {
         p.addFile(
@@ -17,20 +17,20 @@ describe(cleanupMovedFile, () => {
           `
             import {bar, baz} from "foo";
             export const foo = bar + baz;
-          `
+          `,
         )
           .addFile(
             "src/bar.ts",
             `
               export const bar = 5;
               export const baz = 6;
-            `
+            `,
           )
           .addFile(
             "src/index.ts",
             `
               export {bar, baz} from "./bar";
-            `
+            `,
           );
       })
       .build();
@@ -61,7 +61,7 @@ describe(cleanupMovedFile, () => {
     const PACKAGE_NAME = "foo";
 
     const { workspace, projectLoader, getPackageContext } = new RefactorWorkspaceBuilder(
-      "/workspace"
+      "/workspace",
     )
       .createProject(PACKAGE_NAME, { esm: true }, (p) => {
         p.addFile(
@@ -69,19 +69,19 @@ describe(cleanupMovedFile, () => {
           `
             import {bar} from "foo";
             export const foo = bar;
-          `
+          `,
         )
           .addFile(
             "src/nested/bar.ts",
             `
               export const bar = 5;
-            `
+            `,
           )
           .addFile(
             "src/index.ts",
             `
               export {bar} from "./nested/bar.js";
-            `
+            `,
           );
       })
       .build();
