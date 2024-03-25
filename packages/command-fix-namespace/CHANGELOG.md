@@ -1,5 +1,14 @@
 # @eartool/command-fix-namespace
 
+## 0.4.0
+
+### Patch Changes
+
+- @eartool/batch@0.4.0
+- @eartool/replacements@0.4.0
+- @eartool/test-utils@0.4.0
+- @eartool/utils@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes
