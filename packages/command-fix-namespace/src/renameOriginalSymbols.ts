@@ -13,7 +13,7 @@ function renameOriginalSymbol(context: NamespaceContext, originalName: string) {
   const { localName, importName } = getNewName(originalName, context.namespaceName);
 
   context.logger.trace(
-    `Tring to rename symbol ${context.namespaceName}.${originalName} => ${localName}/${importName}`
+    `Tring to rename symbol ${context.namespaceName}.${originalName} => ${localName}/${importName}`,
   );
   const sym = context.targetSourceFile.getLocalOrThrow(originalName);
 
@@ -31,7 +31,7 @@ function renameOriginalSymbol(context: NamespaceContext, originalName: string) {
     context.logger.error(
       "Expected a name for %s in statement `%s`",
       decl.getKindName(),
-      decl.print()
+      decl.print(),
     );
 
     throw new Error("invariant failure. why is there no name!");

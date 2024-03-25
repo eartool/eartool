@@ -1,17 +1,17 @@
 import { Project } from "ts-morph";
 import { formatTestTypescript } from "./formatTestTypescript.js";
 
-export function createProjectForTest(
+export async function createProjectForTest(
   inputs: Record<string, string>,
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-  verifyCompiles: boolean = false
+
+  verifyCompiles: boolean = false,
 ) {
   const project = new Project({
     useInMemoryFileSystem: true,
     skipAddingFilesFromTsConfig: true,
   });
   for (const [name, contents] of Object.entries(inputs)) {
-    project.createSourceFile(name, formatTestTypescript(contents));
+    project.createSourceFile(name, await formatTestTypescript(contents));
   }
   project.saveSync();
 

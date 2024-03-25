@@ -38,5 +38,5 @@ export const changeReferencesCommand = makeBatchCommand(
       };
     },
   },
-  () => import("./changeReferencesWorker.js")
+  () => import("./changeReferencesWorker.js"),
 );

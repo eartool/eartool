@@ -26,7 +26,7 @@ export function renameReferences(
           exported: boolean;
         }
       | undefined;
-  }
+  },
 ) {
   const { namespaceDecl } = context;
   const logger = context.logger.child({ oldName });
@@ -37,7 +37,7 @@ export function renameReferences(
   for (const correctNode of namespaceDecl.getLocalOrThrow(oldName).getDeclarations()) {
     Assert.ok(
       correctNode != null,
-      `There should definitely be node here for us to rename. ${oldName}`
+      `There should definitely be node here for us to rename. ${oldName}`,
     );
     Assert.ok(Node.isReferenceFindable(correctNode), "Invariant failed. How is this not findable?");
 
@@ -45,7 +45,7 @@ export function renameReferences(
       "Inside renameReferences for '%s' (%s) (isType: %s)",
       correctNode.getText(),
       correctNode.getKindName(),
-      details.type && details.concrete ? "both" : details.type ? "type" : "concrete"
+      details.type && details.concrete ? "both" : details.type ? "type" : "concrete",
     );
     context.addReplacementForNode(correctNode, localName);
 
@@ -82,7 +82,7 @@ export function renameReferences(
         "p: {%s, %d, %d}",
         nodeToRename.getText(),
         nodeToRename.getStart(),
-        nodeToRename.getEnd()
+        nodeToRename.getEnd(),
       );
 
       if (isInSameFile) {
@@ -105,7 +105,7 @@ export function renameReferences(
 
           const moduleSpecifier = getProperRelativePathAsModuleSpecifierTo(
             referencingSf,
-            namespaceDecl.getSourceFile()
+            namespaceDecl.getSourceFile(),
           );
           const newImportSpecifierText =
             localName === importName ? localName : `${localName} as ${importName}`;
@@ -120,7 +120,7 @@ function newFunction(
   referencingSf: SourceFile,
   moduleSpecifier: string,
   context: NamespaceContext,
-  newImportSpecifierText: string
+  newImportSpecifierText: string,
 ) {
   const namedBindings = referencingSf
     .getImportDeclarations()

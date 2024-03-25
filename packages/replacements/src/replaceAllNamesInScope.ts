@@ -9,7 +9,7 @@ import { autorenameIdentifierAndReferences } from "./autorenameIdentifierAndRefe
 export function replaceAllNamesInScope(
   replacements: Replacements,
   scope: Node,
-  banNames: Set<string>
+  banNames: Set<string>,
 ) {
   const logger = replacements.logger.child({
     primaryNode: scope,

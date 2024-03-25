@@ -12,7 +12,7 @@ export abstract class AbstractReplacementsWrapper implements Replacements {
     filePath: string | Node,
     start: number,
     end: number,
-    newValue: string
+    newValue: string,
   ): void;
 
   abstract getReplacementsMap(): Map<string, Replacement[]>;
@@ -26,7 +26,7 @@ export abstract class AbstractReplacementsWrapper implements Replacements {
       { primaryNode: node },
       "replaceNode(): originalText: `%s`, newValue: `%s`",
       node.getText(),
-      newValue
+      newValue,
     );
 
     this.addReplacement(node, node.getStart(), node.getEnd(), newValue);
@@ -38,7 +38,7 @@ export abstract class AbstractReplacementsWrapper implements Replacements {
       node,
       keepTrivia ? node.getStart() : node.getFullStart(),
       node.getEnd(),
-      ""
+      "",
     );
   }
 
@@ -49,7 +49,7 @@ export abstract class AbstractReplacementsWrapper implements Replacements {
       { primaryNode: node },
       "insertBefore(): newValue: `%s`, beforeNode: `%s`",
       newValue,
-      node.getText()
+      node.getText(),
     );
 
     this.addReplacement(node, start, start, newValue);
@@ -60,7 +60,7 @@ export abstract class AbstractReplacementsWrapper implements Replacements {
       { primaryNode: node },
       "insertAfter(): newValue: %s, afterNode: `%s`",
       newValue,
-      node.getText()
+      node.getText(),
     );
 
     this.addReplacement(node, node.getEnd(), node.getEnd(), newValue);

@@ -27,7 +27,7 @@ export function getWorkerPackageContext({
     project,
     replacements: new SimpleReplacements(logger),
     packageJson: JSON.parse(
-      project.getFileSystem().readFileSync(path.join(packageInfo.packagePath, "package.json"))
+      project.getFileSystem().readFileSync(path.join(packageInfo.packagePath, "package.json")),
     ),
   };
   return packageContext;

@@ -14,7 +14,7 @@ export function renameExports(context: NamespaceContext) {
   logger.trace(
     "renameExports(%s) for %d references",
     namespaceName,
-    namespaceDecl.findReferencesAsNodes().length
+    namespaceDecl.findReferencesAsNodes().length,
   );
 
   const namespaceHasTwin = namespaceDecl.getSymbol()?.getDeclarations().length != 1;
@@ -24,10 +24,10 @@ export function renameExports(context: NamespaceContext) {
       .getSymbol()
       ?.getDeclarations()
       .filter(
-        (n) => Node.hasName(n) && n.getName() === namespaceDecl.getName() && n !== namespaceDecl
+        (n) => Node.hasName(n) && n.getName() === namespaceDecl.getName() && n !== namespaceDecl,
       ) ?? [];
   const namespacesTwinIsType = twins.every(
-    (n) => n.isKind(SyntaxKind.InterfaceDeclaration) || n.isKind(SyntaxKind.TypeAliasDeclaration)
+    (n) => n.isKind(SyntaxKind.InterfaceDeclaration) || n.isKind(SyntaxKind.TypeAliasDeclaration),
   );
 
   for (const refNode of namespaceDecl.findReferencesAsNodes()) {
@@ -70,7 +70,7 @@ function processSingleExport(
   exportDecl: ExportDeclaration,
   namespaceCtx: NamespaceContext,
   namespaceHasTwin: boolean,
-  namespacesTwinIsType: boolean
+  namespacesTwinIsType: boolean,
 ) {
   const { renames, logger, namespaceName } = namespaceCtx;
 
@@ -79,7 +79,7 @@ function processSingleExport(
   if (moduleSpecifier == null) {
     logger.warn(
       "Couldn't find module specifier for export. Ignoring edge case and moving on. %s",
-      getSimplifiedNodeInfoAsString(exportDecl)
+      getSimplifiedNodeInfoAsString(exportDecl),
     );
     return;
   }

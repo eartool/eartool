@@ -13,7 +13,7 @@ export function getJobArgs(
     packageNameToFilesToMove,
     primaryPackages,
     relativeFileInfoMap,
-  }: SetupResults
+  }: SetupResults,
 ): JobArgs {
   return {
     packageJsonDepsRequired: packageName === args.destination ? packageJsonDepsRequired : undefined,

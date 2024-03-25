@@ -3,8 +3,8 @@ import { getAllImportsAndExports } from "@eartool/utils";
 import { describe, expect, it } from "@jest/globals";
 
 describe("getAllImportsAndExports", () => {
-  it("check getAllImportsAndExports", () => {
-    const project = createProjectForTest({
+  it("check getAllImportsAndExports", async () => {
+    const project = await createProjectForTest({
       "index.ts": `
       export {foo} from "./foo";
       export {Foo} from "./exportedType";

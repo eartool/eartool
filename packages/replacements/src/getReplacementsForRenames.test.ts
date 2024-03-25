@@ -34,7 +34,7 @@ describe(getReplacementsForRenames, () => {
       },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
-      false
+      false,
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -68,7 +68,7 @@ describe(getReplacementsForRenames, () => {
       },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
-      false
+      false,
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -101,7 +101,7 @@ describe(getReplacementsForRenames, () => {
       },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
-      false
+      false,
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -136,7 +136,7 @@ describe(getReplacementsForRenames, () => {
       },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
-      false
+      false,
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -172,7 +172,7 @@ describe(getReplacementsForRenames, () => {
       },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["Baz", "Other"] }]]]),
       replacements,
-      false
+      false,
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -211,7 +211,7 @@ describe(getReplacementsForRenames, () => {
       },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["FooProps"] }]]]),
       replacements,
-      false
+      false,
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -251,7 +251,7 @@ describe(getReplacementsForRenames, () => {
       },
       new Map([["lib", [{ from: ["Foo", "Props"], to: ["Merp", "Other"] }]]]),
       replacements,
-      false
+      false,
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -299,7 +299,7 @@ describe(getReplacementsForRenames, () => {
         ],
       ]),
       replacements,
-      false
+      false,
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -347,7 +347,7 @@ describe(getReplacementsForRenames, () => {
         ],
       ]),
       replacements,
-      false
+      false,
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -425,7 +425,7 @@ describe(getReplacementsForRenames, () => {
         ],
       ]),
       replacements,
-      false
+      false,
     );
 
     expect(replacements.getReplacementsArray()).toEqual([
@@ -444,7 +444,7 @@ function createReplacement(
   fileParts: string[],
   startIndex: number,
   endIndex: number,
-  newValue: string
+  newValue: string,
 ): Replacement {
   const start = fileParts.slice(0, startIndex).join("").length;
   const end = fileParts.slice(0, endIndex).join("").length;

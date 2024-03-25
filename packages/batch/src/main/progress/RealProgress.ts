@@ -11,7 +11,7 @@ export class RealProgress implements Progress {
   constructor() {
     this.multibar = new MultiBar(
       { format: " {bar} | {name} | {percentage}% {stage} | {eta_formatted}", fps: 2 },
-      Presets.rect
+      Presets.rect,
     );
     this.topBar = this.multibar.create(100, 0, {
       name: "total package progress",
@@ -34,7 +34,7 @@ export class RealProgress implements Progress {
       this.multibar.create(100, 0, {
         name,
         stage: "initializing",
-      })
+      }),
     );
   }
 

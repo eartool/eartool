@@ -101,7 +101,7 @@ export const refactorCommand = makeBatchCommand(
       return await cliMain(args);
     },
   },
-  () => import("./worker/workerMain.js")
+  () => import("./worker/workerMain.js"),
 );
 
 export async function cliMain(
@@ -116,7 +116,7 @@ export async function cliMain(
     readonly dryRun: boolean;
     readonly verbose: number;
     readonly organizeImports: boolean;
-  } & { logger: Logger }
+  } & { logger: Logger },
 ): Promise<Omit<JobSpec<JobArgs, {}>, "runInlineFunc">> {
   const workspace = await createWorkspaceFromDisk(await args.workspace);
   const setupResults = await setupOverall(
@@ -124,7 +124,7 @@ export async function cliMain(
     maybeLoadProject,
     new Set(args.files),
     args.destination,
-    args.logger
+    args.logger,
   );
 
   // Delete old files and create new ones before running the job
@@ -138,7 +138,7 @@ export async function cliMain(
       if (setupResults.primaryPackages.has(jobInfo.packageName)) return undefined;
 
       const packageJson: PackageJson = JSON.parse(
-        fs.readFileSync(path.join(jobInfo.packagePath, "package.json"), "utf-8")
+        fs.readFileSync(path.join(jobInfo.packagePath, "package.json"), "utf-8"),
       );
 
       const depNames = [

@@ -15,7 +15,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
         "src/index.ts",
         `
         export {};
-      `
+      `,
       );
     })
     .createProject("state", { esm }, (p) => {
@@ -23,7 +23,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
         "src/index.ts",
         `
              export type {State} from "./state${ext}";
-          `
+          `,
       )
         .addFile(
           "src/state.ts",
@@ -31,7 +31,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
             export interface State {
               foo: number
             }
-          `
+          `,
         )
         .addDependency("test-utils");
     })
@@ -40,7 +40,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
         "src/index.ts",
         `
         export function identity(a: any){ return a; }
-      `
+      `,
       );
     })
     .createProject("api", { esm }, (p) => {
@@ -51,21 +51,21 @@ export function createInitialWorkspaceBuilder(esm = false) {
             export {doThingWithState} from "./doThingWithState${ext}";
             export {selectA} from "./selectA${ext}"
             export {Baz} from "./Baz${ext}";
-          `
+          `,
       )
         .addFile(
           "src/Baz.ts",
           `
               export interface Baz { value: string }
               export const BazConst = 5;
-            `
+            `,
         )
         .addFile(
           "src/doThingWithBaz.ts",
           `
             import {type Baz, BazConst} from "./Baz${ext}";
             export function doThingWithBaz(baz: Baz) { return baz.value + BazConst; }
-          `
+          `,
         )
         .addFile(
           "src/alsoUsesBaz.ts",
@@ -73,7 +73,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
             import type {Baz} from "./Baz${ext}"; 
             import {BazConst} from "./Baz${ext}";
             function alsoUsesBaz(baz: Baz) { return baz.value; }
-          `
+          `,
         )
         .addFile(
           "src/doThingWithState.ts",
@@ -82,7 +82,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
             import {identity} from "util";
             import {State} from "state";
             export function doThingWithState(state: State) { return identity(state.foo); }
-          `
+          `,
         )
         .addFile(
           "src/selectA.ts",
@@ -90,7 +90,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
           import {doThingWithState} from "./doThingWithState${ext}";
 
           export function selectA(state: State) { return doThingWithState(state); }
-        `
+        `,
         )
         .addDependency("state")
         .addDependency("util")
@@ -102,7 +102,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
         "src/index.ts",
         `
         export {};
-      `
+      `,
       )
         .addFile(
           "src/cli.ts",
@@ -111,7 +111,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
             import {State} from "state";
 
             print(doThingWithState({foo : 5}));
-          `
+          `,
         )
         .addFile(
           "src/inner/something.test.ts",
@@ -119,14 +119,14 @@ export function createInitialWorkspaceBuilder(esm = false) {
             import {prepareTest} from "../helper/prepareTest${ext}";
 
             prepareTest();
-          `
+          `,
         )
         .addFile(
           "src/helper/prepareTest.ts",
           `
           import {State} from "state";
           export function prepareTest(): State { return {foo: 5 }; }
-        `
+        `,
         )
         .addDependency("state")
         .addDependency("api")
@@ -137,7 +137,7 @@ export function createInitialWorkspaceBuilder(esm = false) {
         "src/index.ts",
         `
         export {};
-      `
+      `,
       );
     })
     .createProject("oversized", { esm }, (p) => {
@@ -146,27 +146,27 @@ export function createInitialWorkspaceBuilder(esm = false) {
         `
         export {Icon} from "./components/nested/Icon${ext}";
         export {Preview} from "./components/nested/Preview${ext}";
-      `
+      `,
       )
         .addFile(
           "src/components/nested/Icon.tsx",
           `
         import {word} from "./icons/word${ext}";
         export function Icon() { return <div>Icon</div>; }
-      `
+      `,
         )
         .addFile(
           "src/components/nested/icons/word.ts",
           `
         export const word = "hi";
-      `
+      `,
         )
         .addFile(
           "src/components/nested/Preview.tsx",
           `
         import {Icon} from "./Icon${ext}";
         export function Preview() { return <Icon/>; }
-      `
+      `,
         );
     });
 }

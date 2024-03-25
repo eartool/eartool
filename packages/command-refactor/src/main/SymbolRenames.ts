@@ -9,7 +9,7 @@ export class SymbolRenames {
   constructor(
     raw?:
       | ArrayMultimap<PackageName | FilePath, PackageExportRename>
-      | Map<PackageName | FilePath, PackageExportRename[]>
+      | Map<PackageName | FilePath, PackageExportRename[]>,
   ) {
     if (!raw) {
       this.raw = new ArrayMultimap();

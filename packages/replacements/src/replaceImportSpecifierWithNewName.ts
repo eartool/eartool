@@ -11,7 +11,7 @@ import type { Replacements } from "./Replacements.js";
 export function replaceImportSpecifierWithNewName(
   replacements: Replacements,
   importSpecifier: ImportSpecifier,
-  newName: string
+  newName: string,
 ) {
   const aliasNode = importSpecifier.getAliasNode();
 

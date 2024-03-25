@@ -8,7 +8,7 @@ import { findFileLocationForImportExport } from "@eartool/utils";
 export function replaceImportsAndExports(
   varDecl: VariableDeclaration | ModuleDeclaration,
   replacements: Replacements,
-  projectContext: ProjectContext
+  projectContext: ProjectContext,
 ) {
   const visitedSpecifiers = new Set();
   for (const refIdentifier of varDecl.findReferencesAsNodes()) {
@@ -16,7 +16,7 @@ export function replaceImportsAndExports(
     // alias import nodes show up twice for some reason
     // so we need to account for that
     const specifier = refIdentifier.getParentIf(
-      isAnyOf(Node.isExportSpecifier, Node.isImportSpecifier)
+      isAnyOf(Node.isExportSpecifier, Node.isImportSpecifier),
     );
     if (!specifier) continue;
     if (visitedSpecifiers.has(specifier)) continue;
@@ -27,7 +27,7 @@ export function replaceImportsAndExports(
       named.getElements().length == 1,
       `Expected only one element in '${named.getText()}', file: ${named
         .getSourceFile()
-        .getFilePath()} while looking for ${specifier.getText()}`
+        .getFilePath()} while looking for ${specifier.getText()}`,
     );
 
     // Only the first reexport needs the `* as` syntax
@@ -64,7 +64,7 @@ export function replaceImportsAndExports(
             if (exportDecl.isNamespaceExport() && exportDecl.getNamespaceExport() === undefined) {
               replacements.replaceNode(
                 exportDecl.getLastChildByKindOrThrow(SyntaxKind.AsteriskToken),
-                `* as ${varDecl.getName()}`
+                `* as ${varDecl.getName()}`,
               );
             }
           }

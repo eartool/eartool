@@ -4,8 +4,8 @@ import { replaceImportSpecifierWithNewName } from "./replaceImportSpecifierWithN
 import { TestBuilder } from "./TestBuilder.js";
 
 describe(replaceImportSpecifierWithNewName, () => {
-  it("renames an import locally", () => {
-    const { output } = new TestBuilder()
+  it("renames an import locally", async () => {
+    const { output } = await new TestBuilder()
       .addFile("/foo.ts", `import { bar } from "./baz";`)
       .performWork(({ replacements, files }) => {
         const importSpecifier = getImportSpecifierOrThrow(files.get("/foo.ts")!, "./baz", "bar");

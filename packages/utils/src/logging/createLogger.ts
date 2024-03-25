@@ -21,7 +21,7 @@ export function createLogger(
     txtLevel = "trace",
     extraStreams = [],
     level,
-  }: Opts
+  }: Opts,
 ) {
   const streams: (StreamEntry | DestinationStream)[] = [];
   if (consoleLevel != "silent") {
@@ -75,6 +75,6 @@ export function createLogger(
         primaryNode: getSimplifiedNodeInfoAsString,
       },
     },
-    pino.multistream(streams)
+    pino.multistream(streams),
   ) as Logger;
 }

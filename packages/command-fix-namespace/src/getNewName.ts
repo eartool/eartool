@@ -23,7 +23,7 @@ export function getNewName(
     | InterfaceDeclaration
     | TypeAliasDeclaration
     | string,
-  namespaceName: string
+  namespaceName: string,
 ): { localName: string; importName: string } {
   if (namespaceName[0] >= "a" && namespaceName[0] <= "z") {
     namespaceName = namespaceName[0].toUpperCase() + namespaceName.slice(1);
@@ -89,7 +89,7 @@ export function getNewName(
 function findSuffixMatch(oldName: string, namespaceName: string, snakeCase: boolean) {
   const splitOldName = snakeCase ? oldName.split("_") : splitWords(oldName);
   const splitNamespace = splitWords(namespaceName).map(
-    snakeCase ? (a) => a.toUpperCase() : (a) => a
+    snakeCase ? (a) => a.toUpperCase() : (a) => a,
   );
 
   for (let i = 0; i > -Math.min(splitNamespace.length, splitOldName.length); i--) {

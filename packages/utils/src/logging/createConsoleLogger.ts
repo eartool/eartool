@@ -9,6 +9,6 @@ export function createConsoleLogger(level: LevelWithSilent) {
     pinoPretty.default({
       colorize: true,
       sync: true,
-    })
+    }),
   );
 }

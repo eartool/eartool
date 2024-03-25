@@ -106,7 +106,7 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
   },
   loadWorkerMain: () => Promise<{
     default: (workerArgs: WorkerData<W>, port: MessagePort) => Promise<R>;
-  }>
+  }>,
 ): BatchCommand<O, W, R> {
   if (isMainThread) {
     return (yargs: yargs.Argv<NonNullable<unknown>>) =>
@@ -125,10 +125,10 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
           const consoleLevel = args.progress
             ? "silent"
             : args.verbose >= 2
-            ? "trace"
-            : args.verbose >= 1
-            ? "debug"
-            : "info";
+              ? "trace"
+              : args.verbose >= 1
+                ? "debug"
+                : "info";
 
           const logger = createLogger(path.join(batchJobOpts.logDir, "main"), {
             level: "trace",
@@ -153,7 +153,7 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
               };
             },
           });
-        }
+        },
       );
   } else {
     const wireWorkerData = workerData as WireWorkerData<{
@@ -166,8 +166,8 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
         setupWorker(
           a.default,
           wireWorkerData.jobArgs.__parentIdentifier,
-          wireWorkerData.packageName
-        )
+          wireWorkerData.packageName,
+        ),
       );
       // setupWorker((await workerMain()).default);
     }

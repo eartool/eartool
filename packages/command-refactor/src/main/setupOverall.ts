@@ -41,7 +41,7 @@ export async function setupOverall(
   projectLoader: TsMorphProjectLoader,
   filesToMove: Set<string>,
   destinationModule: string,
-  logger: Logger
+  logger: Logger,
 ): Promise<SetupResults> {
   // Throws if we can't predict the package
   const packageNameToFilesToMove = mapFilesByPackageName(workspace, filesToMove);
@@ -53,8 +53,8 @@ export async function setupOverall(
 
   const destinationDirections = new Set(
     [...packageNameToFilesToMove.keys()].map((k) =>
-      workspace.getPackageDirection(k, destinationModule)
-    )
+      workspace.getPackageDirection(k, destinationModule),
+    ),
   );
 
   if (destinationDirections.size > 1) {
@@ -93,7 +93,7 @@ export async function setupOverall(
         destinationModule,
         direction,
         renames,
-        logger
+        logger,
       );
 
     logger.debug(
@@ -101,21 +101,21 @@ export async function setupOverall(
       [...renames.asRaw()].map(([filePathOrModule, renames]) =>
         renames
           .map((a) => `${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
-          .join("\n")
-      )
+          .join("\n"),
+      ),
     );
     logger.debug("allFilesToMove: %o", [...allFilesToMove]);
     logger.debug("requiredPackages: %o", [...requiredPackages]);
     logger.debug(
       "rootExportsPerRelativeFilePath %o",
-      [...rootExportsPerRelativeFilePath].map(([a, b]) => [a, [...b]])
+      [...rootExportsPerRelativeFilePath].map(([a, b]) => [a, [...b]]),
     );
 
     const versions = getPackageVersions(
       project.getFileSystem(),
       packagePath,
       requiredPackages,
-      logger
+      logger,
     );
     mergePackageJsonDeps({ from: versions, into: packageJsonDepsRequired });
 
@@ -123,7 +123,7 @@ export async function setupOverall(
     for (const [relPath, contents] of getFileContentsRelatively(
       project,
       packagePath,
-      allFilesToMove
+      allFilesToMove,
     )) {
       Assert.ok(!relativeFileInfoMap.has(relPath));
       relativeFileInfoMap.set(relPath, {
@@ -151,7 +151,7 @@ export async function setupOverall(
 
     if (q.has(up.name)) {
       throw new Error(
-        `Cannot complete task. It would create a circular dependency as the destination '${destinationModule}' is upstream of a dependency it would have to take: '${up.name}'`
+        `Cannot complete task. It would create a circular dependency as the destination '${destinationModule}' is upstream of a dependency it would have to take: '${up.name}'`,
       );
     }
   }
@@ -174,7 +174,7 @@ function getPackageVersions(
   fileSystem: FileSystemHost,
   packagePath: string,
   requiredPackages: Set<PackageName>,
-  logger: Logger
+  logger: Logger,
 ) {
   const packageFile: PackageJson = readPackageJson(fileSystem, packagePath);
 
@@ -202,7 +202,7 @@ function assignDepVersion(
   packageFile: PackageJson,
   depType: "dependencies" | "devDependencies",
   depName: PackageName,
-  ret: { dependencies: Map<PackageName, string>; devDependencies: Map<PackageName, string> }
+  ret: { dependencies: Map<PackageName, string>; devDependencies: Map<PackageName, string> },
 ) {
   const maybeVersion = packageFile[depType]?.[depName];
 

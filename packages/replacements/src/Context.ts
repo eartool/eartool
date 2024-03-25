@@ -13,7 +13,7 @@ export class ProjectContext implements PackageContext {
     public logger: Logger,
     public packagePath: string,
     public packageName: string,
-    public packageJson: any
+    public packageJson: any,
   ) {}
 
   addReplacement = (replacement: Replacement) => {
@@ -23,7 +23,7 @@ export class ProjectContext implements PackageContext {
       replacement.filePath,
       replacement.start,
       replacement.end,
-      replacement.newValue
+      replacement.newValue,
     );
   };
 

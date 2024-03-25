@@ -20,14 +20,14 @@ import type { Identifier, PropertyAccessExpression, QualifiedName } from "ts-mor
  */
 export function findEntireQualifiedNameTree(
   initialNode: Node,
-  path: string[]
+  path: string[],
 ): Identifier | QualifiedName | PropertyAccessExpression | undefined {
   if (!Node.isIdentifier(initialNode) || initialNode.getText() != path[0]) return undefined;
 
   let cur: Identifier | QualifiedName | PropertyAccessExpression = initialNode;
   for (let i = 1; i < path.length; i++) {
     const parent: QualifiedName | PropertyAccessExpression | undefined = cur.getParentIf(
-      isAnyOf(Node.isQualifiedName, Node.isPropertyAccessExpression)
+      isAnyOf(Node.isQualifiedName, Node.isPropertyAccessExpression),
     );
     if (!parent) return undefined;
     if (Node.isQualifiedName(parent)) {

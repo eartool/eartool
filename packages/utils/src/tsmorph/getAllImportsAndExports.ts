@@ -77,8 +77,8 @@ function calculateMetadataForSf(ctx: PackageContext, sf: SourceFile, ret: Map<Fi
       Assert.ok(
         metadata.imports.has(localName) === false,
         `Seems we already have a default export for ${getSimplifiedNodeInfoAsString(
-          importSpecifier
-        )}`
+          importSpecifier,
+        )}`,
       );
 
       metadata.imports.set(localName, {
@@ -91,7 +91,7 @@ function calculateMetadataForSf(ctx: PackageContext, sf: SourceFile, ret: Map<Fi
       const localName = importDecl.getDefaultImport()!.getText();
       Assert.ok(
         metadata.imports.has(localName) === false,
-        `Seems we already have a default export for ${getSimplifiedNodeInfoAsString(importDecl)}`
+        `Seems we already have a default export for ${getSimplifiedNodeInfoAsString(importDecl)}`,
       );
       metadata.imports.set(localName, {
         isType: importDecl.isTypeOnly(),
@@ -191,7 +191,7 @@ function handleDeclaration(
     | TypeAliasDeclaration
     | InterfaceDeclaration
     | ModuleDeclaration,
-  metadata: Metadata
+  metadata: Metadata,
 ) {
   const expectedType =
     decl.isKind(SyntaxKind.FunctionDeclaration) || decl.isKind(SyntaxKind.VariableDeclaration)
@@ -217,7 +217,7 @@ function handleDeclaration(
 export function mapGetOrInitialize<M extends Map<any, any>>(
   map: M,
   key: M extends Map<infer K, any> ? K : never,
-  makeNew: () => M extends Map<any, infer V> ? V : never
+  makeNew: () => M extends Map<any, infer V> ? V : never,
 ) {
   if (map.has(key)) {
     return map.get(key)!;

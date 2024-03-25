@@ -15,10 +15,10 @@ export function readPackageJson(fileSystem: FileSystemHost, packagePath: string)
 export function writePackageJson(
   fileSystem: FileSystemHost,
   packagePath: string,
-  contents: PackageJson
+  contents: PackageJson,
 ) {
   fileSystem.writeFileSync(
     path.join(packagePath, "package.json"),
-    JSON.stringify(contents, undefined, 2)
+    JSON.stringify(contents, undefined, 2),
   );
 }

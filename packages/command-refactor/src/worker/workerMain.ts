@@ -29,7 +29,7 @@ export default async function workerMain({
   dropDtsFiles(project);
 
   const packageJson = JSON.parse(
-    project.getFileSystem().readFileSync(path.join(packagePath, "package.json"))
+    project.getFileSystem().readFileSync(path.join(packagePath, "package.json")),
   );
   const ctx: WorkerPackageContext = {
     logger,
@@ -47,7 +47,7 @@ export default async function workerMain({
       packageName,
       packageJsonDepsRequired,
       logger,
-      dryRun
+      dryRun,
     );
   }
 
@@ -56,7 +56,7 @@ export default async function workerMain({
     filesToRemove,
     relativeFileInfoMap,
     packageExportRenamesMap,
-    dryRun
+    dryRun,
   );
 
   if (changedFiles.length > 0 || relativeFileInfoMap.size > 0) {
@@ -69,7 +69,7 @@ export default async function workerMain({
         packageName,
         { dependencies: new Map([[destination, "workspace:*"]]), devDependencies: new Map() },
         logger,
-        dryRun
+        dryRun,
       );
     }
 

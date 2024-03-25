@@ -23,7 +23,7 @@ export async function processPackageReplacements(
   filesToRemove: Iterable<FilePath>,
   relativeFileInfoMap: Map<FilePath, RelativeFileInfo>,
   packageExportRenamesMap: PackageExportRenames,
-  dryRun: boolean
+  dryRun: boolean,
 ) {
   ctx.logger.debug("filesToRemove %o", [...filesToRemove]);
   ctx.logger.debug(
@@ -31,8 +31,8 @@ export async function processPackageReplacements(
     [...packageExportRenamesMap].flatMap(([filePathOrModule, renames]) =>
       renames
         .map((a) => `  - ${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
-        .join("\n")
-    )
+        .join("\n"),
+    ),
   );
 
   const rootFile = getRootFile(ctx.project);
@@ -66,7 +66,7 @@ export async function processPackageReplacements(
       packageExportRenamesMap,
       ctx.replacements,
       dryRun,
-      getRootFile(ctx.project) === sf ? "imports" : "full"
+      getRootFile(ctx.project) === sf ? "imports" : "full",
     );
   }
 

@@ -4,7 +4,7 @@ import type { PackageContext } from "./workspace/PackageContext.js";
 
 export function getPossibleFileLocations(
   ctx: PackageContext,
-  decl: ImportDeclaration | ExportDeclaration
+  decl: ImportDeclaration | ExportDeclaration,
 ) {
   const moduleSpecifier = decl.getModuleSpecifierValue();
   if (!moduleSpecifier) return [];
@@ -32,7 +32,7 @@ export function getPossibleFileLocations(
   if (!rootDirSfIsIn) {
     // since getRootDirectories() is confusing, this is probably not the check we want.
     throw new Error(
-      "Somehow we ended up with a source file thats not in a root dir: " + sf.getFilePath()
+      "Somehow we ended up with a source file thats not in a root dir: " + sf.getFilePath(),
     );
   }
 
@@ -41,7 +41,7 @@ export function getPossibleFileLocations(
   // be .js but thats not what we are looking for.
   const moduleSpecifierFull = path.resolve(
     sf.getDirectoryPath(),
-    esModule ? moduleSpecifier.substring(0, moduleSpecifier.length - 3) : moduleSpecifier
+    esModule ? moduleSpecifier.substring(0, moduleSpecifier.length - 3) : moduleSpecifier,
   );
 
   // we need to convert this back to relative to the root of the package
@@ -53,6 +53,6 @@ export function getPossibleFileLocations(
       (esModule
         ? [".ts", ".tsx", ".js"]
         : [".ts", ".tsx", ".js", "/index.ts", "/index.tsx", "/index.js"]
-      ).map((ext) => path.resolve(d.getPath(), relPathToRootDir + ext))
+      ).map((ext) => path.resolve(d.getPath(), relPathToRootDir + ext)),
     );
 }

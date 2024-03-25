@@ -6,7 +6,7 @@ import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForE
 import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 
 describe(addReplacementsForExportsFromRemovedFiles, () => {
-  it("works", () => {
+  it("works", async () => {
     const PACKAGE_NAME = "foo";
 
     const { getPackageContext } = new RefactorWorkspaceBuilder("/workspace")
@@ -15,20 +15,20 @@ describe(addReplacementsForExportsFromRemovedFiles, () => {
           "src/foo.ts",
           `
             export const foo = "hi";
-          `
+          `,
         )
           .addFile(
             "src/bar.ts",
             `
               export const bar = 5;
-            `
+            `,
           )
           .addFile(
             "src/index.ts",
             `
               export {bar} from "./bar";
               export {foo} from  "./foo";
-            `
+            `,
           );
       })
       .build();
@@ -40,14 +40,14 @@ describe(addReplacementsForExportsFromRemovedFiles, () => {
     addReplacementsForExportsFromRemovedFiles(
       ctx,
       [`/workspace/${PACKAGE_NAME}/src/bar.ts`],
-      getRootFile(ctx.project)
+      getRootFile(ctx.project),
     );
 
     processReplacements(ctx.project, ctx.replacements.getReplacementsMap());
 
     const sf = ctx.project.getSourceFileOrThrow(`/workspace/${PACKAGE_NAME}/src/index.ts`);
     sf.organizeImports().saveSync();
-    const text = formatTestTypescript(sf.getText());
+    const text = await formatTestTypescript(sf.getText());
     expect(text).toMatchInlineSnapshot(`
       "export { foo } from "./foo";
       "

@@ -21,7 +21,7 @@ describe(processPackageReplacements, () => {
         const result = await standardSetup(filesToMove, destination, false);
         const { filesChanged, helpers } = await standardProcessPackageReplacmements(
           result,
-          "other"
+          "other",
         );
 
         expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
@@ -47,7 +47,7 @@ describe(processPackageReplacements, () => {
           const result = await standardSetup(filesToMove, destination, false);
           const { filesChanged, helpers } = await standardProcessPackageReplacmements(
             result,
-            "oversized"
+            "oversized",
           );
 
           expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
@@ -152,7 +152,7 @@ describe(processPackageReplacements, () => {
 
         const { filesChanged, helpers } = await standardProcessPackageReplacmements(
           result,
-          "state"
+          "state",
         );
 
         // NOTE THE ORIGINAL HAS NO NEW LINE BETWEEN the import and the export in doThingWithState.ts
@@ -219,7 +219,7 @@ describe(processPackageReplacements, () => {
         const result = await standardSetup(filesToMove, destination, true);
         const { filesChanged, helpers } = await standardProcessPackageReplacmements(
           result,
-          "other"
+          "other",
         );
 
         expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
@@ -245,7 +245,7 @@ describe(processPackageReplacements, () => {
           const result = await standardSetup(filesToMove, destination, true);
           const { filesChanged, helpers } = await standardProcessPackageReplacmements(
             result,
-            "oversized"
+            "oversized",
           );
 
           expect(await helpers.getTestResultsForFiles(filesChanged)).toMatchInlineSnapshot(`
@@ -350,7 +350,7 @@ describe(processPackageReplacements, () => {
 
         const { filesChanged, helpers } = await standardProcessPackageReplacmements(
           result,
-          "state"
+          "state",
         );
 
         // NOTE THE ORIGINAL HAS NO NEW LINE BETWEEN the import and the export in doThingWithState.ts
@@ -411,7 +411,7 @@ describe(processPackageReplacements, () => {
 async function standardProcessPackageReplacmements(
   result: StandardSetupResult,
   packageName: string,
-  extraPackages: string[] = []
+  extraPackages: string[] = [],
 ) {
   const ctx = result.getPackageContext(packageName);
 
@@ -422,7 +422,7 @@ async function standardProcessPackageReplacmements(
     jobArgs.filesToRemove,
     jobArgs.relativeFileInfoMap,
     result.setupResults.packageExportRenamesMap,
-    false
+    false,
   );
 
   return {
@@ -443,7 +443,7 @@ type StandardSetupResult = ReturnType<ReturnType<typeof createInitialWorkspaceBu
 async function standardSetup(
   filesToMove: Set<FilePath>,
   destination: PackageName,
-  useEsm: boolean
+  useEsm: boolean,
 ): Promise<StandardSetupResult> {
   const builtResults = createInitialWorkspaceBuilder(useEsm).build();
   const logger = createTestLogger();
@@ -452,7 +452,7 @@ async function standardSetup(
     builtResults.projectLoader,
     filesToMove,
     destination,
-    logger
+    logger,
   );
 
   const helpersForPackage = (packageName: string) =>

@@ -8,7 +8,7 @@ export function getReplacementsForRenames(
   ctx: PackageContext,
   renames: Map<PackageName, PackageExportRename[]>,
   replacements: Replacements,
-  dryRun: boolean
+  dryRun: boolean,
 ): void {
   for (const sf of ctx.project.getSourceFiles()) {
     addSingleFileReplacementsForRenames(ctx, sf, renames, replacements, dryRun);

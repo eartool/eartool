@@ -47,7 +47,7 @@ export async function processProject(
     removeNamespaces,
     removeFauxNamespaces,
     organizeImports: shouldOrganizeImports,
-  }: ProcessProjectOpts
+  }: ProcessProjectOpts,
 ) {
   const { project } = packageContext;
 
@@ -57,7 +57,7 @@ export async function processProject(
     logger,
     packageContext.packagePath,
     packageContext.packageName,
-    packageContext.packageJson
+    packageContext.packageJson,
   );
   const totalFiles = project.getSourceFiles().length;
   // Three stages:

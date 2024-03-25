@@ -15,7 +15,7 @@ describe(getFileContentsRelatively, () => {
     const r = getFileContentsRelatively(
       project,
       "/workspace/merp",
-      new Set(["/workspace/merp/src/foo.ts"])
+      new Set(["/workspace/merp/src/foo.ts"]),
     );
 
     expect(r).toEqual(new Map([["src/foo.ts", `export const foo = 5;`]]));

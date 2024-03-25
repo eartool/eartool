@@ -8,7 +8,7 @@ import type { WorkerArgs } from "../shared/WorkerArgs.js";
 
 export async function workerMain(
   { logger, packagePath, packageName, dryRun, updateStatus, jobArgs }: WorkerData<WorkerArgs>,
-  _port: MessagePort
+  _port: MessagePort,
 ): Promise<PackageExportRename[]> {
   try {
     const result = await processPackage(packageName, packagePath, {

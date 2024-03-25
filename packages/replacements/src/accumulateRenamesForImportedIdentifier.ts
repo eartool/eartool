@@ -7,13 +7,13 @@ export function addImportOrExport(
   specifier: ImportSpecifier | ExportSpecifier,
   newSymbolName: string | undefined,
   newModuleSpecifier: string,
-  cleanup: boolean
+  cleanup: boolean,
 ) {
   const keyword = specifier.isKind(SyntaxKind.ExportSpecifier) ? "export" : "import";
   const decl = specifier.getFirstAncestorByKindOrThrow(
     specifier.isKind(SyntaxKind.ExportSpecifier)
       ? SyntaxKind.ExportDeclaration
-      : SyntaxKind.ImportDeclaration
+      : SyntaxKind.ImportDeclaration,
   );
 
   const symbolName = newSymbolName ?? specifier.getName();

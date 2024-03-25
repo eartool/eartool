@@ -17,8 +17,8 @@ export function createCtxHelperFunctions(ctx: WorkerPackageContext): PackageRela
     return formatTestTypescript(getSourceFileOrThrow(filePath).getFullText());
   };
 
-  const getTestResultsForFiles = (filePaths: Iterable<string>) => {
-    return formatTestTypescript(
+  const getTestResultsForFiles = async (filePaths: Iterable<string>) => {
+    return await formatTestTypescript(
       [...filePaths]
         .map(
           (filePath) => `// ==========================================================
@@ -30,16 +30,16 @@ export function createCtxHelperFunctions(ctx: WorkerPackageContext): PackageRela
     // 
     // </>: ${filePath}
     // ==========================================================
-    `
+    `,
         )
-        .join("\n")
+        .join("\n"),
     );
   };
 
-  const processReplacementsAndGetTestResultsForFiles = () => {
+  const processReplacementsAndGetTestResultsForFiles = async () => {
     const changedFiles = processReplacements(ctx.project, ctx.replacements.getReplacementsMap());
     ctx.project.saveSync();
-    return { changedFiles, testResults: getTestResultsForFiles(changedFiles) };
+    return { changedFiles, testResults: await getTestResultsForFiles(changedFiles) };
   };
 
   return {

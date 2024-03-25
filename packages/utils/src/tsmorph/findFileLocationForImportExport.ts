@@ -6,7 +6,7 @@ import type { FilePath } from "../FilePath.js";
 
 export function findFileLocationForImportExport(
   ctx: PackageContext,
-  decl: ImportDeclaration | ExportDeclaration
+  decl: ImportDeclaration | ExportDeclaration,
 ): FilePath | undefined {
   for (const possibleLocation of getPossibleFileLocations(ctx, decl)) {
     const sf = ctx.project.getSourceFile(possibleLocation);

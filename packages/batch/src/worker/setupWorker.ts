@@ -24,13 +24,13 @@ export interface WorkerData<T> extends BaseWorkerData<T> {
 
 export type WorkerFunc<Q extends JobDef<any, any>> = (
   data: WorkerData<Q["__ArgsType"]>,
-  port: MessagePort
+  port: MessagePort,
 ) => Promise<Q["__ResultType"]>;
 
 export function setupWorker<Q extends JobDef<any, any>>(
   worker: WorkerFunc<Q>,
   parentProcessIdentifier: string,
-  packageName: string
+  packageName: string,
 ) {
   parentPort?.once("message", async (value: { port: MessagePort }) => {
     ok(value != null);

@@ -13,7 +13,7 @@ import { unwrapNamespaceInFile } from "./unwrapNamespaceInFile.js";
 export function calculateNamespaceRemovals(
   sf: SourceFile,
   projectContext: ProjectContext,
-  replacements: Replacements
+  replacements: Replacements,
 ) {
   const filePath = path.relative(process.cwd(), sf.getFilePath());
   projectContext.logger.debug(`Processing file %s`, filePath);
@@ -28,7 +28,7 @@ export function calculateNamespaceRemovals(
     if (namespaceDecl.getSymbolOrThrow().getDeclarations().length > 1) {
       projectContext.logger.debug(
         "Can't do ultra simple replacement, falling back to complicated for " +
-          namespaceDecl.getName()
+          namespaceDecl.getName(),
       );
     } else {
       projectContext.logger.debug("Doing the ultra simple replacement");
@@ -92,7 +92,7 @@ function buildContext(projectContext: ProjectContext, namespaceDecl: ModuleDecla
           projectContext.logger.warn(
             { filename: varDecl.getSourceFile().getFilePath() },
             "Aborting fixing '%s' as it will be too hard to unwrap",
-            varDecl.getName()
+            varDecl.getName(),
           );
           return undefined;
         } else {
@@ -129,7 +129,7 @@ function buildContext(projectContext: ProjectContext, namespaceDecl: ModuleDecla
 
   context.logger.trace(
     "calculateNamespaceRemovals(): Type rename: %s",
-    Array.from(context.renames).join(", ")
+    Array.from(context.renames).join(", "),
   );
 
   return context;

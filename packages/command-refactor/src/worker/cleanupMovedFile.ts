@@ -34,7 +34,7 @@ export function cleanupMovedFile(ctx: WorkerPackageContext, sf: SourceFile) {
             namedImport,
             undefined,
             getProperRelativePathAsModuleSpecifierTo(sf, fullPath),
-            false
+            false,
           );
         }
       }

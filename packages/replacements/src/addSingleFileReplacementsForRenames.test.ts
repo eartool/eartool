@@ -4,13 +4,13 @@ import { TestBuilder } from "./TestBuilder.js";
 import { addSingleFileReplacementsForRenames } from "./addSingleFileReplacementsForRenames.js";
 
 describe(addSingleFileReplacementsForRenames, () => {
-  it("renames a rexport ", () => {
-    const { output } = new TestBuilder()
+  it("renames a rexport ", async () => {
+    const { output } = await new TestBuilder()
       .addFile(
         "/index.ts",
         `
           export {bar} from "./bar";
-      `
+      `,
       )
       .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
@@ -18,7 +18,7 @@ describe(addSingleFileReplacementsForRenames, () => {
           files.get("/index.ts")!,
           new Map([["./bar", [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }]]]),
           replacements,
-          false
+          false,
         );
       })
       .build();
@@ -41,15 +41,15 @@ describe(addSingleFileReplacementsForRenames, () => {
     //
   });
 
-  it("renames an import with named only", () => {
-    const { output } = new TestBuilder()
+  it("renames an import with named only", async () => {
+    const { output } = await new TestBuilder()
       .addFile(
         "/index.ts",
         `
           import {bar, bleh} from "bar";
           doThing(bar);
           doThing(bleh);
-      `
+      `,
       )
       .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
@@ -65,7 +65,7 @@ describe(addSingleFileReplacementsForRenames, () => {
             ],
           ]),
           replacements,
-          false
+          false,
         );
       })
       .build();
@@ -90,8 +90,8 @@ describe(addSingleFileReplacementsForRenames, () => {
     //
   });
 
-  it("renames an import with default and named", () => {
-    const { output } = new TestBuilder()
+  it("renames an import with default and named", async () => {
+    const { output } = await new TestBuilder()
       .addFile(
         "/index.ts",
         `
@@ -99,7 +99,7 @@ describe(addSingleFileReplacementsForRenames, () => {
           doThing(bar);
           doThing(bleh);
           doThing(defImp);
-      `
+      `,
       )
       .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
@@ -115,7 +115,7 @@ describe(addSingleFileReplacementsForRenames, () => {
             ],
           ]),
           replacements,
-          false
+          false,
         );
       })
       .build();
@@ -143,14 +143,14 @@ describe(addSingleFileReplacementsForRenames, () => {
     //
   });
 
-  it("renames an namespace ", () => {
-    const { output } = new TestBuilder()
+  it("renames an namespace ", async () => {
+    const { output } = await new TestBuilder()
       .addFile(
         "/index.ts",
         `
           import * as bar from "bar";
           doThing(bar.Baz);
-      `
+      `,
       )
       .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
@@ -158,7 +158,7 @@ describe(addSingleFileReplacementsForRenames, () => {
           files.get("/index.ts")!,
           new Map([["bar", [{ from: ["Baz"], toFileOrModule: "baz" }]]]),
           replacements,
-          false
+          false,
         );
       })
       .build();
@@ -182,13 +182,13 @@ describe(addSingleFileReplacementsForRenames, () => {
     //
   });
 
-  it("renames a reexport keeping the old! ", () => {
-    const { output } = new TestBuilder()
+  it("renames a reexport keeping the old! ", async () => {
+    const { output } = await new TestBuilder()
       .addFile(
         "/index.ts",
         `
           export {bar, foo} from "./bar";
-      `
+      `,
       )
       .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
@@ -196,7 +196,7 @@ describe(addSingleFileReplacementsForRenames, () => {
           files.get("/index.ts")!,
           new Map([["./bar", [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }]]]),
           replacements,
-          false
+          false,
         );
       })
       .build();
@@ -220,13 +220,13 @@ describe(addSingleFileReplacementsForRenames, () => {
     //
   });
 
-  it("deeploy handles the renames", () => {
-    const { output } = new TestBuilder()
+  it("deeploy handles the renames", async () => {
+    const { output } = await new TestBuilder()
       .addFile(
         "/index.ts",
         `
           export const bar =5;
-      `
+      `,
       )
       .addFile(
         "/nested/foo.ts",
@@ -235,7 +235,7 @@ describe(addSingleFileReplacementsForRenames, () => {
           export function* insideGenerator() {
             yield bar();
           }
-          `
+          `,
       )
       .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
@@ -245,7 +245,7 @@ describe(addSingleFileReplacementsForRenames, () => {
             ["barModule", [{ from: ["bar"], to: ["otherImport"], toFileOrModule: "otherModule" }]],
           ]),
           replacements,
-          false
+          false,
         );
       })
       .build();
@@ -270,17 +270,17 @@ describe(addSingleFileReplacementsForRenames, () => {
     `);
   });
 
-  it("properly handles full file paths", () => {
-    const { output } = new TestBuilder()
+  it("properly handles full file paths", async () => {
+    const { output } = await new TestBuilder()
       .addFile(
         "/index.ts",
         `
           export {bar} from "./bar";
-      `
+      `,
       )
       .addFile(
         "/nested/foo.ts",
-        `import {bar} from "../bar"; export const nestedFoo: string = doStuff(bar); `
+        `import {bar} from "../bar"; export const nestedFoo: string = doStuff(bar); `,
       )
       .performWork(({ replacements, files, ctx }) => {
         addSingleFileReplacementsForRenames(
@@ -288,14 +288,14 @@ describe(addSingleFileReplacementsForRenames, () => {
           files.get("/nested/foo.ts")!,
           new Map([["/bar.ts", [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }]]]),
           replacements,
-          false
+          false,
         );
         addSingleFileReplacementsForRenames(
           ctx,
           files.get("/index.ts")!,
           new Map([["/bar.ts", [{ from: ["bar"], to: ["bar"], toFileOrModule: "baz" }]]]),
           replacements,
-          false
+          false,
         );
       })
       .build();

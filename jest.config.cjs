@@ -28,6 +28,7 @@ const baseConfig = {
   },
 
   cache: false,
+  prettierPath: require.resolve("prettier-2"),
 };
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */

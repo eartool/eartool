@@ -10,7 +10,7 @@ import {
 export function getRelevantNodeFromRefOrThrow(
   r: Node,
   oldName: string,
-  logger: Logger
+  logger: Logger,
 ): PropertyAccessExpression | QualifiedName | TypeReferenceNode | Node {
   const parent = r.getParentOrThrow();
 
@@ -18,7 +18,7 @@ export function getRelevantNodeFromRefOrThrow(
     "Parent type: %s at %s:%d",
     getSimplifiedNodeInfoAsString(parent),
     parent.getSourceFile().getFilePath(),
-    parent.getStartLineNumber()
+    parent.getStartLineNumber(),
   );
   logger.flush();
 

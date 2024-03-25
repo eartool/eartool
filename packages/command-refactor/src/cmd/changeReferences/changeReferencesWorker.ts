@@ -12,12 +12,11 @@ export interface ChangeReferencesJobArgs {
   renames: PackageExportRenames;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ChangeReferencesJobResult {}
 
 export async function workerMain(
   workerData: WorkerData<ChangeReferencesJobArgs>,
-  _port: MessagePort
+  _port: MessagePort,
 ): Promise<ChangeReferencesJobResult> {
   const context = createPackageContextFromWorkerData(workerData);
   if (!context) return {};
@@ -29,7 +28,7 @@ export async function workerMain(
       sf,
       workerData.jobArgs.renames,
       replacements,
-      workerData.dryRun
+      workerData.dryRun,
     );
   }
 

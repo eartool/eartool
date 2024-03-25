@@ -1061,7 +1061,7 @@ describe("processProject", () => {
     }) => {
       const logger = createTestLogger();
       try {
-        const project = createProjectForTest(inputs);
+        const project = await createProjectForTest(inputs);
 
         await processProject(
           { project, logger, packageName: "foo", packagePath: "/", packageJson: {} },
@@ -1072,7 +1072,7 @@ describe("processProject", () => {
             dryRun: false,
             organizeImports: organizeImports ?? true,
             removeNamespaces: removeNamespaces ?? true,
-          }
+          },
         );
 
         const output = await calculateOutput(project);
@@ -1081,13 +1081,13 @@ describe("processProject", () => {
       } finally {
         logger.flush();
       }
-    }
+    },
   );
 
   it("handles deeply nested reexports", async () => {
     const logger = createTestLogger();
 
-    const project = createProjectForTest({
+    const project = await createProjectForTest({
       "foo.ts": `
         export namespace Foo {
           export type Props = {};
@@ -1116,7 +1116,7 @@ describe("processProject", () => {
         dryRun: false,
         organizeImports: false,
         removeNamespaces: true,
-      }
+      },
     );
 
     expect(result.exportedRenames).toMatchInlineSnapshot(`
@@ -1196,7 +1196,7 @@ describe("processProject", () => {
   it("records renames from root", async () => {
     const logger = createTestLogger();
 
-    const project = createProjectForTest({
+    const project = await createProjectForTest({
       "foo.ts": `
         export namespace Foo {
           export type Props = {};
@@ -1223,7 +1223,7 @@ describe("processProject", () => {
         removeFauxNamespaces: false,
         dryRun: false,
         organizeImports: true,
-      }
+      },
     );
 
     expect(result.exportedRenames).toMatchInlineSnapshot(`
@@ -1253,7 +1253,7 @@ describe("processProject", () => {
   it("doesnt reexport renames twice", async () => {
     const logger = createTestLogger();
 
-    const project = createProjectForTest({
+    const project = await createProjectForTest({
       "foo.ts": `
           export interface Foo {}
           export namespace Foo {
@@ -1276,7 +1276,7 @@ describe("processProject", () => {
         removeFauxNamespaces: false,
         dryRun: false,
         organizeImports: false,
-      }
+      },
     );
     expect(result.exportedRenames).toHaveLength(1);
     expect(result.exportedRenames[0]).toEqual({ from: ["Foo", "Bar"], to: ["BarForFoo"] });
@@ -1285,7 +1285,7 @@ describe("processProject", () => {
   it("calculates the export correctly if index was renamer", async () => {
     const logger = createTestLogger();
 
-    const project = createProjectForTest({
+    const project = await createProjectForTest({
       "foo.ts": `
           export type Foo = Foo.Bar | Foo.Baz
           export namespace Foo {
@@ -1306,7 +1306,7 @@ describe("processProject", () => {
         removeFauxNamespaces: false,
         dryRun: false,
         organizeImports: false,
-      }
+      },
     );
 
     const output = await calculateOutput(project);
@@ -1358,7 +1358,7 @@ describe("processProject", () => {
   it("calculates renames correctly when export star has a twin", async () => {
     const logger = createTestLogger();
 
-    const project = createProjectForTest({
+    const project = await createProjectForTest({
       "foo.ts": `
           export interface Foo {}
           export namespace Foo {
@@ -1381,7 +1381,7 @@ describe("processProject", () => {
         removeFauxNamespaces: false,
         dryRun: false,
         organizeImports: false,
-      }
+      },
     );
 
     expect(result.exportedRenames).toHaveLength(1);
@@ -1391,7 +1391,7 @@ describe("processProject", () => {
   it("calculates renames correctly when export star has no twin", async () => {
     const logger = createTestLogger();
 
-    const project = createProjectForTest({
+    const project = await createProjectForTest({
       "foo.ts": `
           export interface Bleh {}
           export namespace Foo {
@@ -1414,7 +1414,7 @@ describe("processProject", () => {
         removeFauxNamespaces: false,
         dryRun: false,
         organizeImports: false,
-      }
+      },
     );
 
     expect(result.exportedRenames).toHaveLength(1);
@@ -1424,7 +1424,7 @@ describe("processProject", () => {
   it("doesnt mess up in package replacements for duplicated type and const in namespace", async () => {
     const logger = createTestLogger();
 
-    const project = createProjectForTest({
+    const project = await createProjectForTest({
       "foo.ts": `
         export namespace FiltersExtension {
           export type DEFER = string & {
@@ -1454,7 +1454,7 @@ describe("processProject", () => {
         removeFauxNamespaces: false,
         dryRun: false,
         organizeImports: false,
-      }
+      },
     );
 
     const output = await calculateOutput(project);
@@ -1510,7 +1510,7 @@ describe("processProject", () => {
   it("calculates renames correctly when export star has two twins", async () => {
     const logger = createTestLogger();
 
-    const project = createProjectForTest({
+    const project = await createProjectForTest({
       "foo.ts": `
         import { OneOrMultiple } from "helpers";
         export const MyEvent = {
@@ -1545,7 +1545,7 @@ describe("processProject", () => {
         removeFauxNamespaces: false,
         dryRun: false,
         organizeImports: false,
-      }
+      },
     );
 
     const output = await calculateOutput(project);
@@ -1611,9 +1611,9 @@ async function calculateOutput(project: Project) {
         // PATH: '${filePath}'
         //
         ${fs.readFileSync(filePath)}
-        `
+        `,
         );
-      })
+      }),
     )
   ).join();
   return output;

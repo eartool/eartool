@@ -12,7 +12,7 @@ import type { Project } from "ts-morph";
 export function getFileContentsRelatively(
   project: Project,
   packagePath: string,
-  filesToMove: Set<string>
+  filesToMove: Set<string>,
 ) {
   const fileContents = new Map</* relPath */ string, string>();
   for (const f of filesToMove) {
