@@ -7,6 +7,7 @@ import {
   standardTsconfig,
   packageEntry,
   packageOrder,
+  requireDependency,
   packageScript,
 } from "@monorepolint/rules";
 
@@ -52,6 +53,13 @@ export default {
             rootDir: "src",
           },
           exclude: ["node_modules", "lib"],
+        },
+      },
+    }),
+    requireDependency({
+      options: {
+        devDependencies: {
+          "prettier-2": "npm:prettier@^2",
         },
       },
     }),

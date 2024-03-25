@@ -3,6 +3,7 @@ import { Project } from "ts-morph";
 import { createTestLogger, formatTestTypescript } from "@eartool/test-utils";
 import { format } from "prettier";
 import type { PackageContext } from "@eartool/utils";
+import pMap from "p-map";
 import { SimpleReplacements } from "./ReplacementsWrapper.js";
 import { processReplacements } from "./processReplacements.js";
 import type { Replacements } from "./Replacements.js";
@@ -11,6 +12,7 @@ export class TestBuilder {
   #project: Project;
   #files = new Map<string, SourceFile>();
   #replacements: Replacements;
+  #asyncTask?: Promise<unknown>;
 
   constructor() {
     this.#project = new Project({
@@ -44,9 +46,11 @@ export class TestBuilder {
   }
 
   addFile(filePath: string, contents: string) {
-    const sf = this.#project.createSourceFile(filePath, formatTestTypescript(contents));
-    sf.saveSync();
-    this.#files.set(filePath, sf);
+    this.#asyncTask = Promise.resolve(this.#asyncTask).then(async () => {
+      const sf = this.#project.createSourceFile(filePath, await formatTestTypescript(contents));
+      await sf.save();
+      this.#files.set(filePath, sf);
+    });
 
     return this;
   }
@@ -57,13 +61,19 @@ export class TestBuilder {
       project: Project;
       replacements: Replacements;
       files: Map<string, SourceFile>;
-    }) => void
+    }) => void | Promise<void>,
   ) {
-    f(this);
+    const self = this;
+    this.#asyncTask = Promise.resolve(this.#asyncTask).then(async () => {
+      await f(self);
+    });
+
     return this;
   }
 
-  build() {
+  async build() {
+    await this.#asyncTask;
+
     const changedFiles = [
       ...processReplacements(this.project, this.replacements.getReplacementsMap()),
     ];
@@ -71,18 +81,19 @@ export class TestBuilder {
     return {
       project: this.project,
       changedFiles,
-      output: changedFiles
-        .map(
-          (filePath) =>
+      output: (
+        await pMap(
+          changedFiles,
+          async (filePath) =>
             `\n//\n// <${filePath}>\n//\n\n` +
-            format(this.project.getSourceFile(filePath)!.getFullText(), {
+            (await format(this.project.getSourceFile(filePath)!.getFullText(), {
               parser: "typescript",
               tabWidth: 2,
               useTabs: false,
-            }) +
-            `\n\n//\n// </${filePath}>\n//\n\n`
+            })) +
+            `\n\n//\n// </${filePath}>\n//\n\n`,
         )
-        .join("\n\n"),
+      ).join("\n\n"),
     };
   }
 }

@@ -1,51 +1,55 @@
 import { createProjectForTest, createTestLogger } from "@eartool/test-utils";
-import { describe, expect, it } from "@jest/globals";
+import { beforeAll, describe, expect, it } from "@jest/globals";
 import type { Metadata } from "@eartool/utils";
+import type { Project } from "ts-morph";
 import { getConsumedExports } from "./getConsumedExports.js";
 import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 
 describe(getConsumedExports, () => {
   describe("idk", () => {
-    const project = createProjectForTest({
-      "index.ts": `
+    let project: Project;
+    beforeAll(async () => {
+      project = await createProjectForTest({
+        "index.ts": `
       export {foo} from "./foo";
       export {Foo} from "./exportedType";
       export {Wtf} from "./exportedType";
     `,
-      "foo.ts": `
+        "foo.ts": `
       export const foo = 5;
       export default 8;
     `,
-      "exportedType.ts": `
+        "exportedType.ts": `
       export type Foo = number;
 
       export interface Wtf {
         foo: Foo;
       }
     `,
-      "importFrom.ts": `
+        "importFrom.ts": `
       import {foo as foofoo} from "./foo";
       import {Foo, Wtf} from "./exportedType";
     `,
-      "importFromAsType.ts": `
+        "importFromAsType.ts": `
       import type {foo} from "./foo";
       import type {Foo} from "./exportedType";
       import {type Wtf} from "./exportedType";
     `,
-      "reexportAs.ts": `
+        "reexportAs.ts": `
       export {foo as baz} from "./foo";
     `,
-      "reexportAsDefault.ts": `
+        "reexportAsDefault.ts": `
       export {foo as default} from "./foo";
     `,
-      "importFromIndirection.ts": `
+        "importFromIndirection.ts": `
       import fooByAnotherName from "./reexportAsDefault"
     `,
-      "reassignThenExport.ts": `
+        "reassignThenExport.ts": `
       import {foo} from "./foo";
 
       export const baz = foo;
     `,
+      });
     });
 
     it("foo.ts", () => {
@@ -57,7 +61,7 @@ describe(getConsumedExports, () => {
           project,
           packageJson: {},
         },
-        project.getSourceFileOrThrow("foo.ts")
+        project.getSourceFileOrThrow("foo.ts"),
       );
 
       const gfd = new Map<string, Metadata>();
@@ -242,7 +246,7 @@ describe(getConsumedExports, () => {
           project,
           packageJson: {},
         },
-        project.getSourceFileOrThrow("exportedType.ts")
+        project.getSourceFileOrThrow("exportedType.ts"),
       );
 
       const gfd = new Map<string, Metadata>();
@@ -374,12 +378,12 @@ describe(getConsumedExports, () => {
           "src/foo.ts",
           `
           export const foo = 5;
-      `
+      `,
         ).addFile(
           "src/index.ts",
           `
         export {foo} from "./foo";
-      `
+      `,
         );
       })
       .build();
@@ -393,7 +397,7 @@ describe(getConsumedExports, () => {
         project,
         packageJson: {},
       },
-      project.getSourceFileOrThrow("/workspace/foo/src/index.ts")
+      project.getSourceFileOrThrow("/workspace/foo/src/index.ts"),
     );
 
     expect(result).toMatchInlineSnapshot(`

@@ -4,15 +4,15 @@ import { TestBuilder } from "./TestBuilder.js";
 import { autorenameIdentifierAndReferences } from "./autorenameIdentifierAndReferences.js";
 
 describe(autorenameIdentifierAndReferences, () => {
-  it("renames a short hand binding element ", () => {
-    const { output } = new TestBuilder()
+  it("renames a short hand binding element ", async () => {
+    const { output } = await new TestBuilder()
       .addFile(
         "/foo.ts",
         `
           function someFunc({foo, bar}: Opts) {
               doStuff(foo);
           }
-      `
+      `,
       )
       .performWork(({ replacements, files }) => {
         const funcDecl = files
@@ -49,15 +49,15 @@ describe(autorenameIdentifierAndReferences, () => {
     //
   });
 
-  it("renames a long binding element ", () => {
-    const { output } = new TestBuilder()
+  it("renames a long binding element ", async () => {
+    const { output } = await new TestBuilder()
       .addFile(
         "/foo.ts",
         `
           function someFunc({foo: moo, bar}: Opts) {
               doStuff(moo);
           }
-      `
+      `,
       )
       .performWork(({ replacements, files }) => {
         const funcDecl = files
@@ -94,15 +94,15 @@ describe(autorenameIdentifierAndReferences, () => {
     //
   });
 
-  it("renames a named import ", () => {
-    const { output } = new TestBuilder()
+  it("renames a named import ", async () => {
+    const { output } = await new TestBuilder()
       .addFile(
         "/foo.ts",
         `
           import {Bar} from "./bar";
 
           doStuff(Bar);
-      `
+      `,
       )
       .performWork(({ replacements, files }) => {
         const sf = files.get("/foo.ts")!;
@@ -136,15 +136,15 @@ describe(autorenameIdentifierAndReferences, () => {
     //
   });
 
-  it("renames a default import ", () => {
-    const { output } = new TestBuilder()
+  it("renames a default import ", async () => {
+    const { output } = await new TestBuilder()
       .addFile(
         "/foo.ts",
         `
           import Bar from "./bar";
 
           doStuff(Bar);
-      `
+      `,
       )
       .performWork(({ replacements, files }) => {
         const sf = files.get("/foo.ts")!;
