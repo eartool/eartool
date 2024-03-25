@@ -17,9 +17,7 @@ export function getPossibleFileLocations(
     const { module } = decl.getProject().getCompilerOptions();
     if (module == ModuleKind.Node16 || module == ModuleKind.NodeNext) {
       //
-    }
-
-    if (ctx.packageJson.type != "module") {
+    } else if (ctx.packageJson.type != "module") {
       throw new Error("importing a direct js file is a hack right now that requires modules");
     }
 

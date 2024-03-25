@@ -82,14 +82,7 @@ export default async function workerMain({
       logger.trace("DRY RUN");
     } else {
       logger.info("Saving");
-      await Promise.all(
-        changedFiles.map(async (a) => {
-          // logger.info("Saving: " + a);
-          await project.getSourceFile(a)?.save();
-          // logger.info("Done saving: " + a);
-        })
-      );
-      logger.info("DONE");
+      await project.save();
     }
   }
   return { changedFiles };
