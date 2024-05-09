@@ -1,13 +1,11 @@
 export type { FilePath } from "./FilePath.js";
 export type { Flavored } from "./Flavored.js";
-export { mergePackageJsonDeps } from "./PackageJsonDepsRequired.js";
-export type { PackageJsonDepsRequired } from "./PackageJsonDepsRequired.js";
-export type { PackageName } from "./PackageName.js";
 export { getPossibleFileLocations } from "./getPossibleFileLocations.js";
 export { createConsoleLogger } from "./logging/createConsoleLogger.js";
 export { createLogger } from "./logging/createLogger.js";
-export { readPackageJson, writePackageJson } from "./tsmorph/PackageJson.js";
-export type { PackageJson } from "./tsmorph/PackageJson.js";
+export { mergePackageJsonDeps } from "./PackageJsonDepsRequired.js";
+export type { PackageJsonDepsRequired } from "./PackageJsonDepsRequired.js";
+export type { PackageName } from "./PackageName.js";
 export { dropDtsFiles } from "./tsmorph/dropDtsFiles.js";
 export { findEntireQualifiedNameTree } from "./tsmorph/findEntireQualifiedNameTree.js";
 export { findFileLocationForImportExport } from "./tsmorph/findFileLocationForImportExport.js";
@@ -29,13 +27,18 @@ export {
 } from "./tsmorph/getSimplifiedNodeInfo.js";
 export { isInSameNamespace } from "./tsmorph/isInSameNamespace.js";
 export { isNamespaceDeclaration } from "./tsmorph/isNamespaceDeclaration.js";
-export { isNamespaceLike } from "./tsmorph/isNamespaceLike.js";
-export type { NamespaceLike, NamespaceLikeVariableDeclaration } from "./tsmorph/isNamespaceLike.js";
+export {
+  getNamespaceLike,
+  getNamespaceLikeVariable,
+  getNamespaceLikeVariableOrThrow,
+} from "./tsmorph/isNamespaceLike.js";
 export { isRootExport } from "./tsmorph/isRootExport.js";
 export { maybeLoadProject } from "./tsmorph/maybeLoadProject.js";
 export { organizeImportsOnFiles } from "./tsmorph/organizeImportsOnFiles.js";
+export { readPackageJson, writePackageJson } from "./tsmorph/PackageJson.js";
+export type { PackageJson } from "./tsmorph/PackageJson.js";
 export { weakMemo } from "./weakMemo.js";
+export { createWorkspaceFromDisk } from "./workspace/createWorkspaceFromDisk.js";
 export type { PackageContext } from "./workspace/PackageContext.js";
 export { Workspace } from "./workspace/WorkspaceInfo.js";
 export type { DependencyDirection } from "./workspace/WorkspaceInfo.js";
-export { createWorkspaceFromDisk } from "./workspace/createWorkspaceFromDisk.js";

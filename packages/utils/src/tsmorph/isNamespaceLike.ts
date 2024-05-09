@@ -1,53 +1,43 @@
-import type {
-  ObjectLiteralExpression,
-  VariableStatement,
-  VariableDeclaration,
-  AsExpression,
-  MethodDeclaration,
-  ArrowFunction,
-} from "ts-morph";
+import type { ObjectLiteralElementLike, SyntaxList, VariableDeclaration } from "ts-morph";
 import { Node, SyntaxKind } from "ts-morph";
-import type { ReplaceMethodReturnType } from "./ReplaceMethodReturnType.js";
-import type { TypedPropertyAssignment } from "./types.js";
 
-type ObjectLiteralWithMethodLikeOnly = ReplaceMethodReturnType<
-  ObjectLiteralExpression,
-  "getProperties",
-  (MethodDeclaration | TypedPropertyAssignment<ArrowFunction>)[]
->;
+export function getNamespaceLike(node: Node):
+  | {
+      syntaxList: SyntaxList;
+      startNode: Node;
+      kids: Node[] | ObjectLiteralElementLike[];
+      varDecl?: VariableDeclaration | undefined;
+    }
+  | undefined {
+  if (Node.isModuleDeclaration(node)) {
+    return {
+      syntaxList: node.getChildSyntaxListOrThrow(),
+      startNode: node,
+      kids: node.getChildSyntaxListOrThrow().getChildren(),
+    };
+  }
 
-type NamespaceLikeAsExpression = ReplaceMethodReturnType<
-  AsExpression,
-  "getExpression",
-  ObjectLiteralWithMethodLikeOnly
->;
+  if (Node.isVariableDeclaration(node)) {
+    return getNamespaceLikeVariable(node);
+  }
 
-export type NamespaceLikeVariableDeclaration = ReplaceMethodReturnType<
-  VariableDeclaration,
-  "getInitializer",
-  NamespaceLikeAsExpression
->;
+  if (!Node.isVariableStatement(node)) return undefined;
 
-export type NamespaceLike = ReplaceMethodReturnType<
-  VariableStatement,
-  "getDeclarations",
-  NamespaceLikeVariableDeclaration[]
->;
-
-export function isNamespaceLike(node: Node): node is NamespaceLike {
-  if (!Node.isVariableStatement(node)) return false;
-
-  if (node.getDeclarations().length != 1) return false;
+  if (node.getDeclarations().length != 1) return undefined;
   const varDecl = node.getDeclarations()[0];
 
+  return getNamespaceLikeVariable(varDecl);
+}
+
+export function getNamespaceLikeVariable(varDecl: VariableDeclaration) {
   const asExpression = varDecl.getInitializerIfKind(SyntaxKind.AsExpression);
-  if (!asExpression) return false;
+  if (!asExpression) return undefined;
 
   const typeRef = asExpression.getTypeNode()?.asKind(SyntaxKind.TypeReference);
-  if (!typeRef || typeRef.getText() != "const") return false;
+  if (!typeRef || typeRef.getText() != "const") return undefined;
 
   const objLiteral = asExpression.getExpressionIfKind(SyntaxKind.ObjectLiteralExpression);
-  if (!objLiteral) return false;
+  if (!objLiteral) return undefined;
 
   const methodsOnly = objLiteral.getProperties().every((a) => {
     if (Node.isMethodDeclaration(a)) return true;
@@ -55,7 +45,22 @@ export function isNamespaceLike(node: Node): node is NamespaceLike {
 
     return a.getInitializerIfKind(SyntaxKind.ArrowFunction) != null;
   });
-  if (!methodsOnly) return false;
+  if (!methodsOnly) return undefined;
 
-  return true;
+  return {
+    methodsOnly,
+    objLiteral,
+    typeRef,
+    asExpression,
+    varDecl,
+    startNode: varDecl.getFirstAncestorByKindOrThrow(SyntaxKind.VariableStatement),
+    syntaxList: objLiteral.getChildSyntaxListOrThrow(),
+    kids: objLiteral.getProperties(),
+  };
+}
+
+export function getNamespaceLikeVariableOrThrow(varDecl: VariableDeclaration) {
+  const ret = getNamespaceLikeVariable(varDecl);
+  if (!ret) throw "bad";
+  return ret;
 }

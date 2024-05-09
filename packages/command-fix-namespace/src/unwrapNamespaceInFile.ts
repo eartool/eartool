@@ -1,29 +1,29 @@
+import { autorenameIdentifierAndReferences, type Replacements } from "@eartool/replacements";
+import { replaceAllNamesInScope } from "@eartool/replacements";
+import { getSimplifiedNodeInfoAsString } from "@eartool/utils";
+import type { Logger } from "pino";
 import type {
   FunctionDeclaration,
   MethodDeclaration,
-  SyntaxList,
   ModuleDeclaration,
   Symbol,
+  SyntaxList,
+  VariableDeclaration,
 } from "ts-morph";
-import { Node, SyntaxKind, SymbolFlags } from "ts-morph";
-import { autorenameIdentifierAndReferences, type Replacements } from "@eartool/replacements";
-import {
-  getSimplifiedNodeInfoAsString,
-  type NamespaceLikeVariableDeclaration,
-} from "@eartool/utils";
-import { replaceAllNamesInScope } from "@eartool/replacements";
-import type { Logger } from "pino";
+import { Node, SymbolFlags, SyntaxKind } from "ts-morph";
+import { getNamespaceLike } from "../../utils/src/tsmorph/isNamespaceLike.js";
 
 export function unwrapNamespaceInFile(
-  varOrModuleDecl: NamespaceLikeVariableDeclaration | ModuleDeclaration,
+  varOrModuleDecl: VariableDeclaration | ModuleDeclaration,
   replacements: Replacements,
 ) {
   const logger = replacements.logger.child({ primaryNode: varOrModuleDecl });
 
+  const namespaceLike = getNamespaceLike(varOrModuleDecl);
+  if (!namespaceLike) throw "Bye";
+
   const sf = varOrModuleDecl.getSourceFile();
-  const syntaxList = Node.isModuleDeclaration(varOrModuleDecl)
-    ? varOrModuleDecl.getChildSyntaxListOrThrow()
-    : varOrModuleDecl.getInitializer().getExpression().getChildSyntaxList()!;
+  const syntaxList = namespaceLike.syntaxList;
 
   const exportedNames = new Set(
     syntaxList
@@ -35,9 +35,7 @@ export function unwrapNamespaceInFile(
 
   logger.trace("Exported names: %s", [...exportedNames].join(", "));
 
-  const startNode = Node.isModuleDeclaration(varOrModuleDecl)
-    ? varOrModuleDecl
-    : varOrModuleDecl.getFirstAncestorByKindOrThrow(SyntaxKind.VariableStatement);
+  const startNode = namespaceLike.startNode;
 
   // Drop `export const Name = {`
   // Drop `export namespace Foo {`
@@ -48,9 +46,8 @@ export function unwrapNamespaceInFile(
   const closeBrace = syntaxList.getNextSiblingIfKindOrThrow(SyntaxKind.CloseBraceToken);
   replacements.remove(sf, closeBrace.getStart(), varOrModuleDecl.getEnd());
 
-  const kids = Node.isModuleDeclaration(varOrModuleDecl)
-    ? varOrModuleDecl.getChildSyntaxListOrThrow().getChildren()
-    : varOrModuleDecl.getInitializer().getExpression().getProperties();
+  const kids = namespaceLike.kids;
+
   for (const childNode of kids) {
     if (Node.isMethodDeclaration(childNode)) {
       // namespace like
@@ -91,7 +88,7 @@ export function unwrapNamespaceInFile(
 }
 
 export function replaceSelfReferentialUsage(
-  varDecl: NamespaceLikeVariableDeclaration | ModuleDeclaration,
+  varDecl: VariableDeclaration | ModuleDeclaration,
   replacements: Replacements,
 ) {
   for (const refIdentifier of varDecl.findReferencesAsNodes()) {
