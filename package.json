@@ -24,7 +24,7 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
+    "@changesets/cli": "^2.27.3",
     "@monorepolint/cli": "^0.5.0-alpha.107",
     "@monorepolint/config": "^0.5.0-alpha.107",
     "@monorepolint/core": "^0.5.0-alpha.107",
