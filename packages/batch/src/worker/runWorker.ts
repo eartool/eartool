@@ -34,7 +34,7 @@ export async function runWorker<Q extends JobDef<any, any>>(
 function createMessagePortForwardingLogger(port: MessagePort, logDir: string) {
   const realAbstractTransport = abstractTransport; // as unknown as (typeof abstractTransport)["default"];
 
-  const customTransport = realAbstractTransport(async function (source) {
+  const customTransport = realAbstractTransport(async function(source) {
     for await (const chunk of source) {
       port.postMessage(MessagesToMain.log(chunk));
     }

@@ -16,10 +16,12 @@ export function getSimplifiedNodeInfoAsString(n: Node) {
   try {
     return `${n.getKindName()}${
       Node.hasName(n) ? `:${n.getName()}` : ""
-    } (${n.getSourceFile().getFilePath()}:${n.getStartLineNumber()}) < ${n
-      .getAncestors()
-      .map(kindNameWithName)
-      .join(" < ")}`;
+    } (${n.getSourceFile().getFilePath()}:${n.getStartLineNumber()}) < ${
+      n
+        .getAncestors()
+        .map(kindNameWithName)
+        .join(" < ")
+    }`;
   } catch (err) {
     return "FATAL ERROR! Unable to get simplified node info as string! " + n;
   }

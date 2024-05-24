@@ -17,10 +17,9 @@ export function getJobArgs(
 ): JobArgs {
   return {
     packageJsonDepsRequired: packageName === args.destination ? packageJsonDepsRequired : undefined,
-    relativeFileInfoMap:
-      packageName === args.destination
-        ? relativeFileInfoMap
-        : new Map<FilePath, RelativeFileInfo>(),
+    relativeFileInfoMap: packageName === args.destination
+      ? relativeFileInfoMap
+      : new Map<FilePath, RelativeFileInfo>(),
     packageExportRenamesMap,
     filesToRemove: packageNameToFilesToMove.get(packageName),
     destination: args.destination,

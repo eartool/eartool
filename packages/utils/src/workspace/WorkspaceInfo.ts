@@ -33,17 +33,17 @@ export class PackageInfo {
 
 type PackageLookupCriteria =
   | {
-      name: PackageName;
-      packagePath?: never;
-    }
+    name: PackageName;
+    packagePath?: never;
+  }
   | {
-      name?: never;
-      packagePath: FilePath;
-    }
+    name?: never;
+    packagePath: FilePath;
+  }
   | {
-      name: PackageName;
-      packagePath: FilePath;
-    };
+    name: PackageName;
+    packagePath: FilePath;
+  };
 
 export type RunTaskCallback = (args: {
   packagePath: FilePath;
@@ -198,8 +198,8 @@ export class Workspace {
 
     function createTaskIfReady(node: PackageInfo) {
       if (
-        statuses.get(node) === "todo" &&
-        (allDepsOfPackagePathSatisfied(node) || order == "any")
+        statuses.get(node) === "todo"
+        && (allDepsOfPackagePathSatisfied(node) || order == "any")
       ) {
         statuses.set(node, "scheduled");
         queue.add(async () => {

@@ -28,10 +28,7 @@ import * as util from "node:util";
 import type { Logger } from "pino";
 import type { FileSystemHost, Project } from "ts-morph";
 import { prettyStringForPackageExportRenamesMap } from "../worker/processPackageReplacements.js";
-import {
-  calculatePackageExportRenamesForFileMoves,
-  type Info,
-} from "./calculatePackageExportRenamesForFileMoves.js";
+import { calculatePackageExportRenamesForFileMoves, type Info } from "./calculatePackageExportRenamesForFileMoves.js";
 import { getFileContentsRelatively } from "./getFileContentsRelatively.js";
 import { mapFilesByPackageName } from "./mapFilesByPackageName.js";
 import { SymbolRenames } from "./SymbolRenames.js";
@@ -68,9 +65,7 @@ export async function setupOverall(
   }
 
   const destinationDirections = new Set(
-    [...packageNameToFilesToMove.keys()].map((k) =>
-      workspace.getPackageDirection(k, destinationModule),
-    ),
+    [...packageNameToFilesToMove.keys()].map((k) => workspace.getPackageDirection(k, destinationModule)),
   );
 
   if (destinationDirections.size > 1) {
@@ -139,11 +134,13 @@ export async function setupOverall(
     logger.debug({ allFilesToMove: [...allFilesToMove] }, "wat");
 
     // TODO this is overkill now that we group by package
-    for (const [relPath, contents] of getFileContentsRelatively(
-      project,
-      packagePath,
-      allFilesToMove,
-    )) {
+    for (
+      const [relPath, contents] of getFileContentsRelatively(
+        project,
+        packagePath,
+        allFilesToMove,
+      )
+    ) {
       logger.trace("Adding %s to relativeFileInfoMap", relPath);
       Assert.ok(!relativeFileInfoMap.has(relPath));
 
@@ -174,7 +171,7 @@ export async function setupOverall(
               .map<[string, Info]>(([k, v]) => [
                 k,
                 { exportName: [v.targetName], isType: v.isType, originFile: v.targetFile },
-              ]),
+              ])
           ),
       );
 
@@ -244,8 +241,8 @@ function getPackageVersions(
       if (assignDepVersion(packageFile, depType, depName, ret)) success = true;
       if (assignDepVersion(packageFile, depType, `@types/${depName}`, ret)) success = true;
       if (
-        depName.startsWith("node:") &&
-        assignDepVersion(packageFile, depType, "@types/node", ret)
+        depName.startsWith("node:")
+        && assignDepVersion(packageFile, depType, "@types/node", ret)
       ) {
         success = true;
       }

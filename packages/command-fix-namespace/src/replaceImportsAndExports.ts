@@ -29,13 +29,12 @@ export function replaceImportsAndExports(
     );
 
     // Only the first reexport needs the `* as` syntax
-    const decl =
-      specifier.getFirstAncestorByKind(SyntaxKind.ExportDeclaration) ??
-      specifier.getFirstAncestorByKind(SyntaxKind.ImportDeclaration);
+    const decl = specifier.getFirstAncestorByKind(SyntaxKind.ExportDeclaration)
+      ?? specifier.getFirstAncestorByKind(SyntaxKind.ImportDeclaration);
     if (decl) {
       if (
-        findFileLocationForImportExport(projectContext, decl) ===
-        varDecl.getSourceFile().getFilePath()
+        findFileLocationForImportExport(projectContext, decl)
+          === varDecl.getSourceFile().getFilePath()
       ) {
         const varName = (specifier.getAliasNode() ?? specifier.getNameNode()).getText();
         replacements.replaceNode(named, `* as ${varName}`);
@@ -51,13 +50,15 @@ export function replaceImportsAndExports(
     // We need to fix that to be `export * as Bleh from "./foo"` and we need to fix places that
     // were importing from this file as well
     for (const sf of varDecl.getSourceFile().getProject().getSourceFiles()) {
-      for (const exportDecl of sf
-        .getChildSyntaxListOrThrow()
-        .getChildrenOfKind(SyntaxKind.ExportDeclaration)) {
+      for (
+        const exportDecl of sf
+          .getChildSyntaxListOrThrow()
+          .getChildrenOfKind(SyntaxKind.ExportDeclaration)
+      ) {
         if (exportDecl.getModuleSpecifierValue()) {
           if (
-            findFileLocationForImportExport(projectContext, exportDecl) ==
-            varDecl.getSourceFile().getFilePath()
+            findFileLocationForImportExport(projectContext, exportDecl)
+              == varDecl.getSourceFile().getFilePath()
           ) {
             if (exportDecl.isNamespaceExport() && exportDecl.getNamespaceExport() === undefined) {
               replacements.replaceNode(

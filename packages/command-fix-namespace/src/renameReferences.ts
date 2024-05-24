@@ -1,8 +1,5 @@
 import type { NamespaceContext } from "@eartool/replacements";
-import {
-  getProperRelativePathAsModuleSpecifierTo,
-  getSimplifiedNodeInfoAsString,
-} from "@eartool/utils";
+import { getProperRelativePathAsModuleSpecifierTo, getSimplifiedNodeInfoAsString } from "@eartool/utils";
 import { isAnyOf } from "@reduxjs/toolkit";
 import * as Assert from "node:assert";
 import type { SourceFile } from "ts-morph";
@@ -18,13 +15,13 @@ export function renameReferences(
   details: {
     type?:
       | {
-          exported: boolean;
-        }
+        exported: boolean;
+      }
       | undefined;
     concrete?:
       | {
-          exported: boolean;
-        }
+        exported: boolean;
+      }
       | undefined;
   },
 ) {
@@ -107,8 +104,7 @@ export function renameReferences(
             referencingSf,
             namespaceDecl.getSourceFile(),
           );
-          const newImportSpecifierText =
-            localName === importName ? localName : `${localName} as ${importName}`;
+          const newImportSpecifierText = localName === importName ? localName : `${localName} as ${importName}`;
 
           newFunction(referencingSf, moduleSpecifier, context, newImportSpecifierText);
         }

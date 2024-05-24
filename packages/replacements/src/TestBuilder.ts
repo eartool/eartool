@@ -85,13 +85,13 @@ export class TestBuilder {
         await pMap(
           changedFiles,
           async (filePath) =>
-            `\n//\n// <${filePath}>\n//\n\n` +
-            (await format(this.project.getSourceFile(filePath)!.getFullText(), {
+            `\n//\n// <${filePath}>\n//\n\n`
+            + (await format(this.project.getSourceFile(filePath)!.getFullText(), {
               parser: "typescript",
               tabWidth: 2,
               useTabs: false,
-            })) +
-            `\n\n//\n// </${filePath}>\n//\n\n`,
+            }))
+            + `\n\n//\n// </${filePath}>\n//\n\n`,
         )
       ).join("\n\n"),
     };

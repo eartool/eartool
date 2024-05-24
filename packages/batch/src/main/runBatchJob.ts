@@ -57,8 +57,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
     jobSpec.order,
     opts.workers,
     async ({ packageName, packagePath }) => {
-      const isInStartGroup =
-        startNodeLookups.length === 0 || startNodeLookups.some((a) => a.name === packageName);
+      const isInStartGroup = startNodeLookups.length === 0 || startNodeLookups.some((a) => a.name === packageName);
       const jobInfo: JobInfo = { packageName, packagePath, isInStartGroup, workspaceDir };
 
       progress.addProject(packageName);

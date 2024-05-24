@@ -126,10 +126,10 @@ export function renameVariablesInBody(
     const decl = sym.getDeclarations()[0];
     if (!decl) continue;
     if (
-      Node.isFunctionDeclaration(decl) ||
-      Node.isVariableDeclaration(decl) ||
-      Node.isBindingElement(decl) ||
-      Node.isBindingNamed(decl)
+      Node.isFunctionDeclaration(decl)
+      || Node.isVariableDeclaration(decl)
+      || Node.isBindingElement(decl)
+      || Node.isBindingNamed(decl)
     ) {
       // need to rename this
       const nameNode = decl.getNameNode()!.asKindOrThrow(SyntaxKind.Identifier);
@@ -157,8 +157,8 @@ export function getSymbolsExclusiveToFunctionBody(
 
   for (const sym of set) {
     if (
-      sym.getDeclarations().length == 0 ||
-      !sym
+      sym.getDeclarations().length == 0
+      || !sym
         .getDeclarations()
         .every((d) => d.getSourceFile() === node.getSourceFile() && d.getAncestors().includes(node))
     ) {

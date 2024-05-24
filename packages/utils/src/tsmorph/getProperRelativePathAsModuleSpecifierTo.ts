@@ -10,7 +10,7 @@ export function getProperRelativePathAsModuleSpecifierTo(
   fullpath: SourceFile | FilePath,
 ) {
   return (
-    rootFile.getRelativePathAsModuleSpecifierTo(fullpath as SourceFile) +
-    (needsJsSuffix.has(rootFile.getProject().getCompilerOptions().moduleResolution) ? ".js" : "")
+    rootFile.getRelativePathAsModuleSpecifierTo(fullpath as SourceFile)
+    + (needsJsSuffix.has(rootFile.getProject().getCompilerOptions().moduleResolution) ? ".js" : "")
   );
 }

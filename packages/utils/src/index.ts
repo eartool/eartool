@@ -11,11 +11,7 @@ export { findEntireQualifiedNameTree } from "./tsmorph/findEntireQualifiedNameTr
 export { findFileLocationForImportExport } from "./tsmorph/findFileLocationForImportExport.js";
 export { findNewNameInScope } from "./tsmorph/findNewNameInScope.js";
 export type { Export, ExportAlias, Import } from "./tsmorph/getAllImportsAndExports.js";
-export {
-  cloneMetadata,
-  getAllImportsAndExports,
-  mapGetOrInitialize,
-} from "./tsmorph/getAllImportsAndExports.js";
+export { cloneMetadata, getAllImportsAndExports, mapGetOrInitialize } from "./tsmorph/getAllImportsAndExports.js";
 export type { Metadata } from "./tsmorph/getAllImportsAndExports.js";
 export { getDeclaration } from "./tsmorph/getDeclaration.js";
 export { getDefaultIdentifier } from "./tsmorph/getDefaultIdentifier.js";
@@ -26,10 +22,7 @@ export { getNamespaceIdentifierOrExport } from "./tsmorph/getNamespaceIdentifier
 export { getProperRelativePathAsModuleSpecifierTo } from "./tsmorph/getProperRelativePathAsModuleSpecifierTo.js";
 export { getReferenceFindableLocalDeclarationOrThrow } from "./tsmorph/getReferenceFindableLocalDeclarationOrThrow.js";
 export { getRootFile } from "./tsmorph/getRootFile.js";
-export {
-  getSimplifiedNodeInfo,
-  getSimplifiedNodeInfoAsString,
-} from "./tsmorph/getSimplifiedNodeInfo.js";
+export { getSimplifiedNodeInfo, getSimplifiedNodeInfoAsString } from "./tsmorph/getSimplifiedNodeInfo.js";
 export { isInSameNamespace } from "./tsmorph/isInSameNamespace.js";
 export { isNamespaceDeclaration } from "./tsmorph/isNamespaceDeclaration.js";
 export {

@@ -27,8 +27,8 @@ export function calculateNamespaceRemovals(
   if (sf.getExportSymbols().length == 1) {
     if (namespaceDecl.getSymbolOrThrow().getDeclarations().length > 1) {
       projectContext.logger.debug(
-        "Can't do ultra simple replacement, falling back to complicated for " +
-          namespaceDecl.getName(),
+        "Can't do ultra simple replacement, falling back to complicated for "
+          + namespaceDecl.getName(),
       );
     } else {
       projectContext.logger.debug("Doing the ultra simple replacement");
@@ -106,9 +106,9 @@ function buildContext(projectContext: ProjectContext, namespaceDecl: ModuleDecla
       Assert.ok(name != null, "name was expected");
       context.addTypeRename(name, node.isExported());
     } else if (
-      Node.isFunctionDeclaration(node) ||
-      Node.isClassDeclaration(node) ||
-      Node.isEnumDeclaration(node)
+      Node.isFunctionDeclaration(node)
+      || Node.isClassDeclaration(node)
+      || Node.isEnumDeclaration(node)
     ) {
       // Can't have unnamed functions in namespace unless its invoked,
       // but that would be an expression statement so we are okay

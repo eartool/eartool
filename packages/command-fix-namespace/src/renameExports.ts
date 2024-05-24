@@ -19,13 +19,12 @@ export function renameExports(context: NamespaceContext) {
 
   const namespaceHasTwin = namespaceDecl.getSymbol()?.getDeclarations().length != 1;
 
-  const twins =
-    namespaceDecl
-      .getSymbol()
-      ?.getDeclarations()
-      .filter(
-        (n) => Node.hasName(n) && n.getName() === namespaceDecl.getName() && n !== namespaceDecl,
-      ) ?? [];
+  const twins = namespaceDecl
+    .getSymbol()
+    ?.getDeclarations()
+    .filter(
+      (n) => Node.hasName(n) && n.getName() === namespaceDecl.getName() && n !== namespaceDecl,
+    ) ?? [];
   const namespacesTwinIsType = twins.every(
     (n) => n.isKind(SyntaxKind.InterfaceDeclaration) || n.isKind(SyntaxKind.TypeAliasDeclaration),
   );
@@ -53,9 +52,9 @@ export function renameExports(context: NamespaceContext) {
 
       for (const [, exportInfo] of metadata.exports) {
         if (
-          exportInfo.type === "alias" &&
-          exportInfo.indirect &&
-          exportInfo.targetName === namespaceName
+          exportInfo.type === "alias"
+          && exportInfo.indirect
+          && exportInfo.targetName === namespaceName
         ) {
           const parts = exportInfo.name.split(".");
           context.recordRename([...parts, oldName], [...parts.slice(0, -1), localName]);
@@ -84,9 +83,8 @@ function processSingleExport(
     return;
   }
 
-  const isOneStepAway =
-    findFileLocationForImportExport(namespaceCtx, exportDecl) ===
-    namespaceCtx.targetSourceFile.getFilePath();
+  const isOneStepAway = findFileLocationForImportExport(namespaceCtx, exportDecl)
+    === namespaceCtx.targetSourceFile.getFilePath();
 
   logger.trace("Found '%s' in %s", exportDecl.print(), getSimplifiedNodeInfoAsString(exportDecl));
 
@@ -133,9 +131,8 @@ function processSingleExport(
       if (exported) {
         if (isRootExport(exportDecl.getSourceFile())) {
           // TODO Rename this to be clearer
-          const firstPart =
-            refNode.getParentIfKind(SyntaxKind.ExportSpecifier)?.getAliasNode()?.getText() ??
-            refNode.getText();
+          const firstPart = refNode.getParentIfKind(SyntaxKind.ExportSpecifier)?.getAliasNode()?.getText()
+            ?? refNode.getText();
           namespaceCtx.recordRename([firstPart, oldName], [importName]);
         }
 

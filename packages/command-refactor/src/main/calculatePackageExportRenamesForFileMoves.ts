@@ -89,9 +89,11 @@ export function calculatePackageExportRenamesForFileMoves(
 
     // FIXME TODO future we also need to deal with submodule imports
     // We need to deal with all the places that we import something from the destination
-    for (const decl of sf
-      .getImportDeclarations()
-      .filter((a) => a.getModuleSpecifierValue() === destinationModule)) {
+    for (
+      const decl of sf
+        .getImportDeclarations()
+        .filter((a) => a.getModuleSpecifierValue() === destinationModule)
+    ) {
       if (decl.getNamespaceImport()) {
         throw new Error(
           `We don't currently handle namespace imports. See file: ${sf.getFilePath()}`,
@@ -142,9 +144,8 @@ export function calculatePackageExportRenamesForFileMoves(
       });
       rootExports.set(exportOrExportAlias.targetName ?? exportOrExportAlias.name, {
         exportName: [exportOrExportAlias.name],
-        isType:
-          exportOrExportAlias.type === "type" ||
-          (exportOrExportAlias.type === "alias" && exportOrExportAlias.isType),
+        isType: exportOrExportAlias.type === "type"
+          || (exportOrExportAlias.type === "alias" && exportOrExportAlias.isType),
         originFile: exportOrExportAlias.targetFile,
       });
     }

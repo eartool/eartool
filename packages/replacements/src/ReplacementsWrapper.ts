@@ -74,10 +74,7 @@ export abstract class AbstractReplacementsWrapper implements Replacements {
   }
 }
 
-export class ReplacementsWrapperForContext
-  extends AbstractReplacementsWrapper
-  implements Replacements
-{
+export class ReplacementsWrapperForContext extends AbstractReplacementsWrapper implements Replacements {
   #context: ProjectContext;
 
   constructor(context: ProjectContext) {

@@ -83,10 +83,12 @@ export type BatchCommand<O extends { [key: string]: yargs.Options }, W, R extend
   | ((yargs: yargs.Argv<{}>) => yargs.Argv<{}>)
   | undefined;
 
-export type CliMainArgs<O extends { [key: string]: yargs.Options }> = yargs.ArgumentsCamelCase<
-  yargs.InferredOptionTypes<O>
-> &
-  StandardBatchArgs & { logger: Logger };
+export type CliMainArgs<O extends { [key: string]: yargs.Options }> =
+  & yargs.ArgumentsCamelCase<
+    yargs.InferredOptionTypes<O>
+  >
+  & StandardBatchArgs
+  & { logger: Logger };
 
 export type CliMainResult<W, R> = Promise<Omit<JobSpec<W, R>, "runInlineFunc">>;
 
@@ -125,10 +127,10 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
           const consoleLevel = args.progress
             ? "silent"
             : args.verbose >= 2
-              ? "trace"
-              : args.verbose >= 1
-                ? "debug"
-                : "info";
+            ? "trace"
+            : args.verbose >= 1
+            ? "debug"
+            : "info";
 
           const logger = createLogger(path.join(batchJobOpts.logDir, "main"), {
             level: "trace",
@@ -167,7 +169,7 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
           a.default,
           wireWorkerData.jobArgs.__parentIdentifier,
           wireWorkerData.packageName,
-        ),
+        )
       );
       // setupWorker((await workerMain()).default);
     }

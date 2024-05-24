@@ -20,9 +20,8 @@ export function replaceImportSpecifierWithNewName(
   } else {
     const comma = importSpecifier.getNameNode().getNextSiblingIfKind(SyntaxKind.CommaToken);
 
-    const before =
-      comma ??
-      importSpecifier
+    const before = comma
+      ?? importSpecifier
         .getParentSyntaxList()!
         .getNextSiblingIfKindOrThrow(SyntaxKind.CloseBraceToken);
 

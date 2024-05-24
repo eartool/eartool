@@ -36,11 +36,11 @@ export function replaceAllNamesInScope(
 
         autorenameIdentifierAndReferences(replacements, nameNode, scope, banNames);
       } else if (
-        Node.isVariableDeclaration(declaration) ||
-        Node.isFunctionDeclaration(declaration) ||
+        Node.isVariableDeclaration(declaration)
+        || Node.isFunctionDeclaration(declaration)
         // e.g. import * as Foo from ...
-        Node.isNamespaceImport(declaration) ||
-        Node.isNamed(declaration)
+        || Node.isNamespaceImport(declaration)
+        || Node.isNamed(declaration)
       ) {
         const nameNode = declaration.getNameNode()!.asKindOrThrow(SyntaxKind.Identifier);
         if (!banNames.has(nameNode.getText())) continue;

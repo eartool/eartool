@@ -23,10 +23,10 @@ function renameOriginalSymbol(context: NamespaceContext, originalName: string) {
   const decl = decls[0];
 
   if (
-    !Node.isVariableDeclaration(decl) &&
-    !Node.isInterfaceDeclaration(decl) &&
-    !Node.isTypeAliasDeclaration(decl) &&
-    !Node.isNameable(decl)
+    !Node.isVariableDeclaration(decl)
+    && !Node.isInterfaceDeclaration(decl)
+    && !Node.isTypeAliasDeclaration(decl)
+    && !Node.isNameable(decl)
   ) {
     context.logger.error(
       "Expected a name for %s in statement `%s`",

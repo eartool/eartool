@@ -22,7 +22,7 @@ export function addReexports(
     .map(([name, { exportName, isType }]) =>
       name === exportName[0]
         ? name
-        : `${allAreTypes || !isType ? "" : "type "}${name} as ${exportName}`,
+        : `${allAreTypes || !isType ? "" : "type "}${name} as ${exportName}`
     )
     .join(", ");
 

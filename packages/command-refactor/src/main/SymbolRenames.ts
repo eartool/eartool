@@ -24,8 +24,7 @@ export class SymbolRenames {
   }
 
   addRename(packageName: PackageName | FilePath, arg1: PackageExportRename) {
-    const existing =
-      this.raw.has(packageName) && this.raw.get(packageName).find((a) => deepEqual(a, arg1));
+    const existing = this.raw.has(packageName) && this.raw.get(packageName).find((a) => deepEqual(a, arg1));
     if (!existing) {
       this.raw.put(packageName, arg1);
     }

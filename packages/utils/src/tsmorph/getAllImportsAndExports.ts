@@ -104,8 +104,8 @@ function getAllImportsAndExportsPrivate(ctx: PackageContext): ReadonlyMap<FilePa
   }
 
   ctx.logger.trace(
-    "getAllImportsAndExportsPrivate before returning: " +
-      util.inspect(ret, { depth: 6, colors: true }),
+    "getAllImportsAndExportsPrivate before returning: "
+      + util.inspect(ret, { depth: 6, colors: true }),
   );
 
   return ret;
@@ -162,9 +162,11 @@ function calculateMetadataForSf(
 
       Assert.ok(
         metadata.imports.has(localName) === false,
-        `Seems we already have a default export for ${getSimplifiedNodeInfoAsString(
-          importSpecifier,
-        )}`,
+        `Seems we already have a default export for ${
+          getSimplifiedNodeInfoAsString(
+            importSpecifier,
+          )
+        }`,
       );
 
       metadata.imports.set(localName, {
@@ -257,11 +259,11 @@ function calculateMetadataForSf(
         handleDeclaration(decl, metadata);
       }
     } else if (
-      childNode.isKind(SyntaxKind.FunctionDeclaration) ||
-      childNode.isKind(SyntaxKind.VariableDeclaration) ||
-      childNode.isKind(SyntaxKind.TypeAliasDeclaration) ||
-      childNode.isKind(SyntaxKind.InterfaceDeclaration) ||
-      childNode.isKind(SyntaxKind.ModuleDeclaration)
+      childNode.isKind(SyntaxKind.FunctionDeclaration)
+      || childNode.isKind(SyntaxKind.VariableDeclaration)
+      || childNode.isKind(SyntaxKind.TypeAliasDeclaration)
+      || childNode.isKind(SyntaxKind.InterfaceDeclaration)
+      || childNode.isKind(SyntaxKind.ModuleDeclaration)
     ) {
       handleDeclaration(childNode, metadata);
     } else {
@@ -280,10 +282,9 @@ function handleDeclaration(
     | ModuleDeclaration,
   metadata: MutableMetadata,
 ) {
-  const expectedType =
-    decl.isKind(SyntaxKind.FunctionDeclaration) || decl.isKind(SyntaxKind.VariableDeclaration)
-      ? "concrete"
-      : "type";
+  const expectedType = decl.isKind(SyntaxKind.FunctionDeclaration) || decl.isKind(SyntaxKind.VariableDeclaration)
+    ? "concrete"
+    : "type";
 
   const isExported = decl.getCombinedModifierFlags() & ts.ModifierFlags.Export;
   const isDefaultExport = decl.getCombinedModifierFlags() & ts.ModifierFlags.Default;

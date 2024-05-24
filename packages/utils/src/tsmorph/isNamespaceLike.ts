@@ -3,12 +3,13 @@ import { Node, SyntaxKind } from "ts-morph";
 
 export function getNamespaceLike(node: Node):
   | {
-      syntaxList: SyntaxList;
-      startNode: Node;
-      kids: Node[] | ObjectLiteralElementLike[];
-      varDecl?: VariableDeclaration | undefined;
-    }
-  | undefined {
+    syntaxList: SyntaxList;
+    startNode: Node;
+    kids: Node[] | ObjectLiteralElementLike[];
+    varDecl?: VariableDeclaration | undefined;
+  }
+  | undefined
+{
   if (Node.isModuleDeclaration(node)) {
     return {
       syntaxList: node.getChildSyntaxListOrThrow(),

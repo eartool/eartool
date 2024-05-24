@@ -47,7 +47,7 @@ export function addSingleFileReplacementsForRenames(
       [...fullFilePathRenames].flatMap(([filePathOrModule, renames]) =>
         renames
           .map((a) => `  - ${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
-          .join("\n"),
+          .join("\n")
       ),
     );
   } else {
@@ -117,10 +117,12 @@ function accumulateRenamesForDecl(
   const maybeNamespaceIdentifier = getNamespaceIdentifier(decl);
   if (maybeNamespaceIdentifier) {
     let found;
-    for (const { fullyQualifiedInstance, packageExportRename } of getFullyQualifiedReferences(
-      maybeNamespaceIdentifier,
-      prependRenames(renamesForPackage, maybeNamespaceIdentifier),
-    )) {
+    for (
+      const { fullyQualifiedInstance, packageExportRename } of getFullyQualifiedReferences(
+        maybeNamespaceIdentifier,
+        prependRenames(renamesForPackage, maybeNamespaceIdentifier),
+      )
+    ) {
       found = packageExportRename; // only one in this case
       if (packageExportRename.to) {
         const fullReplacement = packageExportRename.to.join(".");
@@ -138,10 +140,12 @@ function accumulateRenamesForDecl(
 
   const toMigrate: [ImportSpecifier | ExportSpecifier, string | undefined, string][] = [];
   for (const spec of getNamedSpecifiers(decl)) {
-    for (const { fullyQualifiedInstance, packageExportRename } of getFullyQualifiedReferences(
-      spec.getAliasNode() ?? spec.getNameNode(),
-      renamesForPackage,
-    )) {
+    for (
+      const { fullyQualifiedInstance, packageExportRename } of getFullyQualifiedReferences(
+        spec.getAliasNode() ?? spec.getNameNode(),
+        renamesForPackage,
+      )
+    ) {
       if (packageExportRename.to) {
         const fullReplacement = packageExportRename.to.join(".");
         replacements.replaceNode(fullyQualifiedInstance, fullReplacement);
@@ -170,9 +174,9 @@ function accumulateRenamesForDecl(
   }
 
   if (
-    toMigrate.length === getNamedSpecifiers(decl).length &&
-    toMigrate.length > 0 &&
-    !getDefaultIdentifier(decl)
+    toMigrate.length === getNamedSpecifiers(decl).length
+    && toMigrate.length > 0
+    && !getDefaultIdentifier(decl)
   ) {
     // this will break when there are different destinations
     if (decl.getModuleSpecifier()?.getLiteralText() != toMigrate[0][2]) {
@@ -211,7 +215,7 @@ function getFullyQualifiedReferences(
             ? [{ fullyQualifiedInstance, packageExportRename, refNode }]
             : [];
         }),
-      ),
+      )
     ),
   );
 }

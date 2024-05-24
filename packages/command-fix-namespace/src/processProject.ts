@@ -68,11 +68,11 @@ export async function processProject(
   // * writing  `[]
   function calculateTotalWorkUnits(changedFilesCount: number) {
     return (
-      (removeNamespaces ? totalFiles : 0) +
-      (additionalRenames ? totalFiles : 0) +
-      (additionalRenames ? totalFiles : 0) +
-      (dryRun ? 0 : changedFilesCount) +
-      (shouldOrganizeImports ? changedFilesCount : 0)
+      (removeNamespaces ? totalFiles : 0)
+      + (additionalRenames ? totalFiles : 0)
+      + (additionalRenames ? totalFiles : 0)
+      + (dryRun ? 0 : changedFilesCount)
+      + (shouldOrganizeImports ? changedFilesCount : 0)
     );
   }
 
