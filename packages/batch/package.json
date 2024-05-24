@@ -34,7 +34,7 @@
     "cli-progress": "^3.12.0",
     "p-queue": "^7.4.1",
     "pino": "^8.16.2",
-    "pino-abstract-transport": "^1.1.0",
+    "pino-abstract-transport": "^1.2.0",
     "pino-pretty": "^10.2.3",
     "tslib": "^2.6.2",
     "yargs": "^17.7.2"
