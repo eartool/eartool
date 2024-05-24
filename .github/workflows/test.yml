@@ -27,7 +27,6 @@ jobs:
       - name: Install Deps
         run: pnpm install
       - run: pnpm run build
-      - run: pnpm test
-      - run: pnpm check:prettier
+      - run: pnpm check:dprint
       - run: pnpm check:eslint
-      - run: pnpm check:jest
+      - run: pnpm check:test
