@@ -1,4 +1,3 @@
-import { createTestLogger } from "@eartool/test-utils";
 import { describe, expect, it } from "vitest";
 import { addSingleFileReplacementsForRenames } from "./addSingleFileReplacementsForRenames.js";
 import { TestBuilder } from "./TestBuilder.js";
