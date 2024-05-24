@@ -94,7 +94,11 @@ export function prettyStringForPackageExportRenamesMap(
   return [...packageExportRenamesMap]
     .map(
       ([filePathOrModule, renames]) =>
-        `  - ${filePathOrModule.startsWith("/") ? path.relative(ctx.packagePath, filePathOrModule) : filePathOrModule}:\n` +
+        `  - ${
+          filePathOrModule.startsWith("/")
+            ? path.relative(ctx.packagePath, filePathOrModule)
+            : filePathOrModule
+        }:\n` +
         renames.map((a) => `    - ${chalk.grey(a.from)} to package ${a.toFileOrModule}`).join("\n"),
     )
     .join("\n");

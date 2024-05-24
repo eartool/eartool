@@ -125,8 +125,9 @@ function populateThrough(
   if (!target) throw new Error("Should have found the target file: " + info.targetFile);
 
   const targetsExport = target.exports.get(info.targetName ?? info.name);
-  if (!targetsExport)
+  if (!targetsExport) {
     throw new Error(`Should have found the target: ${info.targetName} in ${info.targetFile}`);
+  }
 
   info.via = targetsExport;
   if (targetsExport.type !== "alias") return targetsExport;

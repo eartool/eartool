@@ -9,7 +9,8 @@
     "**/node_modules",
     "**/*-lock.json",
     "**/*.log.json",
-    "**/vitest.config.js"
+    "**/vitest.config.js",
+    "packages/*/lib/**"
   ],
   "plugins": [
     "https://plugins.dprint.dev/typescript-0.90.5.wasm",
