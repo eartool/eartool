@@ -1,5 +1,5 @@
 import * as path from "node:path";
-import { ModuleKind, type ExportDeclaration, type ImportDeclaration } from "ts-morph";
+import { type ExportDeclaration, type ImportDeclaration, ModuleKind } from "ts-morph";
 import type { PackageContext } from "./workspace/PackageContext.js";
 
 export function getPossibleFileLocations(
@@ -52,7 +52,8 @@ export function getPossibleFileLocations(
     .flatMap((d) =>
       (esModule
         ? [".ts", ".tsx", ".js"]
-        : [".ts", ".tsx", ".js", "/index.ts", "/index.tsx", "/index.js"]
-      ).map((ext) => path.resolve(d.getPath(), relPathToRootDir + ext)),
+        : [".ts", ".tsx", ".js", "/index.ts", "/index.tsx", "/index.js"]).map((ext) =>
+          path.resolve(d.getPath(), relPathToRootDir + ext)
+        )
     );
 }

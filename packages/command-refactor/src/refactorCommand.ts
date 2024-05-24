@@ -1,13 +1,13 @@
-import * as fs from "node:fs";
-import * as path from "node:path";
 import { makeBatchCommand } from "@eartool/batch";
 import { type JobSpec } from "@eartool/batch";
 import { createWorkspaceFromDisk } from "@eartool/utils";
 import { maybeLoadProject, type PackageJson } from "@eartool/utils";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import type { Logger } from "pino";
+import { getJobArgs } from "./main/getJobArgs.js";
 import { setupOverall } from "./main/setupOverall.js";
 import type { JobArgs } from "./shared/JobArgs.js";
-import { getJobArgs } from "./main/getJobArgs.js";
 
 /*
 There are a lot of scenarios I want to be able to do easily.
@@ -37,7 +37,7 @@ Concrete Example: PULL UP stream
   - cool-app-redux/src/foo.ts to cool-app-api
   - cool-app-redux/src/moo.ts has a dependency in package on ./foo.ts
   - cool-app-redux/src/foo.ts has a dependency in package on ./bar.ts
-  - We would be required to also push ./bar.ts up. 
+  - We would be required to also push ./bar.ts up.
   - If ./index.ts re-exports, then we need to update all upstream to
     ensure they also depend on cool-app-api and reexport
 
@@ -46,12 +46,12 @@ Concrete Example: MOVE SIDEWAYS
   - cool-app-redux/src/moo.ts has a dependency in package on ./foo.ts
   - cool-app-redux/src/foo.ts has a dependency in package on ./bar.ts
   - We can make `cool-app-other` depend on `cool-app-redux` and ensure we export from ./bar.ts
-    OR we could push over ./bar.ts. 
+    OR we could push over ./bar.ts.
   - If ./index.ts re-exports, then we need to update all upstream to
     ensure they also depend on cool-app-other
 
 
-Rough API idea: 
+Rough API idea:
   - Multiple sets of { move: [file/path.ts, file/path2.ts], toPackage: "cool-app-redux"}
     1. Discover package for each file
     1. Determine if we are pulling UP/DOWN or sideways

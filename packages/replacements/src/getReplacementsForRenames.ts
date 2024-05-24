@@ -1,6 +1,6 @@
 import type { PackageContext, PackageName } from "@eartool/utils";
-import type { PackageExportRename } from "./PackageExportRename.js";
 import { addSingleFileReplacementsForRenames } from "./addSingleFileReplacementsForRenames.js";
+import type { PackageExportRename } from "./PackageExportRename.js";
 import type { Replacements } from "./Replacements.js";
 
 // TODO This is going to be reall inefficient

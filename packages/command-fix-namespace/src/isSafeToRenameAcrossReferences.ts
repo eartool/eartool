@@ -1,5 +1,5 @@
-import { isInSameNamespace, getReferenceFindableLocalDeclarationOrThrow } from "@eartool/utils";
 import type { NamespaceContext } from "@eartool/replacements";
+import { getReferenceFindableLocalDeclarationOrThrow, isInSameNamespace } from "@eartool/utils";
 import { getNewName } from "./getNewName.js";
 import { getRelevantNodeFromRefOrThrow } from "./getRelevantNodeFromRefOrThrow.js";
 

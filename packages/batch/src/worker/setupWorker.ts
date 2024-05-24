@@ -1,8 +1,8 @@
-import { MessagePort, parentPort, workerData } from "node:worker_threads";
 import { ok } from "node:assert";
+import { MessagePort, parentPort, workerData } from "node:worker_threads";
 import type { Logger } from "pino";
-import type { Status } from "../shared/MessagesToMain.js";
 import type { JobDef } from "../shared/JobDef.js";
+import type { Status } from "../shared/MessagesToMain.js";
 import { runWorker } from "./runWorker.js";
 
 export interface BaseWorkerData<T> {

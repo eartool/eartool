@@ -1,9 +1,9 @@
+import type { ProjectContext, Replacements } from "@eartool/replacements";
+import { findFileLocationForImportExport } from "@eartool/utils";
+import { isAnyOf } from "@reduxjs/toolkit";
 import * as Assert from "assert";
 import type { ModuleDeclaration, VariableDeclaration } from "ts-morph";
 import { Node, SyntaxKind } from "ts-morph";
-import type { ProjectContext, Replacements } from "@eartool/replacements";
-import { isAnyOf } from "@reduxjs/toolkit";
-import { findFileLocationForImportExport } from "@eartool/utils";
 
 export function replaceImportsAndExports(
   varDecl: VariableDeclaration | ModuleDeclaration,
@@ -25,19 +25,16 @@ export function replaceImportsAndExports(
     if (named.getElements().length != 1) continue;
     Assert.ok(
       named.getElements().length == 1,
-      `Expected only one element in '${named.getText()}', file: ${named
-        .getSourceFile()
-        .getFilePath()} while looking for ${specifier.getText()}`,
+      `Expected only one element in '${named.getText()}', file: ${named.getSourceFile().getFilePath()} while looking for ${specifier.getText()}`,
     );
 
     // Only the first reexport needs the `* as` syntax
-    const decl =
-      specifier.getFirstAncestorByKind(SyntaxKind.ExportDeclaration) ??
-      specifier.getFirstAncestorByKind(SyntaxKind.ImportDeclaration);
+    const decl = specifier.getFirstAncestorByKind(SyntaxKind.ExportDeclaration)
+      ?? specifier.getFirstAncestorByKind(SyntaxKind.ImportDeclaration);
     if (decl) {
       if (
-        findFileLocationForImportExport(projectContext, decl) ===
-        varDecl.getSourceFile().getFilePath()
+        findFileLocationForImportExport(projectContext, decl)
+          === varDecl.getSourceFile().getFilePath()
       ) {
         const varName = (specifier.getAliasNode() ?? specifier.getNameNode()).getText();
         replacements.replaceNode(named, `* as ${varName}`);
@@ -53,13 +50,15 @@ export function replaceImportsAndExports(
     // We need to fix that to be `export * as Bleh from "./foo"` and we need to fix places that
     // were importing from this file as well
     for (const sf of varDecl.getSourceFile().getProject().getSourceFiles()) {
-      for (const exportDecl of sf
-        .getChildSyntaxListOrThrow()
-        .getChildrenOfKind(SyntaxKind.ExportDeclaration)) {
+      for (
+        const exportDecl of sf
+          .getChildSyntaxListOrThrow()
+          .getChildrenOfKind(SyntaxKind.ExportDeclaration)
+      ) {
         if (exportDecl.getModuleSpecifierValue()) {
           if (
-            findFileLocationForImportExport(projectContext, exportDecl) ==
-            varDecl.getSourceFile().getFilePath()
+            findFileLocationForImportExport(projectContext, exportDecl)
+              == varDecl.getSourceFile().getFilePath()
           ) {
             if (exportDecl.isNamespaceExport() && exportDecl.getNamespaceExport() === undefined) {
               replacements.replaceNode(

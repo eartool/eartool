@@ -1,6 +1,6 @@
-import { Node, type SourceFile } from "ts-morph";
 import type { ProjectContext, Replacements } from "@eartool/replacements";
-import { isNamespaceLike } from "@eartool/utils";
+import { getNamespaceLike } from "@eartool/utils";
+import { Node, type SourceFile } from "ts-morph";
 import { replaceImportsAndExports } from "./replaceImportsAndExports.js";
 import { unwrapNamespaceInFile } from "./unwrapNamespaceInFile.js";
 
@@ -23,12 +23,15 @@ export function calculateNamespaceLikeRemovals(
   }
 
   for (const statement of sf.getStatements()) {
-    if (!isNamespaceLike(statement)) continue;
+    const namespaceLike = getNamespaceLike(statement);
+    if (!namespaceLike) continue;
 
     // not bothering with this case right now
-    if (statement.getDeclarations().length > 1) continue;
+    // covered by namespacelike check
+    // if (statement.getDeclarations().length > 1) continue;
 
-    const varDecl = statement.getDeclarations()[0];
+    const varDecl = namespaceLike.varDecl;
+    if (!varDecl) continue;
 
     replaceImportsAndExports(varDecl, replacements, projectContext);
     unwrapNamespaceInFile(varDecl, replacements);

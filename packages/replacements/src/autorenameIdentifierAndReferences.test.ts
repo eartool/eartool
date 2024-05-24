@@ -1,7 +1,7 @@
-import { describe, it, expect } from "@jest/globals";
 import { SyntaxKind } from "ts-morph";
-import { TestBuilder } from "./TestBuilder.js";
+import { describe, expect, it } from "vitest";
 import { autorenameIdentifierAndReferences } from "./autorenameIdentifierAndReferences.js";
+import { TestBuilder } from "./TestBuilder.js";
 
 describe(autorenameIdentifierAndReferences, () => {
   it("renames a short hand binding element ", async () => {
@@ -19,13 +19,13 @@ describe(autorenameIdentifierAndReferences, () => {
           .get("/foo.ts")!
           .getStatementByKindOrThrow(SyntaxKind.FunctionDeclaration);
 
-        const q = funcDecl
+        const identifier = funcDecl
           .getStatementByKindOrThrow(SyntaxKind.ExpressionStatement)
           .getExpressionIfKindOrThrow(SyntaxKind.CallExpression)
           .getArguments()[0]
           .asKindOrThrow(SyntaxKind.Identifier);
 
-        autorenameIdentifierAndReferences(replacements, q, funcDecl, new Set());
+        autorenameIdentifierAndReferences(replacements, identifier, funcDecl, new Set());
       })
       .build();
 
@@ -64,13 +64,13 @@ describe(autorenameIdentifierAndReferences, () => {
           .get("/foo.ts")!
           .getStatementByKindOrThrow(SyntaxKind.FunctionDeclaration);
 
-        const q = funcDecl
+        const identifier = funcDecl
           .getStatementByKindOrThrow(SyntaxKind.ExpressionStatement)
           .getExpressionIfKindOrThrow(SyntaxKind.CallExpression)
           .getArguments()[0]
           .asKindOrThrow(SyntaxKind.Identifier);
 
-        autorenameIdentifierAndReferences(replacements, q, funcDecl, new Set("moo"));
+        autorenameIdentifierAndReferences(replacements, identifier, funcDecl, new Set("moo"));
       })
       .build();
 
@@ -110,9 +110,9 @@ describe(autorenameIdentifierAndReferences, () => {
         const callExpression = sf
           .getStatementByKindOrThrow(SyntaxKind.ExpressionStatement)
           .getExpressionIfKindOrThrow(SyntaxKind.CallExpression);
-        const q = callExpression.getArguments()[0].asKindOrThrow(SyntaxKind.Identifier);
+        const identifier = callExpression.getArguments()[0].asKindOrThrow(SyntaxKind.Identifier);
 
-        autorenameIdentifierAndReferences(replacements, q, sf, new Set("Bar"));
+        autorenameIdentifierAndReferences(replacements, identifier, sf, new Set("Bar"));
       })
       .build();
 
@@ -152,9 +152,9 @@ describe(autorenameIdentifierAndReferences, () => {
         const callExpression = sf
           .getStatementByKindOrThrow(SyntaxKind.ExpressionStatement)
           .getExpressionIfKindOrThrow(SyntaxKind.CallExpression);
-        const q = callExpression.getArguments()[0].asKindOrThrow(SyntaxKind.Identifier);
+        const identifier = callExpression.getArguments()[0].asKindOrThrow(SyntaxKind.Identifier);
 
-        autorenameIdentifierAndReferences(replacements, q, sf, new Set("Bar"));
+        autorenameIdentifierAndReferences(replacements, identifier, sf, new Set("Bar"));
       })
       .build();
 

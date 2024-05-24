@@ -144,29 +144,41 @@ export function createInitialWorkspaceBuilder(esm = false) {
       p.addFile(
         "src/index.ts",
         `
-        export {Icon} from "./components/nested/Icon${ext}";
-        export {Preview} from "./components/nested/Preview${ext}";
-      `,
+            export {Icon} from "./components/nested/Icon${ext}";
+            export {Preview} from "./components/nested/Preview${ext}";
+          `,
       )
+        .addFile(
+          "src/components/nested/index.ts",
+          `
+            export {word as bigWord} from "./icons/index${ext}";
+          `,
+        )
         .addFile(
           "src/components/nested/Icon.tsx",
           `
-        import {word} from "./icons/word${ext}";
-        export function Icon() { return <div>Icon</div>; }
-      `,
-        )
-        .addFile(
-          "src/components/nested/icons/word.ts",
-          `
-        export const word = "hi";
-      `,
+            import {bigWord} from "./index${ext}";
+            export function Icon() { return <div>Icon</div>; }
+          `,
         )
         .addFile(
           "src/components/nested/Preview.tsx",
           `
-        import {Icon} from "./Icon${ext}";
-        export function Preview() { return <Icon/>; }
-      `,
+            import {Icon} from "./Icon${ext}";
+            export function Preview() { return <Icon/>; }
+          `,
+        )
+        .addFile(
+          "src/components/nested/icons/index.ts",
+          `
+            export {word} from "./word${ext}";
+          `,
+        )
+        .addFile(
+          "src/components/nested/icons/word.ts",
+          `
+            export const word = "hi";
+          `,
         );
     });
 }

@@ -9,7 +9,7 @@ export interface Replacements {
   deleteNode(node: Node, keepTrivia?: boolean): void;
   insertBefore(node: Node, newValue: string): void;
   insertAfter(node: Node, newValue: string): void;
-  removeNextSiblingIfComma(q: Node): void;
+  removeNextSiblingIfComma(node: Node): void;
 
   getReplacementsMap(): Map<string, Replacement[]>;
 

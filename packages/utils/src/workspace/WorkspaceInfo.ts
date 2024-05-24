@@ -33,17 +33,17 @@ export class PackageInfo {
 
 type PackageLookupCriteria =
   | {
-      name: PackageName;
-      packagePath?: never;
-    }
+    name: PackageName;
+    packagePath?: never;
+  }
   | {
-      name?: never;
-      packagePath: FilePath;
-    }
+    name?: never;
+    packagePath: FilePath;
+  }
   | {
-      name: PackageName;
-      packagePath: FilePath;
-    };
+    name: PackageName;
+    packagePath: FilePath;
+  };
 
 export type RunTaskCallback = (args: {
   packagePath: FilePath;
@@ -80,7 +80,7 @@ export class Workspace {
 
   public getPackageByNameOrThrow(name: PackageName) {
     const ret = this.#nameToNode.get(name);
-    Assert.ok(ret != null, `Expected to find a package named '${name}' but couldnt`);
+    Assert.ok(ret != null, `Expected to find a package named '${name}' but couldn't`);
     return ret;
   }
 
@@ -99,8 +99,8 @@ export class Workspace {
     if (lookups.length > 0) {
       toVisit.push(...this.nodesFor(lookups));
     } else {
-      for (const q of this.#nameToNode.values()) {
-        if (q.depsByName.size == 0) toVisit.push(q);
+      for (const packageInfo of this.#nameToNode.values()) {
+        if (packageInfo.depsByName.size == 0) toVisit.push(packageInfo);
       }
     }
 
@@ -187,9 +187,9 @@ export class Workspace {
       }
     } else if (startNodes.length === 0) {
       // seed todo with projects that have no dependents
-      for (const q of this.#nameToNode.values()) {
-        if (q.depsByName.size == 0) {
-          createTaskIfReady(q);
+      for (const packageInfo of this.#nameToNode.values()) {
+        if (packageInfo.depsByName.size == 0) {
+          createTaskIfReady(packageInfo);
         }
       }
     }
@@ -198,8 +198,8 @@ export class Workspace {
 
     function createTaskIfReady(node: PackageInfo) {
       if (
-        statuses.get(node) === "todo" &&
-        (allDepsOfPackagePathSatisified(node) || order == "any")
+        statuses.get(node) === "todo"
+        && (allDepsOfPackagePathSatisfied(node) || order == "any")
       ) {
         statuses.set(node, "scheduled");
         queue.add(async () => {
@@ -215,9 +215,9 @@ export class Workspace {
       }
     }
 
-    function allDepsOfPackagePathSatisified(node: PackageInfo) {
-      for (const q of node.depsByName.values()) {
-        const status = statuses.get(q);
+    function allDepsOfPackagePathSatisfied(node: PackageInfo) {
+      for (const packageInfo of node.depsByName.values()) {
+        const status = statuses.get(packageInfo);
         if (status !== "complete" && status !== "skipped") {
           return false;
         }
@@ -229,8 +229,8 @@ export class Workspace {
   #createInitialTaskStatuses(startNodes: PackageInfo[]) {
     const statuses = new Map<PackageInfo, "skipped" | "scheduled" | "complete" | "todo">();
     // we manually set todo in the skipped case
-    for (const q of this.#nameToNode.values()) {
-      statuses.set(q, startNodes.length > 0 ? "skipped" : "todo");
+    for (const packageInfo of this.#nameToNode.values()) {
+      statuses.set(packageInfo, startNodes.length > 0 ? "skipped" : "todo");
     }
     if (startNodes.length > 0) {
       for (const packageDir of this.walkTreeDownstreamFrom(...startNodes)) {

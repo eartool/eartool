@@ -1,7 +1,7 @@
-import { describe, expect, it } from "@jest/globals";
-import { Project } from "ts-morph";
-import { createConsoleLogger } from "@eartool/utils";
 import { createTestLogger } from "@eartool/test-utils";
+import { createConsoleLogger } from "@eartool/utils";
+import { Project } from "ts-morph";
+import { describe, expect, it } from "vitest";
 import { getReplacementsForRenames } from "./getReplacementsForRenames.js";
 import type { Replacement } from "./Replacement.js";
 import { SimpleReplacements } from "./ReplacementsWrapper.js";

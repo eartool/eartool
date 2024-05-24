@@ -1,6 +1,6 @@
-import * as Assert from "assert";
 import { filterPkgsBySelectorObjects } from "@pnpm/filter-workspace-packages";
 import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
+import * as Assert from "assert";
 import { Workspace } from "./WorkspaceInfo.js";
 
 export async function createWorkspaceFromDisk(workspaceDir: string) {

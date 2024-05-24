@@ -1,10 +1,10 @@
+import { findNewNameInScope } from "@eartool/utils";
 import * as Assert from "assert";
 import { Node, SyntaxKind } from "ts-morph";
-import { findNewNameInScope } from "@eartool/utils";
-import type { Replacements } from "./Replacements.js";
-import { replaceImportSpecifierWithNewName } from "./replaceImportSpecifierWithNewName.js";
 import { addReplacementsForRenamedIdentifier } from "./addReplacementsForRenamedIdentifier.js";
 import { autorenameIdentifierAndReferences } from "./autorenameIdentifierAndReferences.js";
+import { replaceImportSpecifierWithNewName } from "./replaceImportSpecifierWithNewName.js";
+import type { Replacements } from "./Replacements.js";
 
 export function replaceAllNamesInScope(
   replacements: Replacements,
@@ -36,11 +36,11 @@ export function replaceAllNamesInScope(
 
         autorenameIdentifierAndReferences(replacements, nameNode, scope, banNames);
       } else if (
-        Node.isVariableDeclaration(declaration) ||
-        Node.isFunctionDeclaration(declaration) ||
+        Node.isVariableDeclaration(declaration)
+        || Node.isFunctionDeclaration(declaration)
         // e.g. import * as Foo from ...
-        Node.isNamespaceImport(declaration) ||
-        Node.isNamed(declaration)
+        || Node.isNamespaceImport(declaration)
+        || Node.isNamed(declaration)
       ) {
         const nameNode = declaration.getNameNode()!.asKindOrThrow(SyntaxKind.Identifier);
         if (!banNames.has(nameNode.getText())) continue;

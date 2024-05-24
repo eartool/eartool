@@ -8,17 +8,20 @@ export function processReplacements(project: Project, replacementsMap: Map<strin
       return a.start - b.start;
     });
 
-    const original = project.getSourceFileOrThrow(filePath).getFullText(); //.readFileSync(filePath); // We need to save this contents earlier
+    const original = project.getSourceFileOrThrow(filePath).getFullText(); // .readFileSync(filePath); // We need to save this contents earlier
 
     const parts = [];
     let prevEnd = 0;
     for (const replacement of sortedReplacements) {
-      if (prevEnd > replacement.start)
+      if (prevEnd > replacement.start) {
         throw new Error(
-          `invairant violated. overlapping replacements arent allowed. check: ${JSON.stringify(
-            sortedReplacements,
-          )}`,
+          `invairant violated. overlapping replacements arent allowed. check: ${
+            JSON.stringify(
+              sortedReplacements,
+            )
+          }`,
         );
+      }
       parts.push(original.slice(prevEnd, replacement.start));
       parts.push(replacement.newValue);
       prevEnd = replacement.end;

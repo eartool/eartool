@@ -1,16 +1,16 @@
-import type { Logger } from "pino";
 import {
-  ProjectContext,
-  SimpleReplacements,
-  processReplacements,
   addSingleFileReplacementsForRenames,
+  processReplacements,
+  ProjectContext,
   ReplacementsWrapperForContext,
+  SimpleReplacements,
 } from "@eartool/replacements";
+import type { PackageExportRename } from "@eartool/replacements";
 import { dropDtsFiles, organizeImportsOnFiles } from "@eartool/utils";
 import type { PackageContext, PackageName } from "@eartool/utils";
-import type { PackageExportRename } from "@eartool/replacements";
-import { calculateNamespaceRemovals } from "./calculateNamespaceRemovals.js";
+import type { Logger } from "pino";
 import { calculateNamespaceLikeRemovals } from "./calculateNamespaceLikeRemovals.js";
+import { calculateNamespaceRemovals } from "./calculateNamespaceRemovals.js";
 
 export interface Status {
   totalWorkUnits: number;
@@ -68,11 +68,11 @@ export async function processProject(
   // * writing  `[]
   function calculateTotalWorkUnits(changedFilesCount: number) {
     return (
-      (removeNamespaces ? totalFiles : 0) +
-      (additionalRenames ? totalFiles : 0) +
-      (additionalRenames ? totalFiles : 0) +
-      (dryRun ? 0 : changedFilesCount) +
-      (shouldOrganizeImports ? changedFilesCount : 0)
+      (removeNamespaces ? totalFiles : 0)
+      + (additionalRenames ? totalFiles : 0)
+      + (additionalRenames ? totalFiles : 0)
+      + (dryRun ? 0 : changedFilesCount)
+      + (shouldOrganizeImports ? changedFilesCount : 0)
     );
   }
 

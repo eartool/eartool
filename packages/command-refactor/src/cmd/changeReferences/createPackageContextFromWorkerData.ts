@@ -1,13 +1,13 @@
-import * as path from "node:path";
 import type { WorkerData } from "@eartool/batch";
 import { maybeLoadProject, type PackageContext } from "@eartool/utils";
+import * as path from "node:path";
 
 export function createPackageContextFromWorkerData({
   packagePath,
   logger,
   packageName,
 }: WorkerData<unknown>): PackageContext | undefined {
-  const project = maybeLoadProject(packagePath);
+  const project = maybeLoadProject(packagePath, logger);
 
   if (!project) {
     logger.debug(`Skipping package due to missing tsconfig: ${packagePath}`);

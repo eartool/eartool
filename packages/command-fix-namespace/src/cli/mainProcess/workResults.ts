@@ -1,6 +1,6 @@
+import type { PackageExportRename } from "@eartool/replacements";
 import type { EntityState, Reducer } from "@reduxjs/toolkit";
 import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
-import type { PackageExportRename } from "@eartool/replacements";
 
 interface JobResult {
   packageName: string;
@@ -20,8 +20,8 @@ const slice = createSlice({
   selectors: {
     selectAdditionalRenames: (state) => {
       const ret = new Map<string, PackageExportRename[]>();
-      for (const q of state.ids) {
-        ret.set(q as string, state.entities[q]!.exportedRenames);
+      for (const id of state.ids) {
+        ret.set(id as string, state.entities[id]!.exportedRenames);
       }
       return ret;
     },

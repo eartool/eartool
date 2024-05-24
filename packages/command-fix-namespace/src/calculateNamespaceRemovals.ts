@@ -1,9 +1,9 @@
-import * as path from "node:path";
+import type { ProjectContext, Replacements } from "@eartool/replacements";
+import { isNamespaceDeclaration } from "@eartool/utils";
 import * as Assert from "assert";
+import * as path from "node:path";
 import { Node, SyntaxKind } from "ts-morph";
 import type { ModuleDeclaration, SourceFile } from "ts-morph";
-import { isNamespaceDeclaration } from "@eartool/utils";
-import type { ProjectContext, Replacements } from "@eartool/replacements";
 import { isSafeToRenameAllAcrossReferences } from "./isSafeToRenameAllAcrossReferences.js";
 import { renameAllReferences } from "./renameAllReferences.js";
 import { renameExports } from "./renameExports.js";
@@ -27,8 +27,8 @@ export function calculateNamespaceRemovals(
   if (sf.getExportSymbols().length == 1) {
     if (namespaceDecl.getSymbolOrThrow().getDeclarations().length > 1) {
       projectContext.logger.debug(
-        "Can't do ultra simple replacement, falling back to complicated for " +
-          namespaceDecl.getName(),
+        "Can't do ultra simple replacement, falling back to complicated for "
+          + namespaceDecl.getName(),
       );
     } else {
       projectContext.logger.debug("Doing the ultra simple replacement");
@@ -82,9 +82,9 @@ function buildContext(projectContext: ProjectContext, namespaceDecl: ModuleDecla
   const syntaxList = namespaceDecl.getChildSyntaxListOrThrow();
   const symbolsInRootScope = new Set(sf.getLocals().map((a) => a.getName()));
 
-  for (const q of syntaxList.getChildren()) {
-    if (Node.isVariableStatement(q)) {
-      for (const varDecl of q.getDeclarations()) {
+  for (const node of syntaxList.getChildren()) {
+    if (Node.isVariableStatement(node)) {
+      for (const varDecl of node.getDeclarations()) {
         if (symbolsInRootScope.has(varDecl.getName())) {
           // unwrap is going to make this really hard to deal with cause we
           // have figure out which was the old and which is the new so we
@@ -99,31 +99,31 @@ function buildContext(projectContext: ProjectContext, namespaceDecl: ModuleDecla
           context.addConcreteRename(varDecl.getName(), varDecl.isExported());
         }
       }
-    } else if (Node.isInterfaceDeclaration(q) || Node.isTypeAliasDeclaration(q)) {
+    } else if (Node.isInterfaceDeclaration(node) || Node.isTypeAliasDeclaration(node)) {
       // Can't have unnamed functions in namespace unless its invoked,
       // but that would be an expression statement so we are okay
-      const name = q.getName();
+      const name = node.getName();
       Assert.ok(name != null, "name was expected");
-      context.addTypeRename(name, q.isExported());
+      context.addTypeRename(name, node.isExported());
     } else if (
-      Node.isFunctionDeclaration(q) ||
-      Node.isClassDeclaration(q) ||
-      Node.isEnumDeclaration(q)
+      Node.isFunctionDeclaration(node)
+      || Node.isClassDeclaration(node)
+      || Node.isEnumDeclaration(node)
     ) {
       // Can't have unnamed functions in namespace unless its invoked,
       // but that would be an expression statement so we are okay
-      const name = q.getName();
+      const name = node.getName();
       Assert.ok(name != null, "name was expected");
-      context.addConcreteRename(name, q.isExported());
+      context.addConcreteRename(name, node.isExported());
       // No special treatment. Don't trigger the logger error.
-      // different style if statement to avoid making q `never` in the fallthrough
-    } else if (Node.isModuleDeclaration(q)) {
+      // different style if statement to avoid making `node` `never` in the fallthrough
+    } else if (Node.isModuleDeclaration(node)) {
       // TODO This could be a type rename if all its kids are types
-      const name = q.getName();
+      const name = node.getName();
       Assert.ok(name != null, "name was expected");
-      context.addConcreteRename(name, q.isExported());
+      context.addConcreteRename(name, node.isExported());
     } else {
-      context.logger.error("Unknown kind %s", q.getKindName());
+      context.logger.error("Unknown kind %s", node.getKindName());
     }
   }
 

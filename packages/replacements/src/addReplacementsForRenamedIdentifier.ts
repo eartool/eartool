@@ -1,6 +1,6 @@
-import { Node, type Identifier } from "ts-morph";
-import type { Replacements } from "./Replacements.js";
+import { type Identifier, Node } from "ts-morph";
 import { replaceImportSpecifierWithNewName } from "./replaceImportSpecifierWithNewName.js";
+import type { Replacements } from "./Replacements.js";
 
 /**
  * Renames all the references to the identifier but not the identifier itself!

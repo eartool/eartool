@@ -1,17 +1,18 @@
-import * as path from "node:path";
 import {
   addSingleFileReplacementsForRenames,
-  processReplacements,
   type PackageExportRenames,
+  processReplacements,
 } from "@eartool/replacements";
 import type { FilePath, PackageContext } from "@eartool/utils";
-import type { SourceFile } from "ts-morph";
 import { getRootFile } from "@eartool/utils";
+import chalk from "chalk";
+import * as path from "node:path";
+import type { SourceFile } from "ts-morph";
 import type { RelativeFileInfo } from "../main/setupOverall.js";
-import { removeFilesIfInProject } from "./removeFilesIfInProject.js";
-import { cleanupMovedFile } from "./cleanupMovedFile.js";
-import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
 import { addReexports } from "./addReexports.js";
+import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
+import { cleanupMovedFile } from "./cleanupMovedFile.js";
+import { removeFilesIfInProject } from "./removeFilesIfInProject.js";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 
 export interface FileContext extends PackageContext {
@@ -25,14 +26,13 @@ export async function processPackageReplacements(
   packageExportRenamesMap: PackageExportRenames,
   dryRun: boolean,
 ) {
-  ctx.logger.debug("filesToRemove %o", [...filesToRemove]);
-  ctx.logger.debug(
+  ctx.logger.info(
+    { filesToRemove: [...filesToRemove].map((a) => path.relative(ctx.packagePath, a)) },
+    "filesToRemove",
+  );
+  ctx.logger.info(
     "packageExportRenames:\n%s",
-    [...packageExportRenamesMap].flatMap(([filePathOrModule, renames]) =>
-      renames
-        .map((a) => `  - ${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
-        .join("\n"),
-    ),
+    prettyStringForPackageExportRenamesMap(packageExportRenamesMap, ctx),
   );
 
   const rootFile = getRootFile(ctx.project);
@@ -43,7 +43,7 @@ export async function processPackageReplacements(
 
   for (const [relPath, { fileContents, rootExports }] of relativeFileInfoMap) {
     const fullpath = path.resolve(ctx.packagePath, relPath);
-    ctx.logger.info("Adding file '%s'", fullpath);
+    ctx.logger.info("Adding file '%s'", relPath);
     const sf = ctx.project.createSourceFile(fullpath, fileContents);
 
     // Gotta clean up the files we added
@@ -51,7 +51,7 @@ export async function processPackageReplacements(
 
     // FIXME need to handle namespace exports too
     if (rootExports.size > 0) {
-      if (!rootFile) throw new Error("Couldnt find rootfile");
+      if (!rootFile) throw new Error("Couldn't find rootfile");
 
       addReexports(rootExports, ctx.replacements, rootFile, fullpath);
     }
@@ -85,4 +85,21 @@ export async function processPackageReplacements(
   //   const sf = project.getSourceFile(filePath);
   // }
   return changedFiles;
+}
+
+export function prettyStringForPackageExportRenamesMap(
+  packageExportRenamesMap: PackageExportRenames,
+  ctx: { packagePath: string },
+): string | undefined {
+  return [...packageExportRenamesMap]
+    .map(
+      ([filePathOrModule, renames]) =>
+        `  - ${
+          filePathOrModule.startsWith("/")
+            ? path.relative(ctx.packagePath, filePathOrModule)
+            : filePathOrModule
+        }:\n`
+        + renames.map((a) => `    - ${chalk.grey(a.from)} to package ${a.toFileOrModule}`).join("\n"),
+    )
+    .join("\n");
 }

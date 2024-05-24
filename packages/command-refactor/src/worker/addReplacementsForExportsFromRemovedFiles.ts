@@ -1,4 +1,5 @@
-import { findFileLocationForImportExport, type FilePath } from "@eartool/utils";
+import { type FilePath, findFileLocationForImportExport } from "@eartool/utils";
+import path from "node:path";
 import type { SourceFile } from "ts-morph";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 
@@ -18,7 +19,10 @@ export function addReplacementsForExportsFromRemovedFiles(
     if (!decl.getModuleSpecifierValue()?.startsWith(".")) continue;
     const specifierFullFilePath = findFileLocationForImportExport(ctx, decl);
     if (specifierFullFilePath && setOfFilesToRemove.has(specifierFullFilePath)) {
-      ctx.logger.info(`Deleting ${decl.getText()} from ${rootFile.getFilePath()}`);
+      ctx.logger.info(
+        { code: decl.getText(), fromFile: path.relative(ctx.packagePath, rootFile.getFilePath()) },
+        `Deleting code${decl.getText()} from ${rootFile.getFilePath()}`,
+      );
       ctx.replacements.deleteNode(decl);
     }
   }

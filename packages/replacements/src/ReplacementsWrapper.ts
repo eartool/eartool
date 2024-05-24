@@ -1,6 +1,6 @@
+import type { Logger } from "pino";
 import { SyntaxKind } from "ts-morph";
 import type { Node, SourceFile } from "ts-morph";
-import type { Logger } from "pino";
 import type { ProjectContext } from "./Context.js";
 import type { Replacement } from "./Replacement.js";
 import type { Replacements } from "./Replacements.js";
@@ -66,18 +66,15 @@ export abstract class AbstractReplacementsWrapper implements Replacements {
     this.addReplacement(node, node.getEnd(), node.getEnd(), newValue);
   }
 
-  removeNextSiblingIfComma(q: Node) {
-    const sib = q.getNextSibling();
+  removeNextSiblingIfComma(node: Node) {
+    const sib = node.getNextSibling();
     if (sib?.isKind(SyntaxKind.CommaToken)) {
       this.deleteNode(sib);
     }
   }
 }
 
-export class ReplacementsWrapperForContext
-  extends AbstractReplacementsWrapper
-  implements Replacements
-{
+export class ReplacementsWrapperForContext extends AbstractReplacementsWrapper implements Replacements {
   #context: ProjectContext;
 
   constructor(context: ProjectContext) {

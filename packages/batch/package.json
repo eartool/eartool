@@ -22,7 +22,7 @@
     "fixFormatting": "prettier --write .",
     "fixLint": "eslint --fix src",
     "prepublishOnly": "tsc --build",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "vitest"
   },
   "dependencies": {
     "@eartool/utils": "workspace:*",
@@ -40,7 +40,6 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@jest/globals": "^29.7.0",
     "@types/cli-progress": "^3.11.5",
     "@types/node": "^20.10.1",
     "@types/yargs": "^17.0.32",

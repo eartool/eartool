@@ -1,8 +1,6 @@
 import type { Node } from "ts-morph";
 
 /**
- *
- *
  * @param name
  * @param scope
  * @param ban

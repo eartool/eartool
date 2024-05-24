@@ -1,18 +1,17 @@
 export type { FilePath } from "./FilePath.js";
 export type { Flavored } from "./Flavored.js";
-export { mergePackageJsonDeps } from "./PackageJsonDepsRequired.js";
-export type { PackageJsonDepsRequired } from "./PackageJsonDepsRequired.js";
-export type { PackageName } from "./PackageName.js";
 export { getPossibleFileLocations } from "./getPossibleFileLocations.js";
 export { createConsoleLogger } from "./logging/createConsoleLogger.js";
 export { createLogger } from "./logging/createLogger.js";
-export { readPackageJson, writePackageJson } from "./tsmorph/PackageJson.js";
-export type { PackageJson } from "./tsmorph/PackageJson.js";
+export { mergePackageJsonDeps } from "./PackageJsonDepsRequired.js";
+export type { PackageJsonDepsRequired } from "./PackageJsonDepsRequired.js";
+export type { PackageName } from "./PackageName.js";
 export { dropDtsFiles } from "./tsmorph/dropDtsFiles.js";
 export { findEntireQualifiedNameTree } from "./tsmorph/findEntireQualifiedNameTree.js";
 export { findFileLocationForImportExport } from "./tsmorph/findFileLocationForImportExport.js";
 export { findNewNameInScope } from "./tsmorph/findNewNameInScope.js";
-export { getAllImportsAndExports, mapGetOrInitialize } from "./tsmorph/getAllImportsAndExports.js";
+export type { Export, ExportAlias, Import } from "./tsmorph/getAllImportsAndExports.js";
+export { cloneMetadata, getAllImportsAndExports, mapGetOrInitialize } from "./tsmorph/getAllImportsAndExports.js";
 export type { Metadata } from "./tsmorph/getAllImportsAndExports.js";
 export { getDeclaration } from "./tsmorph/getDeclaration.js";
 export { getDefaultIdentifier } from "./tsmorph/getDefaultIdentifier.js";
@@ -23,19 +22,21 @@ export { getNamespaceIdentifierOrExport } from "./tsmorph/getNamespaceIdentifier
 export { getProperRelativePathAsModuleSpecifierTo } from "./tsmorph/getProperRelativePathAsModuleSpecifierTo.js";
 export { getReferenceFindableLocalDeclarationOrThrow } from "./tsmorph/getReferenceFindableLocalDeclarationOrThrow.js";
 export { getRootFile } from "./tsmorph/getRootFile.js";
-export {
-  getSimplifiedNodeInfo,
-  getSimplifiedNodeInfoAsString,
-} from "./tsmorph/getSimplifiedNodeInfo.js";
+export { getSimplifiedNodeInfo, getSimplifiedNodeInfoAsString } from "./tsmorph/getSimplifiedNodeInfo.js";
 export { isInSameNamespace } from "./tsmorph/isInSameNamespace.js";
 export { isNamespaceDeclaration } from "./tsmorph/isNamespaceDeclaration.js";
-export { isNamespaceLike } from "./tsmorph/isNamespaceLike.js";
-export type { NamespaceLike, NamespaceLikeVariableDeclaration } from "./tsmorph/isNamespaceLike.js";
+export {
+  getNamespaceLike,
+  getNamespaceLikeVariable,
+  getNamespaceLikeVariableOrThrow,
+} from "./tsmorph/isNamespaceLike.js";
 export { isRootExport } from "./tsmorph/isRootExport.js";
 export { maybeLoadProject } from "./tsmorph/maybeLoadProject.js";
 export { organizeImportsOnFiles } from "./tsmorph/organizeImportsOnFiles.js";
+export { readPackageJson, writePackageJson } from "./tsmorph/PackageJson.js";
+export type { PackageJson } from "./tsmorph/PackageJson.js";
 export { weakMemo } from "./weakMemo.js";
+export { createWorkspaceFromDisk } from "./workspace/createWorkspaceFromDisk.js";
 export type { PackageContext } from "./workspace/PackageContext.js";
 export { Workspace } from "./workspace/WorkspaceInfo.js";
 export type { DependencyDirection } from "./workspace/WorkspaceInfo.js";
-export { createWorkspaceFromDisk } from "./workspace/createWorkspaceFromDisk.js";

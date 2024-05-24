@@ -1,9 +1,4 @@
-import type {
-  ExportDeclaration,
-  ExportSpecifier,
-  ImportDeclaration,
-  ImportSpecifier,
-} from "ts-morph";
+import type { ExportDeclaration, ExportSpecifier, ImportDeclaration, ImportSpecifier } from "ts-morph";
 
 export function getNamedSpecifiers(decl: ExportDeclaration): Array<ExportSpecifier>;
 export function getNamedSpecifiers(decl: ImportDeclaration): Array<ImportSpecifier>;

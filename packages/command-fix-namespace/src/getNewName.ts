@@ -1,10 +1,4 @@
-import type {
-  InterfaceDeclaration,
-  NameableNode,
-  Node,
-  TypeAliasDeclaration,
-  VariableDeclaration,
-} from "ts-morph";
+import type { InterfaceDeclaration, NameableNode, Node, TypeAliasDeclaration, VariableDeclaration } from "ts-morph";
 import { splitWords } from "./splitWords.js";
 
 const constantCase = /^([A-Z_0-9])+$/;
@@ -49,13 +43,13 @@ export function getNewName(
 
   // Special case a few things
   if (
-    oldName[0] >= "A" &&
-    oldName[0] <= "Z" &&
-    (oldName.endsWith("Props") ||
-      oldName.endsWith("State") ||
-      oldName.endsWith("Args") ||
-      oldName.endsWith("Return") ||
-      oldName.endsWith("Config"))
+    oldName[0] >= "A"
+    && oldName[0] <= "Z"
+    && (oldName.endsWith("Props")
+      || oldName.endsWith("State")
+      || oldName.endsWith("Args")
+      || oldName.endsWith("Return")
+      || oldName.endsWith("Config"))
   ) {
     return { localName: `${oldName}`, importName: `${namespaceName}${oldName}` };
   }

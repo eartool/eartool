@@ -24,5 +24,20 @@
     "titleBar.inactiveBackground": "#fe2bc299",
     "titleBar.inactiveForeground": "#e7e7e799"
   },
-  "peacock.color": "#fe2bc2"
+  "peacock.color": "#fe2bc2",
+  "cSpell.words": [
+    "algolib",
+    "autorename",
+    "eartool",
+    "fullpath",
+    "loggable",
+    "Multimap",
+    "multimaps",
+    "mypackage",
+    "pino",
+    "reduxjs",
+    "rootfile",
+    "teppeis",
+    "tsmorph"
+  ]
 }

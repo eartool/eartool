@@ -1,8 +1,8 @@
+import chalk from "chalk";
 import * as path from "node:path";
 import { pino } from "pino";
-import type { DestinationStream, StreamEntry, LevelWithSilent, Logger } from "pino";
+import type { DestinationStream, LevelWithSilent, Logger, StreamEntry } from "pino";
 import pinoPretty from "pino-pretty";
-import chalk from "chalk";
 import { getSimplifiedNodeInfoAsString } from "../tsmorph/getSimplifiedNodeInfo.js";
 
 interface Opts {

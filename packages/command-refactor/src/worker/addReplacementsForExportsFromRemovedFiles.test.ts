@@ -1,9 +1,9 @@
 import { processReplacements } from "@eartool/replacements";
 import { formatTestTypescript } from "@eartool/test-utils";
-import { describe, expect, it } from "@jest/globals";
 import { getRootFile } from "@eartool/utils";
-import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
+import { describe, expect, it } from "vitest";
 import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
+import { addReplacementsForExportsFromRemovedFiles } from "./addReplacementsForExportsFromRemovedFiles.js";
 
 describe(addReplacementsForExportsFromRemovedFiles, () => {
   it("works", async () => {

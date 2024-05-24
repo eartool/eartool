@@ -1,11 +1,6 @@
 import { getSimplifiedNodeInfoAsString } from "@eartool/utils";
 import type { Logger } from "pino";
-import {
-  Node,
-  type PropertyAccessExpression,
-  type QualifiedName,
-  type TypeReferenceNode,
-} from "ts-morph";
+import { Node, type PropertyAccessExpression, type QualifiedName, type TypeReferenceNode } from "ts-morph";
 
 export function getRelevantNodeFromRefOrThrow(
   r: Node,

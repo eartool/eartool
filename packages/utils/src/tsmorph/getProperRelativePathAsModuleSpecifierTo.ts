@@ -1,5 +1,5 @@
-import { ModuleResolutionKind, type SourceFile } from "ts-morph";
 import type { FilePath } from "@eartool/utils";
+import { ModuleResolutionKind, type SourceFile } from "ts-morph";
 
 const needsJsSuffix: Set<ModuleResolutionKind | undefined> = new Set([
   ModuleResolutionKind.Node16,
@@ -10,7 +10,7 @@ export function getProperRelativePathAsModuleSpecifierTo(
   fullpath: SourceFile | FilePath,
 ) {
   return (
-    rootFile.getRelativePathAsModuleSpecifierTo(fullpath as SourceFile) +
-    (needsJsSuffix.has(rootFile.getProject().getCompilerOptions().moduleResolution) ? ".js" : "")
+    rootFile.getRelativePathAsModuleSpecifierTo(fullpath as SourceFile)
+    + (needsJsSuffix.has(rootFile.getProject().getCompilerOptions().moduleResolution) ? ".js" : "")
   );
 }

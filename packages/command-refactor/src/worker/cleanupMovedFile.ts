@@ -1,11 +1,7 @@
-import * as path from "node:path";
 import { addImportOrExport } from "@eartool/replacements";
-import {
-  getNamedSpecifiers,
-  getProperRelativePathAsModuleSpecifierTo,
-  getRootFile,
-} from "@eartool/utils";
-import { SyntaxKind, type SourceFile } from "ts-morph";
+import { getNamedSpecifiers, getProperRelativePathAsModuleSpecifierTo, getRootFile } from "@eartool/utils";
+import * as path from "node:path";
+import { type SourceFile, SyntaxKind } from "ts-morph";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 
 export function cleanupMovedFile(ctx: WorkerPackageContext, sf: SourceFile) {
