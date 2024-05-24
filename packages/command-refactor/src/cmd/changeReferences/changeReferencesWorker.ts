@@ -1,11 +1,11 @@
-import type { MessagePort } from "node:worker_threads";
 import type { WorkerData } from "@eartool/batch";
 import {
-  SimpleReplacements,
   addSingleFileReplacementsForRenames,
   type PackageExportRenames,
   processReplacements,
+  SimpleReplacements,
 } from "@eartool/replacements";
+import type { MessagePort } from "node:worker_threads";
 import { createPackageContextFromWorkerData } from "./createPackageContextFromWorkerData.js";
 
 export interface ChangeReferencesJobArgs {

@@ -1,5 +1,5 @@
-import { describe, expect, it } from "@jest/globals";
 import { createTestLogger } from "@eartool/test-utils";
+import { describe, expect, it } from "vitest";
 import { createInitialWorkspaceBuilder } from "../test-utils/createInitialWorkspaceBuilder.js";
 import { setupOverall } from "./setupOverall.js";
 
@@ -20,7 +20,7 @@ describe(setupOverall, () => {
         {
           "direction": "upstream",
           "packageExportRenamesMap": Map {
-            "api" => [
+            "/workspace/api/src/doThingWithState.ts" => [
               {
                 "from": [
                   "doThingWithState",
@@ -28,7 +28,7 @@ describe(setupOverall, () => {
                 "toFileOrModule": "state",
               },
             ],
-            "/workspace/api/src/doThingWithState.ts" => [
+            "api" => [
               {
                 "from": [
                   "doThingWithState",
@@ -121,14 +121,15 @@ describe(setupOverall, () => {
           "relativeFileInfoMap": Map {
             "src/components/nested/icons/word.ts" => {
               "fileContents": "
-                export const word = "hi";
-              ",
+                    export const word = "hi";
+                  ",
               "rootExports": Map {
                 "word" => {
                   "exportName": [
                     "word",
                   ],
                   "isType": false,
+                  "originFile": "/workspace/oversized/src/components/nested/icons/word.ts",
                 },
               },
             },
@@ -167,7 +168,7 @@ describe(setupOverall, () => {
         {
           "direction": "downstream",
           "packageExportRenamesMap": Map {
-            "api" => [
+            "/workspace/api/src/doThingWithState.ts" => [
               {
                 "from": [
                   "doThingWithState",
@@ -175,7 +176,7 @@ describe(setupOverall, () => {
                 "toFileOrModule": "app",
               },
             ],
-            "/workspace/api/src/doThingWithState.ts" => [
+            "api" => [
               {
                 "from": [
                   "doThingWithState",
@@ -226,7 +227,7 @@ describe(setupOverall, () => {
     });
   });
 
-  describe("with collatoral damage", () => {
+  describe("with collateral damage", () => {
     it("pulls up stream", async () => {
       const { workspace, projectLoader } = createInitialWorkspaceBuilder().build();
 
@@ -242,6 +243,14 @@ describe(setupOverall, () => {
         {
           "direction": "upstream",
           "packageExportRenamesMap": Map {
+            "/workspace/api/src/doThingWithBaz.ts" => [
+              {
+                "from": [
+                  "doThingWithBaz",
+                ],
+                "toFileOrModule": "state",
+              },
+            ],
             "api" => [
               {
                 "from": [
@@ -315,7 +324,7 @@ describe(setupOverall, () => {
                   "exportName": [
                     "Baz",
                   ],
-                  "isType": false,
+                  "isType": true,
                 },
                 "BazConst" => {
                   "exportName": [

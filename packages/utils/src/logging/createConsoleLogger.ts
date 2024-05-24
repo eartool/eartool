@@ -1,4 +1,4 @@
-import { pino, type LevelWithSilent } from "pino";
+import { type LevelWithSilent, pino } from "pino";
 import pinoPretty from "pino-pretty";
 
 export function createConsoleLogger(level: LevelWithSilent) {

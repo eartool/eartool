@@ -1,12 +1,12 @@
-import * as path from "node:path";
 import { Workspace } from "@eartool/utils";
 import {
-  writePackageJson,
   type FilePath,
+  type PackageContext,
   type PackageName,
   readPackageJson,
-  type PackageContext,
+  writePackageJson,
 } from "@eartool/utils";
+import * as path from "node:path";
 import type { Logger } from "pino";
 import type { Project } from "ts-morph";
 import { InMemoryFileSystemHost } from "ts-morph";

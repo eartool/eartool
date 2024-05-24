@@ -1,4 +1,5 @@
 import * as Assert from "node:assert/strict";
+import * as util from "node:util";
 import type {
   FunctionDeclaration,
   InterfaceDeclaration,
@@ -18,60 +19,144 @@ import { getSimplifiedNodeInfoAsString } from "./getSimplifiedNodeInfo.js";
 //   - A re-export
 //   - An aliased export
 
-interface Export {
+interface Base {
+  targetFile?: FilePath;
+  targetName?: string;
+  finalDest?: Export | ExportAlias;
+  via?: ExportAlias | Export;
+}
+
+export interface Export extends Base {
   type: "type" | "concrete" | "both";
-  originFile: FilePath;
+  targetFile: FilePath;
   name: string;
   via?: never;
   targetName?: never;
 }
 
-interface ExportAlias {
+export interface ExportAlias extends Base {
   type: "alias";
   isType: boolean;
-  via?: [string, FilePath][];
-  originFile: FilePath;
+  targetFile: FilePath;
   targetName: string;
   name: string;
   indirect: boolean;
 }
 
+export interface Import extends Base {
+  type: "import";
+  targetFile?: FilePath;
+  moduleSpecifier: string;
+  isType: boolean;
+  targetName: string;
+  name: string;
+}
+
 export interface Metadata {
   filePath: FilePath;
-  /**@deprecated */
-  reexports: Map<string, { originFile?: FilePath; exportName: string[]; isType: boolean }>; // local name to exported name
-  imports: Map<string, { originFile?: FilePath; isType: boolean; targetName: string }>;
+  imports: ReadonlyMap<string, Import>;
+  exports: ReadonlyMap<string, Export | ExportAlias>;
+  reexportStars: ReadonlyArray<{ originFile: FilePath; as?: string }>;
+}
+
+export interface MutableMetadata {
+  filePath: FilePath;
+  imports: Map<string, Import>;
   exports: Map<string, Export | ExportAlias>;
   reexportStars: Array<{ originFile: FilePath; as?: string }>;
 }
 
-export const createEmptyMetadata = (filePath: FilePath): Metadata => ({
+export function cloneMetadata(metadata: Metadata): MutableMetadata {
+  return {
+    filePath: metadata.filePath,
+    // reexports: new Map(metadata.reexports),
+    imports: new Map(metadata.imports),
+    exports: new Map(metadata.exports),
+    reexportStars: [...metadata.reexportStars],
+  };
+}
+
+export const createEmptyMetadata = (filePath: FilePath): MutableMetadata => ({
   filePath,
-  reexports: new Map(),
   imports: new Map(),
   exports: new Map(),
   reexportStars: [],
-  // resolvedExports: [],
 });
+
 export const getAllImportsAndExports = weakMemo(getAllImportsAndExportsPrivate);
 
-function getAllImportsAndExportsPrivate(ctx: PackageContext) {
-  const ret = new Map<FilePath, Metadata>();
+function getAllImportsAndExportsPrivate(ctx: PackageContext): ReadonlyMap<FilePath, Metadata> {
+  const ret = new Map<FilePath, MutableMetadata>();
 
+  // perform first pass
   for (const sf of ctx.project.getSourceFiles()) {
     calculateMetadataForSf(ctx, sf, ret);
   }
 
+  for (const [, metadata] of ret) {
+    for (const [, exportInfo] of metadata.exports) {
+      if (exportInfo.type !== "alias") continue;
+      populateThrough(ret, exportInfo);
+    }
+    for (const [, importInfo] of metadata.imports) {
+      populateThrough(ret, importInfo);
+    }
+  }
+
+  ctx.logger.trace(
+    "getAllImportsAndExportsPrivate before returning: " +
+      util.inspect(ret, { depth: 6, colors: true }),
+  );
+
   return ret;
 }
 
-function calculateMetadataForSf(ctx: PackageContext, sf: SourceFile, ret: Map<FilePath, Metadata>) {
+function populateThrough(
+  fullMetadata: Map<FilePath, MutableMetadata>,
+  info: Import | ExportAlias,
+): Export | ExportAlias | undefined {
+  if (info.via?.finalDest) return info.via.finalDest;
+  if (!info.targetFile) {
+    if (info.type === "alias") return info;
+    return undefined;
+  }
+
+  const target = fullMetadata.get(info.targetFile);
+  if (!target) throw new Error("Should have found the target file: " + info.targetFile);
+
+  const targetsExport = target.exports.get(info.targetName ?? info.name);
+  if (!targetsExport)
+    throw new Error(`Should have found the target: ${info.targetName} in ${info.targetFile}`);
+
+  info.via = targetsExport;
+  if (targetsExport.type !== "alias") return targetsExport;
+  const finalDest = populateThrough(fullMetadata, targetsExport);
+  if (finalDest) {
+    info.finalDest = finalDest;
+  }
+
+  return finalDest;
+}
+
+function calculateMetadataForSf(
+  ctx: PackageContext,
+  sf: SourceFile,
+  ret: Map<FilePath, MutableMetadata>,
+) {
   if (ret.has(sf.getFilePath())) return;
   const metadata = createEmptyMetadata(sf.getFilePath());
   ret.set(sf.getFilePath(), metadata);
 
+  // const logger = ctx.logger.child({ sf: sf.getFilePath(), method: "calculateMetadataForSf" });
+  // logger.trace({ sf: sf.getFilePath() }, "calculateMetadataForSf");
+
   for (const importDecl of sf.getImportDeclarations()) {
+    // logger.debug({
+    //   code: importDecl.getText(),
+    // }, "Processing import");
+    // logger.trace(`metadata: ${util.inspect(metadata, { depth: 2 })}`);
     for (const importSpecifier of importDecl.getNamedImports()) {
+      // logger.trace(`importSpecifier: ${importSpecifier.getText()}`);
       const localName = importSpecifier.getAliasNode()?.getText() ?? importSpecifier.getName();
 
       Assert.ok(
@@ -82,9 +167,12 @@ function calculateMetadataForSf(ctx: PackageContext, sf: SourceFile, ret: Map<Fi
       );
 
       metadata.imports.set(localName, {
+        type: "import",
+        name: localName,
         isType: importSpecifier.isTypeOnly() || importDecl.isTypeOnly(),
         targetName: importSpecifier.getName(),
-        originFile: findFileLocationForImportExport(ctx, importDecl),
+        targetFile: findFileLocationForImportExport(ctx, importDecl),
+        moduleSpecifier: importDecl.getModuleSpecifierValue(),
       });
     }
     if (importDecl.getDefaultImport()) {
@@ -94,67 +182,64 @@ function calculateMetadataForSf(ctx: PackageContext, sf: SourceFile, ret: Map<Fi
         `Seems we already have a default export for ${getSimplifiedNodeInfoAsString(importDecl)}`,
       );
       metadata.imports.set(localName, {
+        type: "import",
+        name: localName,
         isType: importDecl.isTypeOnly(),
         targetName: "default",
-        originFile: findFileLocationForImportExport(ctx, importDecl),
+        targetFile: findFileLocationForImportExport(ctx, importDecl),
+        moduleSpecifier: importDecl.getModuleSpecifierValue(),
       });
     }
   }
 
+  // logger.trace(`metadata after imports: ${util.inspect(metadata, { depth: 2 })}`);
   for (const childNode of sf.getChildSyntaxListOrThrow().getChildren()) {
+    // logger.debug({
+    //   code: childNode.getText(),
+    //   kind: childNode.getKindName(),
+    // }, "Processing childNode");
+    // logger.trace(`metadata: ${util.inspect(metadata, { depth: 2 })}`);
     if (childNode.isKind(SyntaxKind.ExportAssignment)) {
       Assert.ok(metadata.exports.has("default") === false);
       metadata.exports.set("default", {
         type: "concrete",
         name: "default",
-        originFile: sf.getFilePath(),
+        targetFile: sf.getFilePath(),
       });
     } else if (childNode.isKind(SyntaxKind.ExportDeclaration)) {
-      const originFile = findFileLocationForImportExport(ctx, childNode);
-      if (!originFile) continue; // export {}; case
+      const targetFile = findFileLocationForImportExport(ctx, childNode);
+      // logger.trace(`originFile: ${originFile}`);
+      if (!targetFile) continue; // export {}; case
 
-      if (!ret.has(originFile)) {
-        calculateMetadataForSf(ctx, sf.getProject().getSourceFileOrThrow(originFile), ret);
+      if (!ret.has(targetFile)) {
+        calculateMetadataForSf(ctx, sf.getProject().getSourceFileOrThrow(targetFile), ret);
       }
 
       for (const namedExport of childNode.getNamedExports()) {
         // re-export case!
         const localName = namedExport.getAliasNode()?.getText() ?? namedExport.getName();
-        // This is really messed up that this doesnt break!
-        // Assert.ok(
-        //   metadata.exports.has(localName) === false,
-        //   `Seems we already have an export (${localName}) for ${getSimplifiedNodeInfoAsString(
-        //     namedExport
-        //   )}\n\n${JSON.stringify(metadata.exports.get(localName))}`
-        // );
-        const entry = {
+
+        metadata.exports.set(localName, {
           type: "alias",
           name: localName,
-          originFile,
+          // originFile,
+          targetFile,
           isType: namedExport.isTypeOnly() || namedExport.getExportDeclaration().isTypeOnly(),
           targetName: namedExport.getName(),
           indirect: false,
-        } as const;
-        metadata.exports.set(localName, entry);
-
-        // leave this in so mvoe files keeps working
-        metadata.reexports.set(namedExport.getName(), {
-          isType: namedExport.isTypeOnly() || namedExport.getExportDeclaration().isTypeOnly(),
-          exportName: [namedExport.getAliasNode()?.getText() ?? namedExport.getName()],
-          originFile: findFileLocationForImportExport(ctx, namedExport.getParent().getParent()),
         });
       }
 
       if (childNode.isNamespaceExport()) {
         const alias = childNode.getNamespaceExport()?.getName();
 
-        for (const e of ret.get(originFile)!.exports.values()) {
+        for (const e of ret.get(targetFile)!.exports.values()) {
           const name = alias ? `${alias}.${e.name}` : e.name;
           metadata.exports.set(name, {
             type: "alias",
             name: name,
-            originFile: e.originFile,
-            via: [[e.name, originFile], ...(e.via ?? [])],
+            // originFile: e.originFile,
+            targetFile: e.targetFile,
             isType: childNode.isTypeOnly(),
             targetName: e.targetName ?? e.name,
             indirect: true,
@@ -162,13 +247,13 @@ function calculateMetadataForSf(ctx: PackageContext, sf: SourceFile, ret: Map<Fi
         }
 
         metadata.reexportStars.push({
-          originFile,
+          originFile: targetFile,
           as: alias,
         });
       }
     } else if (childNode.isKind(SyntaxKind.VariableStatement)) {
-      for (const q of childNode.getDeclarations()) {
-        handleDeclaration(q, metadata);
+      for (const decl of childNode.getDeclarations()) {
+        handleDeclaration(decl, metadata);
       }
     } else if (
       childNode.isKind(SyntaxKind.FunctionDeclaration) ||
@@ -182,6 +267,7 @@ function calculateMetadataForSf(ctx: PackageContext, sf: SourceFile, ret: Map<Fi
       // console.log(getSimplifiedNodeInfoAsString(childNode));
     }
   }
+  // logger.trace(`metadata after remaining: ${util.inspect(metadata, { depth: 2 })}`);
 }
 
 function handleDeclaration(
@@ -191,7 +277,7 @@ function handleDeclaration(
     | TypeAliasDeclaration
     | InterfaceDeclaration
     | ModuleDeclaration,
-  metadata: Metadata,
+  metadata: MutableMetadata,
 ) {
   const expectedType =
     decl.isKind(SyntaxKind.FunctionDeclaration) || decl.isKind(SyntaxKind.VariableDeclaration)
@@ -206,7 +292,7 @@ function handleDeclaration(
     const entry: Export | ExportAlias = metadata.exports.get(name) ?? {
       type: expectedType,
       name,
-      originFile: decl.getSourceFile().getFilePath(),
+      targetFile: decl.getSourceFile().getFilePath(),
     };
 
     if (entry.type !== expectedType) entry.type = "both";
@@ -223,7 +309,7 @@ export function mapGetOrInitialize<M extends Map<any, any>>(
     return map.get(key)!;
   }
 
-  const q = makeNew();
-  map.set(key, q);
-  return q;
+  const created = makeNew();
+  map.set(key, created);
+  return created;
 }

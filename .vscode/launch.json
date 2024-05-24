@@ -14,7 +14,7 @@
       "name": "Jest: current file",
       "cwd": "${workspaceRoot}",
       "env": { "NODE_OPTIONS": "--experimental-vm-modules" },
-      //"env": { "NODE_ENV": "test" },
+      // "env": { "NODE_ENV": "test" },
       "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
       "args": ["${fileBasenameNoExtension}", "--runInBand"],
       "console": "integratedTerminal"
@@ -26,7 +26,7 @@
       "cwd": "${workspaceRoot}",
       "env": { "NODE_OPTIONS": "--experimental-vm-modules" },
       "runtimeArgs": ["--cpu-prof"],
-      //"env": { "NODE_ENV": "test" },
+      // "env": { "NODE_ENV": "test" },
       "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
       "args": ["--runInBand", "--coverage=false", "-t=processProject"],
       "console": "integratedTerminal"

@@ -1,9 +1,9 @@
+import type { ProjectContext, Replacements } from "@eartool/replacements";
+import { findFileLocationForImportExport } from "@eartool/utils";
+import { isAnyOf } from "@reduxjs/toolkit";
 import * as Assert from "assert";
 import type { ModuleDeclaration, VariableDeclaration } from "ts-morph";
 import { Node, SyntaxKind } from "ts-morph";
-import type { ProjectContext, Replacements } from "@eartool/replacements";
-import { isAnyOf } from "@reduxjs/toolkit";
-import { findFileLocationForImportExport } from "@eartool/utils";
 
 export function replaceImportsAndExports(
   varDecl: VariableDeclaration | ModuleDeclaration,
@@ -25,9 +25,7 @@ export function replaceImportsAndExports(
     if (named.getElements().length != 1) continue;
     Assert.ok(
       named.getElements().length == 1,
-      `Expected only one element in '${named.getText()}', file: ${named
-        .getSourceFile()
-        .getFilePath()} while looking for ${specifier.getText()}`,
+      `Expected only one element in '${named.getText()}', file: ${named.getSourceFile().getFilePath()} while looking for ${specifier.getText()}`,
     );
 
     // Only the first reexport needs the `* as` syntax

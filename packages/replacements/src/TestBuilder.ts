@@ -1,12 +1,12 @@
-import type { SourceFile } from "ts-morph";
-import { Project } from "ts-morph";
 import { createTestLogger, formatTestTypescript } from "@eartool/test-utils";
-import { format } from "prettier";
 import type { PackageContext } from "@eartool/utils";
 import pMap from "p-map";
-import { SimpleReplacements } from "./ReplacementsWrapper.js";
+import { format } from "prettier";
+import type { SourceFile } from "ts-morph";
+import { Project } from "ts-morph";
 import { processReplacements } from "./processReplacements.js";
 import type { Replacements } from "./Replacements.js";
+import { SimpleReplacements } from "./ReplacementsWrapper.js";
 
 export class TestBuilder {
   #project: Project;

@@ -1,26 +1,42 @@
-import * as Assert from "node:assert";
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="./iterator.d.ts" />
+
 import type { PackageExportRename } from "@eartool/replacements";
-import { dropDtsFiles, mergePackageJsonDeps, readPackageJson } from "@eartool/utils";
+import {
+  dropDtsFiles,
+  getAllImportsAndExports,
+  getRootFile,
+  mergePackageJsonDeps,
+  readPackageJson,
+} from "@eartool/utils";
 import type {
   DependencyDirection,
+  Export,
+  ExportAlias,
   FilePath,
+  PackageContext,
   PackageJson,
+  PackageJsonDepsRequired,
   PackageName,
   Workspace,
-  PackageJsonDepsRequired,
 } from "@eartool/utils";
 import type { SetMultimap } from "@teppeis/multimaps";
+import Iterator from "core-js-pure/actual/iterator";
+import * as Assert from "node:assert";
+import path from "node:path";
+import * as util from "node:util";
 import type { Logger } from "pino";
 import type { FileSystemHost, Project } from "ts-morph";
-import { SymbolRenames } from "./SymbolRenames.js";
+import { prettyStringForPackageExportRenamesMap } from "../worker/processPackageReplacements.js";
 import {
   calculatePackageExportRenamesForFileMoves,
   type Info,
 } from "./calculatePackageExportRenamesForFileMoves.js";
 import { getFileContentsRelatively } from "./getFileContentsRelatively.js";
 import { mapFilesByPackageName } from "./mapFilesByPackageName.js";
+import { SymbolRenames } from "./SymbolRenames.js";
 
-export type TsMorphProjectLoader = (packagePath: string) => Project | undefined;
+export type TsMorphProjectLoader = (packagePath: string, logger: Logger) => Project | undefined;
 
 export type RelativeFileInfo = {
   fileContents: string;
@@ -80,35 +96,36 @@ export async function setupOverall(
   for (const [packageName, files] of packageNameToFilesToMove.asMap()) {
     logger.debug("setupOverall for %s", packageName);
     const packagePath = workspace.getPackageByNameOrThrow(packageName)!.packagePath;
-    const project = projectLoader(packagePath);
+    const project = projectLoader(packagePath, logger);
     Assert.ok(project);
     dropDtsFiles(project);
 
+    const packageCtx: PackageContext = {
+      logger,
+      packageName,
+      packagePath,
+      project,
+      packageJson: JSON.parse(
+        project.getFileSystem().readFileSync(path.join(packagePath, "package.json")),
+      ),
+    };
+
     const { allFilesToMove, requiredPackages, rootExportsPerRelativeFilePath } =
       calculatePackageExportRenamesForFileMoves(
-        project,
+        packageCtx,
         files,
-        packagePath,
-        packageName,
         destinationModule,
         direction,
         renames,
-        logger,
       );
 
     logger.debug(
-      "packageExportRenames: %o",
-      [...renames.asRaw()].map(([filePathOrModule, renames]) =>
-        renames
-          .map((a) => `${filePathOrModule}: ${a.from} to package ${a.toFileOrModule}`)
-          .join("\n"),
-      ),
-    );
-    logger.debug("allFilesToMove: %o", [...allFilesToMove]);
-    logger.debug("requiredPackages: %o", [...requiredPackages]);
-    logger.debug(
-      "rootExportsPerRelativeFilePath %o",
-      [...rootExportsPerRelativeFilePath].map(([a, b]) => [a, [...b]]),
+      {
+        allFilesToMove: [...allFilesToMove],
+        requiredPackages: [...requiredPackages],
+      },
+      "packageExportRenames: \n%s",
+      prettyStringForPackageExportRenamesMap(renames.asRaw(), { packagePath }),
     );
 
     const versions = getPackageVersions(
@@ -119,16 +136,57 @@ export async function setupOverall(
     );
     mergePackageJsonDeps({ from: versions, into: packageJsonDepsRequired });
 
+    logger.debug({ allFilesToMove: [...allFilesToMove] }, "wat");
+
     // TODO this is overkill now that we group by package
     for (const [relPath, contents] of getFileContentsRelatively(
       project,
       packagePath,
       allFilesToMove,
     )) {
+      logger.trace("Adding %s to relativeFileInfoMap", relPath);
       Assert.ok(!relativeFileInfoMap.has(relPath));
+
+      const rootFile = getRootFile(packageCtx.project);
+
+      const exportsFromRootToMove = new Map(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+        Iterator.from(getAllImportsAndExports(packageCtx).get(rootFile!.getFilePath())?.exports!)
+          .filter(isAliasEntry)
+          .filter(([, exportAlias]) => exportAlias.targetFile === path.join(packagePath, relPath))
+          .map(([, exportAlias]) => [
+            exportAlias.targetName,
+            {
+              exportName: [exportAlias.name!],
+              isType: exportAlias.type === "alias" ? exportAlias.isType : false,
+              originFile: exportAlias.targetFile,
+            },
+          ]),
+      );
+
+      const importsThatDidNotMove = new Map<string, Info>(
+        Iterator.from(getAllImportsAndExports(packageCtx))
+          .filter(([, a]) => !allFilesToMove.has(a.filePath))
+          .flatMap(([, metadata]) =>
+            Iterator.from(metadata.imports)
+              .filter(([, { targetFile }]) => targetFile === path.join(packagePath, relPath))
+              // .map(([k, i]) => [k, i] as const)
+              .map<[string, Info]>(([k, v]) => [
+                k,
+                { exportName: [v.targetName], isType: v.isType, originFile: v.targetFile },
+              ]),
+          ),
+      );
+
+      for (const [ogName, info] of exportsFromRootToMove) {
+        importsThatDidNotMove.set(ogName, info);
+      }
+
+      logger.trace(`importsThatDidNotMove: %s`, util.inspect(importsThatDidNotMove));
+
       relativeFileInfoMap.set(relPath, {
         fileContents: contents,
-        rootExports: rootExportsPerRelativeFilePath.get(relPath) ?? new Map(),
+        rootExports: rootExportsPerRelativeFilePath.get(relPath)!,
       });
     }
 
@@ -137,10 +195,8 @@ export async function setupOverall(
 
   const primaryPackages = new Set([...packageNameToFilesToMove.keys(), destinationModule]);
 
-  // await workspace.runTasksInOrder([], async ({ packageName, packagePath }) => {});
-
   // if packageJsonDepsRequired has an entry that has destination in its walk, we fail
-  const q = new Set([
+  const deps = new Set([
     ...packageJsonDepsRequired.dependencies.keys(),
     ...packageJsonDepsRequired.devDependencies.keys(),
   ]);
@@ -149,14 +205,14 @@ export async function setupOverall(
   for (const up of workspace.walk(destinationModule, "downstream")) {
     if (up.name === destinationModule) continue;
 
-    if (q.has(up.name)) {
+    if (deps.has(up.name)) {
       throw new Error(
         `Cannot complete task. It would create a circular dependency as the destination '${destinationModule}' is upstream of a dependency it would have to take: '${up.name}'`,
       );
     }
   }
-  for (const asdf of q) {
-    workspace.walk(asdf);
+  for (const packageName of deps) {
+    workspace.walk(packageName);
   }
 
   return {
@@ -165,7 +221,6 @@ export async function setupOverall(
     packageJsonDepsRequired,
     direction,
     primaryPackages,
-
     packageNameToFilesToMove,
   };
 }
@@ -188,8 +243,12 @@ function getPackageVersions(
     for (const depType of ["dependencies", "devDependencies"] as const) {
       if (assignDepVersion(packageFile, depType, depName, ret)) success = true;
       if (assignDepVersion(packageFile, depType, `@types/${depName}`, ret)) success = true;
-      if (depName.startsWith("node:") && assignDepVersion(packageFile, depType, "@types/node", ret))
+      if (
+        depName.startsWith("node:") &&
+        assignDepVersion(packageFile, depType, "@types/node", ret)
+      ) {
         success = true;
+      }
     }
     if (!success) {
       logger.warn("Failed to find a dependency version for `%s`", depName);
@@ -211,4 +270,12 @@ function assignDepVersion(
     return true;
   }
   return false;
+}
+
+export function isAlias(a: Export | ExportAlias): a is ExportAlias {
+  return a.type === "alias";
+}
+
+export function isAliasEntry(x: [string, Export | ExportAlias]): x is [string, ExportAlias] {
+  return isAlias(x[1]);
 }

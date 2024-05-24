@@ -1,8 +1,8 @@
-import { type ModuleDeclaration, Node, type Project, type SourceFile, SyntaxKind } from "ts-morph";
-import type { Logger } from "pino";
 import type { PackageContext } from "@eartool/utils";
-import type { Replacement } from "./Replacement.js";
+import type { Logger } from "pino";
+import { type ModuleDeclaration, Node, type Project, type SourceFile, SyntaxKind } from "ts-morph";
 import type { PackageExportRename } from "./PackageExportRename.js";
+import type { Replacement } from "./Replacement.js";
 
 export class ProjectContext implements PackageContext {
   #replacements = new Map<string, Replacement[]>();

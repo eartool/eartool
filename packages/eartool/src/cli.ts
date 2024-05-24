@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
+import { registerFixNamespaceCommand } from "@eartool/command-fix-namespace";
+import { changeReferencesCommand, refactorCommand } from "@eartool/command-refactor";
 import type { Argv } from "yargs";
 import yargsEntry from "yargs";
 import { hideBin } from "yargs/helpers";
-import { registerFixNamespaceCommand } from "@eartool/command-fix-namespace";
-import { changeReferencesCommand, refactorCommand } from "@eartool/command-refactor";
 
 type Fn = (a: Argv<NonNullable<unknown>>) => Argv<NonNullable<unknown>>;
 

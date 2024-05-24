@@ -68,7 +68,7 @@ export function unwrapNamespaceInFile(
       // namespace
       // do nothing!
     } else if (Node.isInterfaceDeclaration(childNode) || Node.isTypeAliasDeclaration(childNode)) {
-      // Do nothign here either. We continue to export if it was exported otherwise we leave it as is.
+      // Do nothing here either. We continue to export if it was exported otherwise we leave it as is.
     } else if (childNode.isKind(SyntaxKind.SingleLineCommentTrivia)) {
       // We can just let the comments fall through
     } else {
@@ -121,24 +121,20 @@ export function renameVariablesInBody(
   );
   logger.trace("Symbols in scope: %s", [...symbolsInScope].map((a) => a.getName()).join(", "));
 
-  for (const q of symbolsInScope) {
-    if (!banNames.has(q.getName())) continue;
-    // console.log(q.getName());
-    const d = q.getDeclarations()[0];
-    if (!d) continue;
+  for (const sym of symbolsInScope) {
+    if (!banNames.has(sym.getName())) continue;
+    const decl = sym.getDeclarations()[0];
+    if (!decl) continue;
     if (
-      Node.isFunctionDeclaration(d) ||
-      Node.isVariableDeclaration(d) ||
-      Node.isBindingElement(d) ||
-      Node.isBindingNamed(d)
+      Node.isFunctionDeclaration(decl) ||
+      Node.isVariableDeclaration(decl) ||
+      Node.isBindingElement(decl) ||
+      Node.isBindingNamed(decl)
     ) {
       // need to rename this
-      const nameNode = d.getNameNode()!.asKindOrThrow(SyntaxKind.Identifier);
-      // console.log(d.getKindName() + " _ " + d.getText());
+      const nameNode = decl.getNameNode()!.asKindOrThrow(SyntaxKind.Identifier);
       autorenameIdentifierAndReferences(replacements, nameNode, propOrMethod, banNames);
     }
-
-    // console.log(d.getKindName() + " _ " + d.getText());
   }
 }
 
@@ -159,16 +155,14 @@ export function getSymbolsExclusiveToFunctionBody(
   }
   const set = new Set(body.getSymbolsInScope(SymbolFlags.Value));
 
-  // logger.info([...set].map((a) => a.getName()));
-
-  for (const q of set) {
+  for (const sym of set) {
     if (
-      q.getDeclarations().length == 0 ||
-      !q
+      sym.getDeclarations().length == 0 ||
+      !sym
         .getDeclarations()
         .every((d) => d.getSourceFile() === node.getSourceFile() && d.getAncestors().includes(node))
     ) {
-      set.delete(q);
+      set.delete(sym);
     }
   }
 

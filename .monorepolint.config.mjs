@@ -4,16 +4,31 @@ import {} from "@typescript-eslint/parser";
 import {
   alphabeticalDependencies,
   alphabeticalScripts,
-  standardTsconfig,
+  fileContents,
   packageEntry,
   packageOrder,
-  requireDependency,
   packageScript,
+  requireDependency,
+  standardTsconfig,
 } from "@monorepolint/rules";
 
 /** @type import("@monorepolint/config").Config */
 export default {
   rules: [
+    fileContents({
+      options: {
+        file: "vitest.config.js",
+        template: `
+        import { defineConfig } from 'vitest/config'
+
+        export default defineConfig({
+          test: {
+            // ... Specify options here.
+            include: ["src/**/*.test.{ts,js}"],
+          },
+        })`,
+      },
+    }),
     packageEntry({
       options: {
         entries: {

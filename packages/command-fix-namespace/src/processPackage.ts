@@ -1,6 +1,6 @@
-import * as path from "node:path";
 import type { FilePath, PackageName } from "@eartool/utils";
 import { maybeLoadProject } from "@eartool/utils";
+import * as path from "node:path";
 import { processProject, type ProcessProjectOpts } from "./processProject.js";
 
 /*
@@ -21,7 +21,7 @@ export async function processPackage(
   packagePath: FilePath,
   opts: ProcessProjectOpts,
 ) {
-  const project = maybeLoadProject(packagePath);
+  const project = maybeLoadProject(packagePath, opts.logger);
 
   if (!project) {
     opts.logger.debug(`Skipping package due to missing tsconfig: ${packagePath}`);

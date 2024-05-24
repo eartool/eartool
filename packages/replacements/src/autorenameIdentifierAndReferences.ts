@@ -1,8 +1,8 @@
+import { findNewNameInScope } from "@eartool/utils";
 import { type Identifier } from "ts-morph";
 import { Node } from "ts-morph";
-import { findNewNameInScope } from "@eartool/utils";
-import type { Replacements } from "./Replacements.js";
 import { addReplacementsForRenamedIdentifier } from "./addReplacementsForRenamedIdentifier.js";
+import type { Replacements } from "./Replacements.js";
 
 export function autorenameIdentifierAndReferences(
   replacements: Replacements,

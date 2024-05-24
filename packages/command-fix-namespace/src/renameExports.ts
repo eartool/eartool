@@ -1,5 +1,3 @@
-import type { ExportDeclaration } from "ts-morph";
-import { Node, SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "@eartool/replacements";
 import {
   findFileLocationForImportExport,
@@ -7,6 +5,8 @@ import {
   getSimplifiedNodeInfoAsString,
   isRootExport,
 } from "@eartool/utils";
+import type { ExportDeclaration } from "ts-morph";
+import { Node, SyntaxKind } from "ts-morph";
 import { getNewName } from "./getNewName.js";
 
 export function renameExports(context: NamespaceContext) {

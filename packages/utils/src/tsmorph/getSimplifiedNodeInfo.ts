@@ -14,9 +14,9 @@ export function getSimplifiedNodeInfoAsString(n: Node) {
   if (!n) return "null";
   if (typeof n === "string") return `${n} (BUT THIS SHOULD HAVE BEEN A NODE)`;
   try {
-    return `${n.getKindName()}${Node.hasName(n) ? `:${n.getName()}` : ""} (${n
-      .getSourceFile()
-      .getFilePath()}:${n.getStartLineNumber()}) < ${n
+    return `${n.getKindName()}${
+      Node.hasName(n) ? `:${n.getName()}` : ""
+    } (${n.getSourceFile().getFilePath()}:${n.getStartLineNumber()}) < ${n
       .getAncestors()
       .map(kindNameWithName)
       .join(" < ")}`;

@@ -3,7 +3,6 @@ import { formatTestTypescript } from "./formatTestTypescript.js";
 
 export async function createProjectForTest(
   inputs: Record<string, string>,
-
   verifyCompiles: boolean = false,
 ) {
   const project = new Project({

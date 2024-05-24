@@ -1,4 +1,4 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import { Workspace } from "./WorkspaceInfo.js";
 
 describe(Workspace, () => {
@@ -45,7 +45,7 @@ describe(Workspace, () => {
       baz.addDependency(bar);
 
       const order: string[] = [];
-      await workspace.runTasks([] /*all*/, "upstreamFirst", 6, async (args) => {
+      await workspace.runTasks([], /*all*/ "upstreamFirst", 6, async (args) => {
         order.push(args.packageName);
       });
 
@@ -80,8 +80,8 @@ describe(Workspace, () => {
       foo.addDependency(bar);
       foo.addDependency(baz);
 
-      const q = [...workspace.walkTreeDownstreamFrom(bar)];
-      expect(q.map((a) => a.name)).toEqual(["bar", "foo"]);
+      const packageInfo = [...workspace.walkTreeDownstreamFrom(bar)];
+      expect(packageInfo.map((a) => a.name)).toEqual(["bar", "foo"]);
     });
   });
 });

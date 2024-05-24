@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`processProject Conflicting imports work exclusive 1`] = `
+exports[`processProject > 'Conflicting imports work exclusive' 1`] = `
 "//
 
 //
@@ -26,7 +26,7 @@ export type Props = { hi: "mom" };
 "
 `;
 
-exports[`processProject Conflicting imports work mixed 1`] = `
+exports[`processProject > 'Conflicting imports work mixed' 1`] = `
 "//
 
 //
@@ -54,7 +54,7 @@ export function Foo() {}
 "
 `;
 
-exports[`processProject Conflicting imports work non-exclusive 1`] = `
+exports[`processProject > 'Conflicting imports work non-exclusive' 1`] = `
 "//
 
 //
@@ -84,7 +84,7 @@ export function Foo() {}
 "
 `;
 
-exports[`processProject Doesn't change as const that has constnats 1`] = `
+exports[`processProject > 'Doesn\\'t change as const that has con…' 1`] = `
 "//
 
 //
@@ -111,7 +111,7 @@ export { Foo } from "./foo";
 "
 `;
 
-exports[`processProject Doesn't produce extra import statements 1`] = `
+exports[`processProject > 'Doesn\\'t produce extra import stateme…' 1`] = `
 "//
 
 //
@@ -137,7 +137,7 @@ export interface Foo {
 "
 `;
 
-exports[`processProject Doesnt duplicate the exports from root 1`] = `
+exports[`processProject > 'Doesnt duplicate the exports from root' 1`] = `
 "//
 
 //
@@ -158,7 +158,7 @@ export {} from "./foo";
 "
 `;
 
-exports[`processProject Doesnt export as type just because there is extra info 1`] = `
+exports[`processProject > 'Doesnt export as type just because th…' 1`] = `
 "//
 
 //
@@ -189,7 +189,7 @@ getInitialStateForStuff();
 "
 `;
 
-exports[`processProject Doesnt mess up indirect imports 1`] = `
+exports[`processProject > 'Doesnt mess up indirect imports' 1`] = `
 "//
 
 //
@@ -213,7 +213,7 @@ export const doStuff = () => 5;
 "
 `;
 
-exports[`processProject Doesnt try to reexport an inner const that wasnt exported 1`] = `
+exports[`processProject > 'Doesnt try to reexport an inner const…' 1`] = `
 "//
 
 //
@@ -236,7 +236,7 @@ export { type ExportedForOuter, type Outer } from "./foo";
 "
 `;
 
-exports[`processProject Doesnt try to reexport an inner interface that wasnt exported 1`] = `
+exports[`processProject > 'Doesnt try to reexport an inner inter…' 1`] = `
 "//
 
 //
@@ -260,7 +260,7 @@ export { Outer, type ExportedForOuter } from "./foo";
 "
 `;
 
-exports[`processProject Dont mix up export styles 1`] = `
+exports[`processProject > 'Dont mix up export styles' 1`] = `
 "//
 
 //
@@ -281,7 +281,7 @@ export type { Outer } from "./foo";
 "
 `;
 
-exports[`processProject Dont reexport the wrong things in mixed case 1 1`] = `
+exports[`processProject > 'Dont reexport the wrong things in mix…' 1`] = `
 "//
 
 //
@@ -304,7 +304,7 @@ export { type ExportedForOuter, type Outer } from "./foo";
 "
 `;
 
-exports[`processProject Double reexport check 1`] = `
+exports[`processProject > 'Double reexport check' 1`] = `
 "//
 
 //
@@ -331,7 +331,7 @@ export interface ErrForResult<E> {
 "
 `;
 
-exports[`processProject Enums rename properly 1`] = `
+exports[`processProject > 'Enums rename properly' 1`] = `
 "//
 
 //
@@ -370,7 +370,7 @@ export interface B {
 "
 `;
 
-exports[`processProject Fixes export star 1`] = `
+exports[`processProject > 'Fixes export star' 1`] = `
 "//
 
 //
@@ -407,7 +407,7 @@ CaseSelectors.doStuff();
 "
 `;
 
-exports[`processProject Fixes the exported type 1`] = `
+exports[`processProject > 'Fixes the exported type' 1`] = `
 "//
 
 //
@@ -439,44 +439,7 @@ getInitialStateForStuff();
 "
 `;
 
-exports[`processProject Generics work 1`] = `
-"//
-
-//
-// PATH: '/bar.ts'
-//
-import { OwnProps as MapElementViewerPropertiesOwnProps } from "./foo";
-
-export type Foo<T extends MapElement> = MapElementViewerPropertiesOwnProps<T>;
-,//
-
-//
-// PATH: '/foo.ts'
-//
-
-export interface OwnProps<T extends MapElement> {
-  mapElement: T;
-  locked: boolean;
-  section: RightMapPanelType;
-}
-
-export interface StoreProps {
-  mapDataState: MapDataState;
-}
-
-export interface NectarProps {
-  dispatch: Dispatch;
-}
-
-export type Props<T extends MapElement> = OwnProps<T> &
-  StoreProps &
-  NectarProps;
-
-export function MapElementViewerProperties() {}
-"
-`;
-
-exports[`processProject Generics work with additional 1`] = `
+exports[`processProject > 'Generics work with additional' 1`] = `
 "//
 
 //
@@ -515,7 +478,44 @@ export function MapElementViewerProperties() {}
 "
 `;
 
-exports[`processProject Handles const pattern nicely 1`] = `
+exports[`processProject > 'Generics work' 1`] = `
+"//
+
+//
+// PATH: '/bar.ts'
+//
+import { OwnProps as MapElementViewerPropertiesOwnProps } from "./foo";
+
+export type Foo<T extends MapElement> = MapElementViewerPropertiesOwnProps<T>;
+,//
+
+//
+// PATH: '/foo.ts'
+//
+
+export interface OwnProps<T extends MapElement> {
+  mapElement: T;
+  locked: boolean;
+  section: RightMapPanelType;
+}
+
+export interface StoreProps {
+  mapDataState: MapDataState;
+}
+
+export interface NectarProps {
+  dispatch: Dispatch;
+}
+
+export type Props<T extends MapElement> = OwnProps<T> &
+  StoreProps &
+  NectarProps;
+
+export function MapElementViewerProperties() {}
+"
+`;
+
+exports[`processProject > 'Handles const pattern nicely' 1`] = `
 "//
 
 //
@@ -557,7 +557,7 @@ export * as Foo from "./foo";
 "
 `;
 
-exports[`processProject Handles in file references to faux namespaces 1`] = `
+exports[`processProject > 'Handles in file references to faux na…' 1`] = `
 "//
 
 //
@@ -581,7 +581,7 @@ export * as Foo from "./foo";
 "
 `;
 
-exports[`processProject Handles local variable name collisions inside functions 1`] = `
+exports[`processProject > 'Handles local variable name collision…' 1`] = `
 "//
 
 //
@@ -628,7 +628,7 @@ export function reduce(instance1: SourceInstance, instance2: SourceInstance) {
 "
 `;
 
-exports[`processProject Handles namespace like faux namespace when possible 1`] = `
+exports[`processProject > 'Handles namespace like faux namespace…' 1`] = `
 "//
 
 //
@@ -670,7 +670,7 @@ export * as Foo from "./foo";
 "
 `;
 
-exports[`processProject Multiple things in the file 1`] = `
+exports[`processProject > 'Multiple things in the file' 1`] = `
 "//
 
 //
@@ -701,7 +701,7 @@ export function foo() {
 "
 `;
 
-exports[`processProject Properly handles conflict with import 1`] = `
+exports[`processProject > 'Properly handles conflict with import' 1`] = `
 "//
 
 //
@@ -719,7 +719,7 @@ export const bar = () => {
 "
 `;
 
-exports[`processProject Properly handles conflict with module local variable or function 1`] = `
+exports[`processProject > 'Properly handles conflict with module…' 1`] = `
 "//
 
 //
@@ -740,25 +740,7 @@ export const bar = () => {
 "
 `;
 
-exports[`processProject Properly handles the reference with the unwrap case when inside 1`] = `
-"//
-
-//
-// PATH: '/index.ts'
-//
-
-export const inner = {
-  bleh: (value: string) => 5,
-  other: (value: string) => 6,
-};
-
-export function asdf(value: string) {
-  return value != null ? inner.bleh(value) : undefined;
-}
-"
-`;
-
-exports[`processProject Properly handles the reference with the unwrap case when outside 1`] = `
+exports[`processProject > 'Properly handles the reference with t…' 1`] = `
 "//
 
 //
@@ -787,7 +769,25 @@ export * as Outer from "./foo";
 "
 `;
 
-exports[`processProject Properly updates outer and inner 1`] = `
+exports[`processProject > 'Properly handles the reference with t…' 2`] = `
+"//
+
+//
+// PATH: '/index.ts'
+//
+
+export const inner = {
+  bleh: (value: string) => 5,
+  other: (value: string) => 6,
+};
+
+export function asdf(value: string) {
+  return value != null ? inner.bleh(value) : undefined;
+}
+"
+`;
+
+exports[`processProject > 'Properly updates outer and inner' 1`] = `
 "//
 
 //
@@ -808,7 +808,7 @@ export const Outer = 5;
 "
 `;
 
-exports[`processProject Renames import specifiers as needed 1`] = `
+exports[`processProject > 'Renames import specifiers as needed' 1`] = `
 "//
 
 //
@@ -828,7 +828,7 @@ export const bar = () => {
 "
 `;
 
-exports[`processProject Renames star imports as needed 1`] = `
+exports[`processProject > 'Renames star imports as needed' 1`] = `
 "//
 
 //
@@ -850,7 +850,7 @@ export const bar = () => {
 "
 `;
 
-exports[`processProject Simple additional renames work 1`] = `
+exports[`processProject > 'Simple additional renames work' 1`] = `
 "//
 
 //
@@ -861,7 +861,7 @@ export type MyProps = FooProps;
 "
 `;
 
-exports[`processProject Twins in namespace 1`] = `
+exports[`processProject > 'Twins in namespace' 1`] = `
 "//
 
 //
@@ -874,7 +874,7 @@ export type STATE_ROOT_KEY = typeof STATE_ROOT_KEY;
 "
 `;
 
-exports[`processProject Works with method references 1`] = `
+exports[`processProject > 'Works with method references' 1`] = `
 "//
 
 //
@@ -887,7 +887,7 @@ export function bar() {}
 "
 `;
 
-exports[`processProject combined types 1`] = `
+exports[`processProject > 'combined types' 1`] = `
 "//
 
 //
@@ -913,7 +913,7 @@ export type Props = State & OgreProps & ReduxProps;
 "
 `;
 
-exports[`processProject doesnt clobber component exports 1`] = `
+exports[`processProject > 'doesnt clobber component exports' 1`] = `
 "//
 
 //
@@ -934,7 +934,7 @@ export { Foo, type Props as FooProps } from "./foo";
 "
 `;
 
-exports[`processProject dont explode if error 1`] = `
+exports[`processProject > 'dont explode if error' 1`] = `
 "//
 
 //
@@ -946,7 +946,24 @@ export const foo = 6;
 "
 `;
 
-exports[`processProject function invoke within namespace 1`] = `
+exports[`processProject > 'function invoke within namespace excl…' 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export function bar() {
+  baz();
+}
+
+export function baz() {
+  return 5;
+}
+"
+`;
+
+exports[`processProject > 'function invoke within namespace' 1`] = `
 "//
 
 //
@@ -965,24 +982,49 @@ export function Foo() {}
 "
 `;
 
-exports[`processProject function invoke within namespace exclusive 1`] = `
+exports[`processProject > 'redeclare export w funky names' 1`] = `
 "//
 
 //
 // PATH: '/foo.tsx'
 //
 
-export function bar() {
-  baz();
-}
+export type ThingBar = string;
 
-export function baz() {
-  return 5;
-}
+export const doFoo = () => 5;
+
+export const VAR_BAR = 5;
+,//
+
+//
+// PATH: '/index.ts'
+//
+export * as FooBar from "./foo";
 "
 `;
 
-exports[`processProject redeclare export 1`] = `
+exports[`processProject > 'redeclare export with ordering' 1`] = `
+"//
+
+//
+// PATH: '/foo.tsx'
+//
+
+export interface Thing {
+  what: Thing;
+}
+,//
+
+//
+// PATH: '/index.ts'
+//
+export const before = 5;
+export * as Foo from "./foo";
+export const after = 5;
+"
+`;
+
+exports[`processProject > 'redeclare export' 1`] = `
 "//
 
 //
@@ -1011,49 +1053,7 @@ export * as Foo from "./foo";
 "
 `;
 
-exports[`processProject redeclare export w funky names 1`] = `
-"//
-
-//
-// PATH: '/foo.tsx'
-//
-
-export type ThingBar = string;
-
-export const doFoo = () => 5;
-
-export const VAR_BAR = 5;
-,//
-
-//
-// PATH: '/index.ts'
-//
-export * as FooBar from "./foo";
-"
-`;
-
-exports[`processProject redeclare export with ordering 1`] = `
-"//
-
-//
-// PATH: '/foo.tsx'
-//
-
-export interface Thing {
-  what: Thing;
-}
-,//
-
-//
-// PATH: '/index.ts'
-//
-export const before = 5;
-export * as Foo from "./foo";
-export const after = 5;
-"
-`;
-
-exports[`processProject reexports only alias a single time 1`] = `
+exports[`processProject > 'reexports only alias a single time' 1`] = `
 "//
 
 //
@@ -1079,7 +1079,7 @@ export const Main = connect()(MainInternal);
 "
 `;
 
-exports[`processProject rename in other file exclusive 1`] = `
+exports[`processProject > 'rename in other file exclusive' 1`] = `
 "//
 
 //
@@ -1108,7 +1108,7 @@ export type Baz = string;
 "
 `;
 
-exports[`processProject rename in other file non-exclusive 1`] = `
+exports[`processProject > 'rename in other file non-exclusive' 1`] = `
 "//
 
 //
@@ -1138,7 +1138,25 @@ export type BazForWat = string;
 "
 `;
 
-exports[`processProject simple 1`] = `
+exports[`processProject > 'simple exclusive' 1`] = `
+"//
+
+//
+// PATH: '/foo.ts'
+//
+const foo = 5;
+
+export const aasdf = 3;
+export const second = 5;
+
+export const thirdSpaced = 56;
+
+// Foo
+export const fourthWithComment = 555;
+"
+`;
+
+exports[`processProject > 'simple' 1`] = `
 "//
 
 //
@@ -1158,25 +1176,7 @@ export const fourthWithCommentForWat = 555;
 "
 `;
 
-exports[`processProject simple exclusive 1`] = `
-"//
-
-//
-// PATH: '/foo.ts'
-//
-const foo = 5;
-
-export const aasdf = 3;
-export const second = 5;
-
-export const thirdSpaced = 56;
-
-// Foo
-export const fourthWithComment = 555;
-"
-`;
-
-exports[`processProject works nicely with interfaces 1`] = `
+exports[`processProject > 'works nicely with interfaces' 1`] = `
 "//
 
 //

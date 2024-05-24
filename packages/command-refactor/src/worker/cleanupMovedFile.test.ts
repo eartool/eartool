@@ -1,8 +1,8 @@
-import { describe, expect, it } from "@jest/globals";
 import { WorkspaceBuilder } from "@eartool/test-utils";
+import { describe, expect, it } from "vitest";
+import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 import { cleanupMovedFile } from "./cleanupMovedFile.js";
 import { createCtxHelperFunctions } from "./createCtxHelperFunctions.js";
-import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 
 describe(cleanupMovedFile, () => {
   it("handles imports from own package", async () => {

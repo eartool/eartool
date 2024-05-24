@@ -1,25 +1,25 @@
-import type {
-  Node,
-  ImportSpecifier,
-  ExportSpecifier,
-  ExportDeclaration,
-  Identifier,
-  ImportDeclaration,
-  NamespaceExport,
-  SourceFile,
-} from "ts-morph";
 import type { PackageContext } from "@eartool/utils";
 import {
   findEntireQualifiedNameTree,
-  getNamedSpecifiers,
   getDefaultIdentifier,
+  getNamedSpecifiers,
   getNamespaceIdentifier,
   getPossibleFileLocations,
 } from "@eartool/utils";
-import { pipe, filter, flatMap } from "iter-ops";
+import { filter, flatMap, pipe } from "iter-ops";
+import type {
+  ExportDeclaration,
+  ExportSpecifier,
+  Identifier,
+  ImportDeclaration,
+  ImportSpecifier,
+  NamespaceExport,
+  Node,
+  SourceFile,
+} from "ts-morph";
+import { addImportOrExport } from "./accumulateRenamesForImportedIdentifier.js";
 import type { PackageExportRename, PackageExportRenames } from "./PackageExportRename.js";
 import type { Replacements } from "./Replacements.js";
-import { addImportOrExport } from "./accumulateRenamesForImportedIdentifier.js";
 
 // FIXME: This function is way too complex now because I tried to reuse the
 // renames structure for the full file path support to deal with moved files
@@ -157,8 +157,9 @@ function accumulateRenamesForDecl(
     if (matches.length > 0) {
       const expectedTo = matches[0].toFileOrModule;
       const allMatch = matches.every((a) => a.toFileOrModule === expectedTo);
-      if (!allMatch)
+      if (!allMatch) {
         throw new Error("We don't support moving a file import to multiple locations!");
+      }
 
       toMigrate.push([
         spec,
@@ -183,8 +184,8 @@ function accumulateRenamesForDecl(
       }
     }
   } else {
-    for (const q of toMigrate) {
-      addImportOrExport(replacements, q[0], q[1], q[2], true);
+    for (const [specifier, newSymbolName, newSpecifier] of toMigrate) {
+      addImportOrExport(replacements, specifier, newSymbolName, newSpecifier, true);
     }
   }
 }
@@ -225,13 +226,13 @@ function notEqualTo(maybeNamespaceIdentifier: Node) {
 
 function prependRenames(
   renamesForPackage: PackageExportRename[],
-  maybeNamepsaceImport: Identifier | NamespaceExport,
+  maybeNamespaceImport: Identifier | NamespaceExport,
 ) {
   return renamesForPackage.map<PackageExportRename>(
     (a) =>
       ({
-        from: [maybeNamepsaceImport.getText(), ...a.from],
-        to: a.to ? [maybeNamepsaceImport.getText(), ...a.to] : undefined,
+        from: [maybeNamespaceImport.getText(), ...a.from],
+        to: a.to ? [maybeNamespaceImport.getText(), ...a.to] : undefined,
         toFileOrModule: a.toFileOrModule,
       }) as PackageExportRename,
   );

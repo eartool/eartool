@@ -1,14 +1,14 @@
+import { createLogger } from "@eartool/utils";
+import { findWorkspaceDir } from "@pnpm/find-workspace-dir";
+import * as os from "node:os";
+import * as path from "node:path";
 import { isMainThread, workerData } from "node:worker_threads";
 import type { MessagePort } from "node:worker_threads";
-import * as path from "node:path";
-import * as os from "node:os";
 import type { Logger } from "pino";
 import type * as yargs from "yargs";
-import { findWorkspaceDir } from "@pnpm/find-workspace-dir";
-import { createLogger } from "@eartool/utils";
 import type { JobDef } from "../shared/JobDef.js";
 import { setupWorker, type WireWorkerData, type WorkerData } from "../worker/setupWorker.js";
-import { runBatchJob, type BatchJobOptions, type JobSpec } from "./runBatchJob.js";
+import { type BatchJobOptions, type JobSpec, runBatchJob } from "./runBatchJob.js";
 
 const standardBatchYargsOptions = {
   workspace: {
@@ -24,7 +24,7 @@ const standardBatchYargsOptions = {
       return maybe;
     },
   },
-  // TODO move this out, it also doesnt always make sense
+  // TODO move this out, it also doesn't always make sense
   from: {
     describe: "",
     array: true,
@@ -33,7 +33,7 @@ const standardBatchYargsOptions = {
     defaultDescription: "All packages",
     hidden: true,
   },
-  // TODO not all comamnds need this/support it
+  // TODO not all commands need this/support it
   progress: {
     type: "boolean",
     default: false,
@@ -51,7 +51,7 @@ const standardBatchYargsOptions = {
     count: true,
   },
   "organize-imports": {
-    describe: "Whether or not to organise imports",
+    describe: "Whether or not to organize imports",
     type: "boolean",
     default: false,
   },
@@ -138,16 +138,16 @@ export function makeBatchCommand<O extends { [key: string]: yargs.Options }, W, 
 
           // eslint-disable-next-line no-console
           console.profile(`${process.pid} --- cliMain()`);
-          const q = await cliMain({ ...args, logger } as any);
+          const result = await cliMain({ ...args, logger } as any);
           // eslint-disable-next-line no-console
           console.profileEnd();
 
           await runBatchJob<JobDef<W, R>>(await getBatchJobOptionsFromYargs(args), logger, {
-            ...q,
+            ...result,
             runInlineFunc: async () => (await loadWorkerMain()).default,
             getJobArgs(info) {
               return {
-                ...q.getJobArgs(info),
+                ...result.getJobArgs(info),
                 __specialCommandCheck: name,
                 __parentIdentifier: process.pid.toString(),
               };

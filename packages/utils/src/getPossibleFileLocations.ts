@@ -1,5 +1,5 @@
 import * as path from "node:path";
-import { ModuleKind, type ExportDeclaration, type ImportDeclaration } from "ts-morph";
+import { type ExportDeclaration, type ImportDeclaration, ModuleKind } from "ts-morph";
 import type { PackageContext } from "./workspace/PackageContext.js";
 
 export function getPossibleFileLocations(

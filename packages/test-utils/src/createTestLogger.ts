@@ -1,9 +1,9 @@
-import * as Assert from "node:assert";
 import { getSimplifiedNodeInfoAsString } from "@eartool/utils";
-import { expect } from "@jest/globals";
-import { pino, type Logger } from "pino";
+import * as Assert from "node:assert";
+import { type Logger, pino } from "pino";
 import pinoPretty from "pino-pretty";
 import { Node } from "ts-morph";
+import { expect } from "vitest";
 
 let lastCreated: Logger | undefined;
 let lastCreatedTestPath: string | undefined;

@@ -1,5 +1,5 @@
-import type { Project } from "ts-morph";
 import type { Logger } from "pino";
+import type { Project } from "ts-morph";
 import type { FilePath } from "../FilePath.js";
 import type { PackageName } from "../PackageName.js";
 

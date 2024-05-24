@@ -1,5 +1,5 @@
-import { ModuleResolutionKind, type SourceFile } from "ts-morph";
 import type { FilePath } from "@eartool/utils";
+import { ModuleResolutionKind, type SourceFile } from "ts-morph";
 
 const needsJsSuffix: Set<ModuleResolutionKind | undefined> = new Set([
   ModuleResolutionKind.Node16,

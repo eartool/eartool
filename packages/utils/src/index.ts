@@ -10,7 +10,12 @@ export { dropDtsFiles } from "./tsmorph/dropDtsFiles.js";
 export { findEntireQualifiedNameTree } from "./tsmorph/findEntireQualifiedNameTree.js";
 export { findFileLocationForImportExport } from "./tsmorph/findFileLocationForImportExport.js";
 export { findNewNameInScope } from "./tsmorph/findNewNameInScope.js";
-export { getAllImportsAndExports, mapGetOrInitialize } from "./tsmorph/getAllImportsAndExports.js";
+export type { Export, ExportAlias, Import } from "./tsmorph/getAllImportsAndExports.js";
+export {
+  cloneMetadata,
+  getAllImportsAndExports,
+  mapGetOrInitialize,
+} from "./tsmorph/getAllImportsAndExports.js";
 export type { Metadata } from "./tsmorph/getAllImportsAndExports.js";
 export { getDeclaration } from "./tsmorph/getDeclaration.js";
 export { getDefaultIdentifier } from "./tsmorph/getDefaultIdentifier.js";

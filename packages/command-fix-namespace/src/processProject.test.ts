@@ -1,6 +1,6 @@
-import { describe, expect, it } from "@jest/globals";
-import { createTestLogger, createProjectForTest, formatTestTypescript } from "@eartool/test-utils";
+import { createProjectForTest, createTestLogger, formatTestTypescript } from "@eartool/test-utils";
 import type { Project } from "ts-morph";
+import { describe, expect, it } from "vitest";
 import { processProject, type ProcessProjectOpts } from "./processProject.js";
 
 const cases: {
@@ -689,7 +689,7 @@ const cases: {
       `,
     },
   },
-  //Selectors as WatchedCasesSelectors,
+  // Selectors as WatchedCasesSelectors,
   {
     name: "Fixes export star",
     inputs: {

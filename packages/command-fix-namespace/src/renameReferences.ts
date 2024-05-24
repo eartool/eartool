@@ -1,12 +1,12 @@
-import * as Assert from "node:assert";
-import type { SourceFile } from "ts-morph";
-import { Node, SyntaxKind } from "ts-morph";
 import type { NamespaceContext } from "@eartool/replacements";
 import {
   getProperRelativePathAsModuleSpecifierTo,
   getSimplifiedNodeInfoAsString,
 } from "@eartool/utils";
 import { isAnyOf } from "@reduxjs/toolkit";
+import * as Assert from "node:assert";
+import type { SourceFile } from "ts-morph";
+import { Node, SyntaxKind } from "ts-morph";
 import { getNewName } from "./getNewName.js";
 import { getRelevantNodeFromRefOrThrow } from "./getRelevantNodeFromRefOrThrow.js";
 

@@ -1,6 +1,6 @@
 import { createProjectForTest, createTestLogger } from "@eartool/test-utils";
 import { getAllImportsAndExports } from "@eartool/utils";
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 
 describe("getAllImportsAndExports", () => {
   it("check getAllImportsAndExports", async () => {
@@ -67,37 +67,35 @@ describe("getAllImportsAndExports", () => {
           "exports": Map {
             "Foo" => {
               "name": "Foo",
-              "originFile": "/exportedType.ts",
+              "targetFile": "/exportedType.ts",
               "type": "type",
             },
             "Wtf" => {
               "name": "Wtf",
-              "originFile": "/exportedType.ts",
+              "targetFile": "/exportedType.ts",
               "type": "type",
             },
           },
           "filePath": "/exportedType.ts",
           "imports": Map {},
           "reexportStars": [],
-          "reexports": Map {},
         },
         "/foo.ts" => {
           "exports": Map {
             "foo" => {
               "name": "foo",
-              "originFile": "/foo.ts",
+              "targetFile": "/foo.ts",
               "type": "concrete",
             },
             "default" => {
               "name": "default",
-              "originFile": "/foo.ts",
+              "targetFile": "/foo.ts",
               "type": "concrete",
             },
           },
           "filePath": "/foo.ts",
           "imports": Map {},
           "reexportStars": [],
-          "reexports": Map {},
         },
         "/fullReexport.ts" => {
           "exports": Map {
@@ -105,43 +103,40 @@ describe("getAllImportsAndExports", () => {
               "indirect": true,
               "isType": false,
               "name": "baz",
-              "originFile": "/foo.ts",
+              "targetFile": "/foo.ts",
               "targetName": "foo",
               "type": "alias",
-              "via": [
-                [
-                  "baz",
-                  "/reexportAs.ts",
-                ],
-              ],
+              "via": {
+                "name": "foo",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
             "grouped.foo" => {
               "indirect": true,
               "isType": false,
               "name": "grouped.foo",
-              "originFile": "/foo.ts",
+              "targetFile": "/foo.ts",
               "targetName": "foo",
               "type": "alias",
-              "via": [
-                [
-                  "foo",
-                  "/foo.ts",
-                ],
-              ],
+              "via": {
+                "name": "foo",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
             "grouped.default" => {
               "indirect": true,
               "isType": false,
               "name": "grouped.default",
-              "originFile": "/foo.ts",
+              "targetFile": "/foo.ts",
               "targetName": "default",
               "type": "alias",
-              "via": [
-                [
-                  "default",
-                  "/foo.ts",
-                ],
-              ],
+              "via": {
+                "name": "default",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
           },
           "filePath": "/fullReexport.ts",
@@ -156,7 +151,6 @@ describe("getAllImportsAndExports", () => {
               "originFile": "/foo.ts",
             },
           ],
-          "reexports": Map {},
         },
         "/reexportAs.ts" => {
           "exports": Map {
@@ -164,23 +158,19 @@ describe("getAllImportsAndExports", () => {
               "indirect": false,
               "isType": false,
               "name": "baz",
-              "originFile": "/foo.ts",
+              "targetFile": "/foo.ts",
               "targetName": "foo",
               "type": "alias",
+              "via": {
+                "name": "foo",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
           },
           "filePath": "/reexportAs.ts",
           "imports": Map {},
           "reexportStars": [],
-          "reexports": Map {
-            "foo" => {
-              "exportName": [
-                "baz",
-              ],
-              "isType": false,
-              "originFile": "/foo.ts",
-            },
-          },
         },
         "/importFrom.ts" => {
           "exports": Map {},
@@ -188,22 +178,45 @@ describe("getAllImportsAndExports", () => {
           "imports": Map {
             "foofoo" => {
               "isType": false,
-              "originFile": "/foo.ts",
+              "moduleSpecifier": "./foo",
+              "name": "foofoo",
+              "targetFile": "/foo.ts",
               "targetName": "foo",
+              "type": "import",
+              "via": {
+                "name": "foo",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
             "Foo" => {
               "isType": false,
-              "originFile": "/exportedType.ts",
+              "moduleSpecifier": "./exportedType",
+              "name": "Foo",
+              "targetFile": "/exportedType.ts",
               "targetName": "Foo",
+              "type": "import",
+              "via": {
+                "name": "Foo",
+                "targetFile": "/exportedType.ts",
+                "type": "type",
+              },
             },
             "Wtf" => {
               "isType": false,
-              "originFile": "/exportedType.ts",
+              "moduleSpecifier": "./exportedType",
+              "name": "Wtf",
+              "targetFile": "/exportedType.ts",
               "targetName": "Wtf",
+              "type": "import",
+              "via": {
+                "name": "Wtf",
+                "targetFile": "/exportedType.ts",
+                "type": "type",
+              },
             },
           },
           "reexportStars": [],
-          "reexports": Map {},
         },
         "/importFromAsType.ts" => {
           "exports": Map {},
@@ -211,35 +224,78 @@ describe("getAllImportsAndExports", () => {
           "imports": Map {
             "foo" => {
               "isType": true,
-              "originFile": "/foo.ts",
+              "moduleSpecifier": "./foo",
+              "name": "foo",
+              "targetFile": "/foo.ts",
               "targetName": "foo",
+              "type": "import",
+              "via": {
+                "name": "foo",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
             "Foo" => {
               "isType": true,
-              "originFile": "/exportedType.ts",
+              "moduleSpecifier": "./exportedType",
+              "name": "Foo",
+              "targetFile": "/exportedType.ts",
               "targetName": "Foo",
+              "type": "import",
+              "via": {
+                "name": "Foo",
+                "targetFile": "/exportedType.ts",
+                "type": "type",
+              },
             },
             "Wtf" => {
               "isType": true,
-              "originFile": "/exportedType.ts",
+              "moduleSpecifier": "./exportedType",
+              "name": "Wtf",
+              "targetFile": "/exportedType.ts",
               "targetName": "Wtf",
+              "type": "import",
+              "via": {
+                "name": "Wtf",
+                "targetFile": "/exportedType.ts",
+                "type": "type",
+              },
             },
           },
           "reexportStars": [],
-          "reexports": Map {},
         },
         "/importFromIndirection.ts" => {
           "exports": Map {},
           "filePath": "/importFromIndirection.ts",
           "imports": Map {
             "fooByAnotherName" => {
+              "finalDest": {
+                "name": "foo",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
               "isType": false,
-              "originFile": "/reexportAsDefault.ts",
+              "moduleSpecifier": "./reexportAsDefault",
+              "name": "fooByAnotherName",
+              "targetFile": "/reexportAsDefault.ts",
               "targetName": "default",
+              "type": "import",
+              "via": {
+                "indirect": false,
+                "isType": false,
+                "name": "default",
+                "targetFile": "/foo.ts",
+                "targetName": "foo",
+                "type": "alias",
+                "via": {
+                  "name": "foo",
+                  "targetFile": "/foo.ts",
+                  "type": "concrete",
+                },
+              },
             },
           },
           "reexportStars": [],
-          "reexports": Map {},
         },
         "/index.ts" => {
           "exports": Map {
@@ -247,59 +303,51 @@ describe("getAllImportsAndExports", () => {
               "indirect": false,
               "isType": false,
               "name": "foo",
-              "originFile": "/foo.ts",
+              "targetFile": "/foo.ts",
               "targetName": "foo",
               "type": "alias",
+              "via": {
+                "name": "foo",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
             "Foo" => {
               "indirect": false,
               "isType": false,
               "name": "Foo",
-              "originFile": "/exportedType.ts",
+              "targetFile": "/exportedType.ts",
               "targetName": "Foo",
               "type": "alias",
+              "via": {
+                "name": "Foo",
+                "targetFile": "/exportedType.ts",
+                "type": "type",
+              },
             },
             "Wtf" => {
               "indirect": false,
               "isType": false,
               "name": "Wtf",
-              "originFile": "/exportedType.ts",
+              "targetFile": "/exportedType.ts",
               "targetName": "Wtf",
               "type": "alias",
+              "via": {
+                "name": "Wtf",
+                "targetFile": "/exportedType.ts",
+                "type": "type",
+              },
             },
           },
           "filePath": "/index.ts",
           "imports": Map {},
           "reexportStars": [],
-          "reexports": Map {
-            "foo" => {
-              "exportName": [
-                "foo",
-              ],
-              "isType": false,
-              "originFile": "/foo.ts",
-            },
-            "Foo" => {
-              "exportName": [
-                "Foo",
-              ],
-              "isType": false,
-              "originFile": "/exportedType.ts",
-            },
-            "Wtf" => {
-              "exportName": [
-                "Wtf",
-              ],
-              "isType": false,
-              "originFile": "/exportedType.ts",
-            },
-          },
         },
         "/reassignThenExport.ts" => {
           "exports": Map {
             "baz" => {
               "name": "baz",
-              "originFile": "/reassignThenExport.ts",
+              "targetFile": "/reassignThenExport.ts",
               "type": "concrete",
             },
           },
@@ -307,12 +355,19 @@ describe("getAllImportsAndExports", () => {
           "imports": Map {
             "foo" => {
               "isType": false,
-              "originFile": "/foo.ts",
+              "moduleSpecifier": "./foo",
+              "name": "foo",
+              "targetFile": "/foo.ts",
               "targetName": "foo",
+              "type": "import",
+              "via": {
+                "name": "foo",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
           },
           "reexportStars": [],
-          "reexports": Map {},
         },
         "/reexportAsDefault.ts" => {
           "exports": Map {
@@ -320,23 +375,19 @@ describe("getAllImportsAndExports", () => {
               "indirect": false,
               "isType": false,
               "name": "default",
-              "originFile": "/foo.ts",
+              "targetFile": "/foo.ts",
               "targetName": "foo",
               "type": "alias",
+              "via": {
+                "name": "foo",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
           },
           "filePath": "/reexportAsDefault.ts",
           "imports": Map {},
           "reexportStars": [],
-          "reexports": Map {
-            "foo" => {
-              "exportName": [
-                "default",
-              ],
-              "isType": false,
-              "originFile": "/foo.ts",
-            },
-          },
         },
         "/secondLevelRenamedFullReexport.ts" => {
           "exports": Map {
@@ -344,55 +395,40 @@ describe("getAllImportsAndExports", () => {
               "indirect": true,
               "isType": false,
               "name": "Renamed.baz",
-              "originFile": "/foo.ts",
+              "targetFile": "/foo.ts",
               "targetName": "foo",
               "type": "alias",
-              "via": [
-                [
-                  "baz",
-                  "/fullReexport.ts",
-                ],
-                [
-                  "baz",
-                  "/reexportAs.ts",
-                ],
-              ],
+              "via": {
+                "name": "foo",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
             "Renamed.grouped.foo" => {
               "indirect": true,
               "isType": false,
               "name": "Renamed.grouped.foo",
-              "originFile": "/foo.ts",
+              "targetFile": "/foo.ts",
               "targetName": "foo",
               "type": "alias",
-              "via": [
-                [
-                  "grouped.foo",
-                  "/fullReexport.ts",
-                ],
-                [
-                  "foo",
-                  "/foo.ts",
-                ],
-              ],
+              "via": {
+                "name": "foo",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
             "Renamed.grouped.default" => {
               "indirect": true,
               "isType": false,
               "name": "Renamed.grouped.default",
-              "originFile": "/foo.ts",
+              "targetFile": "/foo.ts",
               "targetName": "default",
               "type": "alias",
-              "via": [
-                [
-                  "grouped.default",
-                  "/fullReexport.ts",
-                ],
-                [
-                  "default",
-                  "/foo.ts",
-                ],
-              ],
+              "via": {
+                "name": "default",
+                "targetFile": "/foo.ts",
+                "type": "concrete",
+              },
             },
           },
           "filePath": "/secondLevelRenamedFullReexport.ts",
@@ -403,7 +439,6 @@ describe("getAllImportsAndExports", () => {
               "originFile": "/fullReexport.ts",
             },
           ],
-          "reexports": Map {},
         },
       }
     `);

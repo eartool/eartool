@@ -16,8 +16,9 @@ export function createPackageExportRenames(rename: string): PackageExportRenames
   const toFileOrModule = toModulePart.length > 0 ? toModulePart : undefined;
   const to = toPart.length > 0 ? toPart.split(".") : undefined;
 
-  if (to === undefined && toFileOrModule === undefined)
+  if (to === undefined && toFileOrModule === undefined) {
     throw new Error("You must at least speciy a new name or a new module (or both)");
+  }
 
   const p = { from, toFileOrModule, to } as PackageExportRename;
 

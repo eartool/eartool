@@ -1,13 +1,13 @@
-import { Worker } from "node:worker_threads";
-import * as path from "node:path";
-import type { Level, Logger } from "pino";
 import { createWorkspaceFromDisk } from "@eartool/utils";
-import * as MessagesToMain from "../shared/MessagesToMain.js";
-import { type WireWorkerData, type WorkerFunc } from "../worker/setupWorker.js";
-import { runWorker } from "../worker/runWorker.js";
+import * as path from "node:path";
+import { Worker } from "node:worker_threads";
+import type { Level, Logger } from "pino";
 import type { JobDef } from "../shared/JobDef.js";
-import type { Progress } from "./progress/Progress.js";
+import * as MessagesToMain from "../shared/MessagesToMain.js";
+import { runWorker } from "../worker/runWorker.js";
+import { type WireWorkerData, type WorkerFunc } from "../worker/setupWorker.js";
 import { NoopProgress } from "./progress/NoopProgress.js";
+import type { Progress } from "./progress/Progress.js";
 import { RealProgress } from "./progress/RealProgress.js";
 
 export interface JobInfo {
@@ -65,14 +65,14 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
 
       const maybeSkipWithResult = await jobSpec.skipJobAndReturnResult?.(jobInfo);
       if (maybeSkipWithResult) {
-        logger.trace("Skipping with result for %s", packageName);
+        // logger.trace("Skipping with result for %s", packageName);
       }
 
       try {
         const result = maybeSkipWithResult ?? (await runInWorker(jobInfo));
 
         if (jobSpec.onComplete) {
-          logger.trace("Calling onComplete for %s %o", packageName, result);
+          logger.trace(result, "Calling onComplete for %s", packageName);
           await jobSpec.onComplete(jobInfo, { logger, result });
         }
 
@@ -124,7 +124,7 @@ export async function runBatchJob<Q extends JobDef<unknown, unknown>>(
             message.payload.stage,
           );
         } else if (MessagesToMain.workComplete.match(message)) {
-          logger.trace("Recieved workComplete form worker %s, %o", packagePath, message.payload);
+          logger.trace(message.payload, "Recieved workComplete from worker %s", packagePath);
 
           if (message.payload.status == "success") {
             resolve(message.payload.result);

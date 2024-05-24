@@ -1,5 +1,5 @@
-import { describe, it, expect } from "@jest/globals";
 import { getImportSpecifierOrThrow } from "@eartool/utils";
+import { describe, expect, it } from "vitest";
 import { replaceImportSpecifierWithNewName } from "./replaceImportSpecifierWithNewName.js";
 import { TestBuilder } from "./TestBuilder.js";
 

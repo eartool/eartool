@@ -1,10 +1,10 @@
+import { findNewNameInScope } from "@eartool/utils";
 import * as Assert from "assert";
 import { Node, SyntaxKind } from "ts-morph";
-import { findNewNameInScope } from "@eartool/utils";
-import type { Replacements } from "./Replacements.js";
-import { replaceImportSpecifierWithNewName } from "./replaceImportSpecifierWithNewName.js";
 import { addReplacementsForRenamedIdentifier } from "./addReplacementsForRenamedIdentifier.js";
 import { autorenameIdentifierAndReferences } from "./autorenameIdentifierAndReferences.js";
+import { replaceImportSpecifierWithNewName } from "./replaceImportSpecifierWithNewName.js";
+import type { Replacements } from "./Replacements.js";
 
 export function replaceAllNamesInScope(
   replacements: Replacements,

@@ -1,10 +1,10 @@
-import * as path from "node:path";
 import type { WorkerData } from "@eartool/batch";
-import { dropDtsFiles, maybeLoadProject, organizeImportsOnFiles } from "@eartool/utils";
 import { SimpleReplacements } from "@eartool/replacements";
+import { dropDtsFiles, maybeLoadProject, organizeImportsOnFiles } from "@eartool/utils";
+import * as path from "node:path";
 import type { JobArgs } from "../shared/JobArgs.js";
-import { processPackageReplacements } from "./processPackageReplacements.js";
 import { assignDependencyVersions } from "./assignDependencyVersions.js";
+import { processPackageReplacements } from "./processPackageReplacements.js";
 import type { WorkerPackageContext } from "./WorkerPackageContext.js";
 
 export default async function workerMain({
@@ -21,8 +21,9 @@ export default async function workerMain({
     destination,
   },
 }: WorkerData<JobArgs>) {
-  const project = maybeLoadProject(packagePath);
+  const project = maybeLoadProject(packagePath, logger);
   if (!project) {
+    logger.fatal(`Could not find project! ${packagePath}`);
     return {};
   }
 

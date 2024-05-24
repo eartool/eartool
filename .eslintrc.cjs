@@ -28,7 +28,7 @@ module.exports = {
 
     // BEGIN Imports and unused vars
     "import/no-duplicates": [ERROR_WHEN_STRICT, { "prefer-inline": false }],
-    "import/order": ["error", { groups: ["builtin", "external", "internal"] }],
+    // "import/order": ["error", { groups: ["builtin", "external", "internal"] }],
 
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": "off",
