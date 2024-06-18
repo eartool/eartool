@@ -51,6 +51,12 @@ describe("getAllImportsAndExports", () => {
       "secondLevelRenamedFullReexport.ts": `
       export * as Renamed from "./fullReexport";
     `,
+      "hasaclass.ts": `
+        export class Foo {}
+    `,
+      "enum.ts": `
+        export enum Foo { Bar, Baz }
+        `,
     });
 
     const result = getAllImportsAndExports({
@@ -63,6 +69,18 @@ describe("getAllImportsAndExports", () => {
 
     expect(result).toMatchInlineSnapshot(`
       Map {
+        "/enum.ts" => {
+          "exports": Map {
+            "Foo" => {
+              "name": "Foo",
+              "targetFile": "/enum.ts",
+              "type": "type",
+            },
+          },
+          "filePath": "/enum.ts",
+          "imports": Map {},
+          "reexportStars": [],
+        },
         "/exportedType.ts" => {
           "exports": Map {
             "Foo" => {
@@ -169,6 +187,18 @@ describe("getAllImportsAndExports", () => {
             },
           },
           "filePath": "/reexportAs.ts",
+          "imports": Map {},
+          "reexportStars": [],
+        },
+        "/hasaclass.ts" => {
+          "exports": Map {
+            "Foo" => {
+              "name": "Foo",
+              "targetFile": "/hasaclass.ts",
+              "type": "type",
+            },
+          },
+          "filePath": "/hasaclass.ts",
           "imports": Map {},
           "reexportStars": [],
         },
