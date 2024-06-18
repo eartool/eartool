@@ -1,5 +1,20 @@
 # eartool
 
+## 0.5.0
+
+### Minor Changes
+
+- d20a03c: Various improvements I didnt track well
+
+### Patch Changes
+
+- Updated dependencies [ddc2c1d]
+  - @eartool/utils@0.5.0
+  - @eartool/command-fix-namespace@0.5.0
+  - @eartool/command-refactor@0.5.0
+  - @eartool/replacements@0.5.0
+  - @eartool/test-utils@0.5.0
+
 ## 0.4.0
 
 ### Minor Changes

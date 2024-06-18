@@ -1,5 +1,15 @@
 # @eartool/command-fix-namespace
 
+## 0.5.0
+
+### Patch Changes
+
+- Updated dependencies [ddc2c1d]
+  - @eartool/utils@0.5.0
+  - @eartool/batch@0.5.0
+  - @eartool/replacements@0.5.0
+  - @eartool/test-utils@0.5.0
+
 ## 0.4.0
 
 ### Patch Changes

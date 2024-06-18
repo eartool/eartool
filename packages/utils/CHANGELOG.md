@@ -1,5 +1,11 @@
 # @eartool/utils
 
+## 0.5.0
+
+### Minor Changes
+
+- ddc2c1d: getAllImportsAndExports handles classes and enums now
+
 ## 0.4.0
 
 ## 0.3.0
