@@ -1,6 +1,8 @@
 import * as Assert from "node:assert/strict";
 import * as util from "node:util";
 import type {
+  ClassDeclaration,
+  EnumDeclaration,
   FunctionDeclaration,
   InterfaceDeclaration,
   ModuleDeclaration,
@@ -264,6 +266,8 @@ function calculateMetadataForSf(
       || childNode.isKind(SyntaxKind.TypeAliasDeclaration)
       || childNode.isKind(SyntaxKind.InterfaceDeclaration)
       || childNode.isKind(SyntaxKind.ModuleDeclaration)
+      || childNode.isKind(SyntaxKind.EnumDeclaration)
+      || childNode.isKind(SyntaxKind.ClassDeclaration)
     ) {
       handleDeclaration(childNode, metadata);
     } else {
@@ -279,7 +283,9 @@ function handleDeclaration(
     | VariableDeclaration
     | TypeAliasDeclaration
     | InterfaceDeclaration
-    | ModuleDeclaration,
+    | ModuleDeclaration
+    | ClassDeclaration
+    | EnumDeclaration,
   metadata: MutableMetadata,
 ) {
   const expectedType = decl.isKind(SyntaxKind.FunctionDeclaration) || decl.isKind(SyntaxKind.VariableDeclaration)
