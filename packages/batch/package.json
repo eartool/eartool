@@ -26,8 +26,8 @@
   },
   "dependencies": {
     "@eartool/utils": "workspace:*",
-    "@pnpm/filter-workspace-packages": "7.2.5",
-    "@pnpm/find-workspace-dir": "^6.0.2",
+    "@pnpm/filter-workspace-packages": "9.0.0",
+    "@pnpm/find-workspace-dir": "^7.0.1",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "@reduxjs/toolkit": "2.2.5",
     "chalk": "^5.3.0",
