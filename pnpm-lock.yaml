@@ -51,8 +51,8 @@ importers:
         specifier: ^15.1.0
         version: 15.1.0
       prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
+        specifier: ^3.3.2
+        version: 3.3.2
       tslib:
         specifier: ^2.6.3
         version: 2.6.3
@@ -121,8 +121,8 @@ importers:
         specifier: ^6.13.1
         version: 6.13.1(eslint@8.54.0)(typescript@5.4.5)
       prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
+        specifier: ^3.3.2
+        version: 3.3.2
       prettier-2:
         specifier: npm:prettier@^2
         version: prettier@2.8.8
@@ -175,8 +175,8 @@ importers:
         specifier: ^10.2.3
         version: 10.2.3
       prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
+        specifier: ^3.3.2
+        version: 3.3.2
       reselect:
         specifier: ^5.1.1
         version: 5.1.1
@@ -275,8 +275,8 @@ importers:
         specifier: ^10.2.3
         version: 10.2.3
       prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
+        specifier: ^3.3.2
+        version: 3.3.2
       ts-morph:
         specifier: ^22.0.0
         version: 22.0.0
@@ -366,8 +366,8 @@ importers:
         specifier: ^10.2.3
         version: 10.2.3
       prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
+        specifier: ^3.3.2
+        version: 3.3.2
       ts-morph:
         specifier: ^22.0.0
         version: 22.0.0
@@ -448,8 +448,8 @@ importers:
         specifier: ^10.2.3
         version: 10.2.3
       prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
+        specifier: ^3.3.2
+        version: 3.3.2
       ts-morph:
         specifier: ^22.0.0
         version: 22.0.0
@@ -527,8 +527,8 @@ importers:
         specifier: ^10.2.3
         version: 10.2.3
       prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
+        specifier: ^3.3.2
+        version: 3.3.2
       ts-morph:
         specifier: ^22.0.0
         version: 22.0.0
@@ -606,8 +606,8 @@ importers:
         specifier: ^10.2.3
         version: 10.2.3
       prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
+        specifier: ^3.3.2
+        version: 3.3.2
       ts-morph:
         specifier: ^22.0.0
         version: 22.0.0
@@ -3021,8 +3021,8 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prettier@3.2.5:
-    resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
+  prettier@3.3.2:
+    resolution: {integrity: sha512-rAVeHYMcv8ATV5d508CFdn+8/pHPpXeIid1DdrPwXnaAdH7cqjVbpJaT5eq4yRAFU/lsbwYwSF/n5iNrdJHPQA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -4784,7 +4784,7 @@ snapshots:
 
   '@types/prettier@3.0.0':
     dependencies:
-      prettier: 3.2.5
+      prettier: 3.3.2
 
   '@types/semver@7.5.6': {}
 
@@ -6564,7 +6564,7 @@ snapshots:
 
   prettier@2.8.8: {}
 
-  prettier@3.2.5: {}
+  prettier@3.3.2: {}
 
   pretty-bytes@5.6.0: {}
 
