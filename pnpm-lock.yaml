@@ -30,8 +30,8 @@ importers:
         specifier: ^6.13.1
         version: 6.13.1(eslint@8.54.0)(typescript@5.4.5)
       dprint:
-        specifier: ^0.45.1
-        version: 0.45.1
+        specifier: ^0.46.3
+        version: 0.46.3
       eslint:
         specifier: ^8.54.0
         version: 8.54.0
@@ -54,8 +54,8 @@ importers:
         specifier: ^3.2.5
         version: 3.2.5
       tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
+        specifier: ^2.6.3
+        version: 2.6.3
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -78,8 +78,8 @@ importers:
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.0.0)
       '@reduxjs/toolkit':
-        specifier: 2.0.0-rc.1
-        version: 2.0.0-rc.1
+        specifier: 2.2.5
+        version: 2.2.5
       chalk:
         specifier: ^5.3.0
         version: 5.3.0
@@ -99,8 +99,8 @@ importers:
         specifier: ^10.2.3
         version: 10.2.3
       tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
+        specifier: ^2.6.3
+        version: 2.6.3
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -154,8 +154,8 @@ importers:
         specifier: ^2.0.11
         version: 2.0.11(@pnpm/logger@5.0.0)
       '@reduxjs/toolkit':
-        specifier: 2.0.0-rc.1
-        version: 2.0.0-rc.1
+        specifier: 2.2.5
+        version: 2.2.5
       '@teppeis/multimaps':
         specifier: ^3.0.0
         version: 3.0.0
@@ -184,8 +184,8 @@ importers:
         specifier: ^22.0.0
         version: 22.0.0
       tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
+        specifier: ^2.6.3
+        version: 2.6.3
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -242,8 +242,8 @@ importers:
         specifier: ^2.0.11
         version: 2.0.11(@pnpm/logger@5.0.0)
       '@reduxjs/toolkit':
-        specifier: 2.0.0-rc.1
-        version: 2.0.0-rc.1
+        specifier: 2.2.5
+        version: 2.2.5
       '@teppeis/multimaps':
         specifier: ^3.0.0
         version: 3.0.0
@@ -281,8 +281,8 @@ importers:
         specifier: ^22.0.0
         version: 22.0.0
       tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
+        specifier: ^2.6.3
+        version: 2.6.3
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -345,8 +345,8 @@ importers:
         specifier: ^2.0.11
         version: 2.0.11(@pnpm/logger@5.0.0)
       '@reduxjs/toolkit':
-        specifier: 2.0.0-rc.1
-        version: 2.0.0-rc.1
+        specifier: 2.2.5
+        version: 2.2.5
       '@teppeis/multimaps':
         specifier: ^3.0.0
         version: 3.0.0
@@ -372,8 +372,8 @@ importers:
         specifier: ^22.0.0
         version: 22.0.0
       tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
+        specifier: ^2.6.3
+        version: 2.6.3
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -421,8 +421,8 @@ importers:
         specifier: ^2.0.11
         version: 2.0.11(@pnpm/logger@5.0.0)
       '@reduxjs/toolkit':
-        specifier: 2.0.0-rc.1
-        version: 2.0.0-rc.1
+        specifier: 2.2.5
+        version: 2.2.5
       '@teppeis/multimaps':
         specifier: ^3.0.0
         version: 3.0.0
@@ -454,8 +454,8 @@ importers:
         specifier: ^22.0.0
         version: 22.0.0
       tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
+        specifier: ^2.6.3
+        version: 2.6.3
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -506,8 +506,8 @@ importers:
         specifier: ^2.0.11
         version: 2.0.11(@pnpm/logger@5.0.0)
       '@reduxjs/toolkit':
-        specifier: 2.0.0-rc.1
-        version: 2.0.0-rc.1
+        specifier: 2.2.5
+        version: 2.2.5
       '@teppeis/multimaps':
         specifier: ^3.0.0
         version: 3.0.0
@@ -533,8 +533,8 @@ importers:
         specifier: ^22.0.0
         version: 22.0.0
       tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
+        specifier: ^2.6.3
+        version: 2.6.3
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -582,8 +582,8 @@ importers:
         specifier: ^2.0.11
         version: 2.0.11(@pnpm/logger@5.0.0)
       '@reduxjs/toolkit':
-        specifier: 2.0.0-rc.1
-        version: 2.0.0-rc.1
+        specifier: 2.2.5
+        version: 2.2.5
       '@teppeis/multimaps':
         specifier: ^3.0.0
         version: 3.0.0
@@ -612,8 +612,8 @@ importers:
         specifier: ^22.0.0
         version: 22.0.0
       tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
+        specifier: ^2.6.3
+        version: 2.6.3
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -720,38 +720,38 @@ packages:
   '@changesets/write@0.3.1':
     resolution: {integrity: sha512-SyGtMXzH3qFqlHKcvFY2eX+6b0NGiFcNav8AFsYwy5l8hejOeoeTDemu5Yjmke2V5jpzY+pBvM0vCCQ3gdZpfw==}
 
-  '@dprint/darwin-arm64@0.45.1':
-    resolution: {integrity: sha512-pH0/uKLJ5SJPoHhOwLWFMhCmL0BY3FzWQbull8OGMK/FRkIPgOl2adZSovtUZpUMGWyDOzIWH1fW9X2DuMhnEg==}
+  '@dprint/darwin-arm64@0.46.3':
+    resolution: {integrity: sha512-1ycDpGvclGHF3UG5V6peymPDg6ouNTqM6BjhVELQ6zwr+X98AMhq/1slgO8hwHtPcaS5qhTAS+PkzOmBJRegow==}
     cpu: [arm64]
     os: [darwin]
 
-  '@dprint/darwin-x64@0.45.1':
-    resolution: {integrity: sha512-YUj421LmBLDlxpIER3pORKfQmpmXD50n5mClHjpZrnl17WTiHtQ+jHvDJdJoxH2eS66W0mQyxLoGo5SfFfiM7A==}
+  '@dprint/darwin-x64@0.46.3':
+    resolution: {integrity: sha512-v5IpLmrY836Q5hJAxZuX097ZNQvoZgO6JKO4bK4l6XDhhHAw2XTIUr41+FM5r36ENxyASMk0NpHjhcHtih3o0g==}
     cpu: [x64]
     os: [darwin]
 
-  '@dprint/linux-arm64-glibc@0.45.1':
-    resolution: {integrity: sha512-lJ7s/pOQWRJ0mstjZQnVyX2/3QRXZ9cpFHJDZ7e81Y8QSn/iqxTrnK0DPgxUrDG8hYKQmWQdQLU4sP5DKBz0Jg==}
+  '@dprint/linux-arm64-glibc@0.46.3':
+    resolution: {integrity: sha512-9P13g1vgV8RfQH2qBGa8YAfaOeWA42RIhj7lmWRpkDFtwau96reMKwnBBn8bHUnc5e6bSsbPUOMb/X1KMUKz/g==}
     cpu: [arm64]
     os: [linux]
 
-  '@dprint/linux-arm64-musl@0.45.1':
-    resolution: {integrity: sha512-un2awe1L1sAJLsCPSEUrE0/cgupdzbYFoyBOutyU1zHR9KQn47AtIDw+chvuinU4xleHDuEGyXGuJ6NE+Ky6vw==}
+  '@dprint/linux-arm64-musl@0.46.3':
+    resolution: {integrity: sha512-AAcdcMSZ6DEIoY9E0xQHjkZP+THP7EWsQge4TWzglSIjzn31YltglHAGYFcLB4CTJYpF0NsFDNFktzgkO+s0og==}
     cpu: [arm64]
     os: [linux]
 
-  '@dprint/linux-x64-glibc@0.45.1':
-    resolution: {integrity: sha512-5Civht90S/g8zlyYB7n4oH78p+sLbNqeFCFuImJRK7uRxZwCRya7lji6RwlB6DQ7qngVqovTHj9RLOYfZzfVlg==}
+  '@dprint/linux-x64-glibc@0.46.3':
+    resolution: {integrity: sha512-c5cQ3G1rC64nBZ8Pd2LGWwzkEk4D7Ax9NrBbwYmNPvs6mFbGlJPC1+RD95x2WwIrIlMIciLG+Kxmt25PzBphmg==}
     cpu: [x64]
     os: [linux]
 
-  '@dprint/linux-x64-musl@0.45.1':
-    resolution: {integrity: sha512-p2/gjnHDd8GRCvtey5HZO4o/He6pSmY/zpcCuIXprFW9P0vNlEj3DFhz4FPpOKXM+csrsVWWs2E0T/xr5QZtVg==}
+  '@dprint/linux-x64-musl@0.46.3':
+    resolution: {integrity: sha512-ONtk2QtLcV0TqWOCOqzUFQixgk3JC+vnJLB5L6tQwT7BX5LzeircfE/1f4dg459iqejNC9MBXZkHnXqabvWSow==}
     cpu: [x64]
     os: [linux]
 
-  '@dprint/win32-x64@0.45.1':
-    resolution: {integrity: sha512-2l78XM7KsW46P2Yv6uPB3fE+y92EsBlrCxi+RVQ0pbznPFdMdkLyGgaCuh683zdld14jHlaADpIQ7YchGAEMAg==}
+  '@dprint/win32-x64@0.46.3':
+    resolution: {integrity: sha512-xvj4DSEilf0gGdT7CqnwNEgfWNuWqT6eIBxHDEUbmcn1vZ7IwirtqRq/nm3lmYtQaJ4EbtMQZvACHZwxC7G96w==}
     cpu: [x64]
     os: [win32]
 
@@ -1281,11 +1281,11 @@ packages:
     resolution: {integrity: sha512-6HdLY5oUH0Ks0KfbEKnFc5ZUpnlpfNkyu15L8DMxYizQCBI44A/lSsCpDNvgsTXQKpwRdnfczZYrJ3DVEOb77Q==}
     engines: {node: '>=16.14'}
 
-  '@reduxjs/toolkit@2.0.0-rc.1':
-    resolution: {integrity: sha512-BF+7Yxm7yuUnUevU2lq80Zg2CTJa9YXcsrFS36H853kfCcW023IuFlJsRoSAkp9j7KFA2WOszzliqGsA2IXxPQ==}
+  '@reduxjs/toolkit@2.2.5':
+    resolution: {integrity: sha512-aeFA/s5NCG7NoJe/MhmwREJxRkDs0ZaSqt0MxhWUrwCf1UQXpwR87RROJEql0uAkLI6U7snBOYOcKw83ew3FPg==}
     peerDependencies:
       react: ^16.9.0 || ^17.0.0 || ^18
-      react-redux: ^7.2.1 || ^8.1.3 || ^9.0.0-rc.0
+      react-redux: ^7.2.1 || ^8.1.3 || ^9.0.0
     peerDependenciesMeta:
       react:
         optional: true
@@ -1916,8 +1916,8 @@ packages:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
 
-  dprint@0.45.1:
-    resolution: {integrity: sha512-OYefcDgxd6jSdig/Cfkw1vdvyiOIRruCPnqGBbXpc95buDt9kvwL+Lic1OHc+SaQSsQub0BUZMd5+TNgy8Sh3A==}
+  dprint@0.46.3:
+    resolution: {integrity: sha512-ACEd7B7sO/uvPvV/nsHbtkIeMqeD2a8XGO1DokROtKDUmI5WbuflGZOwyjFCYwy4rkX6FXoYBzGdEQ6um7BjCA==}
     hasBin: true
 
   eastasianwidth@0.2.0:
@@ -2353,8 +2353,8 @@ packages:
     resolution: {integrity: sha512-g7dmpshy+gD7mh88OC9NwSGTKoc3kyLAZQRU1mt53Aw/vnvfXnbC+F/7F7QoYVKbV+KNvJx8wArewKy1vXMtlg==}
     engines: {node: '>= 4'}
 
-  immer@10.0.3:
-    resolution: {integrity: sha512-pwupu3eWfouuaowscykeckFmVTpqbzW+rXFCX8rQLkZzM9ftBmU/++Ra+o+L27mz03zJTlyV4UUr+fdKNffo4A==}
+  immer@10.1.1:
+    resolution: {integrity: sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==}
 
   import-fresh@3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
@@ -3114,13 +3114,13 @@ packages:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
     engines: {node: '>=8'}
 
-  redux-thunk@3.0.0-rc.0:
-    resolution: {integrity: sha512-2NcCM9cZZT+mrAISy0LWYKX4HjeMg7o8vcs/JgZCx8o+3/sXmzW7tk64Xvc6wTQwIWinpQCTX6eHNGCF4en/nA==}
+  redux-thunk@3.1.0:
+    resolution: {integrity: sha512-NW2r5T6ksUKXCabzhL9z+h206HQw/NJkcLm1GPImRQ8IzfXwRGqjVhKJGauHirT0DAuyy6hjdnMZaRoAcy0Klw==}
     peerDependencies:
-      redux: ^5.0.0-rc.0
+      redux: ^5.0.0
 
-  redux@5.0.0-rc.1:
-    resolution: {integrity: sha512-/MWJ9K9v/r1jAzYw9MJIP2rA2RvmdI3KJ3s4ZwCzeEtFGcVaIWInS0xuFF490nRe35sRJTqfXWtkV0UxC8Pv+w==}
+  redux@5.0.1:
+    resolution: {integrity: sha512-M9/ELqF6fy8FwmkpnF0S3YKOqMyoWJ4+CS5Efg2ct3oY9daQvd/Pc71FpGZsVsbl3Cpb+IIcjBDUnnyBdQbq4w==}
 
   regenerator-runtime@0.13.11:
     resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
@@ -3489,8 +3489,8 @@ packages:
   tslib@2.3.1:
     resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
 
-  tslib@2.6.2:
-    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
+  tslib@2.6.3:
+    resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
 
   tty-table@4.2.1:
     resolution: {integrity: sha512-xz0uKo+KakCQ+Dxj1D/tKn2FSyreSYWzdkL/BYhgN6oMW808g8QRMuh1atAV9fjTPbWBjfbkKQpI/5rEcnAc7g==}
@@ -3932,25 +3932,25 @@ snapshots:
       human-id: 1.0.2
       prettier: 2.8.8
 
-  '@dprint/darwin-arm64@0.45.1':
+  '@dprint/darwin-arm64@0.46.3':
     optional: true
 
-  '@dprint/darwin-x64@0.45.1':
+  '@dprint/darwin-x64@0.46.3':
     optional: true
 
-  '@dprint/linux-arm64-glibc@0.45.1':
+  '@dprint/linux-arm64-glibc@0.46.3':
     optional: true
 
-  '@dprint/linux-arm64-musl@0.45.1':
+  '@dprint/linux-arm64-musl@0.46.3':
     optional: true
 
-  '@dprint/linux-x64-glibc@0.45.1':
+  '@dprint/linux-x64-glibc@0.46.3':
     optional: true
 
-  '@dprint/linux-x64-musl@0.45.1':
+  '@dprint/linux-x64-musl@0.46.3':
     optional: true
 
-  '@dprint/win32-x64@0.45.1':
+  '@dprint/win32-x64@0.46.3':
     optional: true
 
   '@esbuild/aix-ppc64@0.20.2':
@@ -4096,7 +4096,7 @@ snapshots:
       camelcase: 6.3.0
       chalk: 5.3.0
       runtypes: 6.6.0
-      tslib: 2.6.2
+      tslib: 2.6.3
 
   '@monorepolint/core@0.5.0-alpha.107':
     dependencies:
@@ -4105,7 +4105,7 @@ snapshots:
       camelcase: 7.0.1
       chalk: 5.3.0
       runtypes: 6.6.0
-      tslib: 2.6.2
+      tslib: 2.6.3
 
   '@monorepolint/rules@0.5.0-alpha.107':
     dependencies:
@@ -4117,7 +4117,7 @@ snapshots:
       resolve-package-path: 4.0.3
       runtypes: 6.6.0
       semver: 7.5.4
-      tslib: 2.6.2
+      tslib: 2.6.3
 
   '@monorepolint/utils@0.5.0-alpha.107':
     dependencies:
@@ -4126,7 +4126,7 @@ snapshots:
       glob: 8.1.0
       micromatch: 4.0.5
       read-yaml-file: 2.1.0
-      tslib: 2.6.2
+      tslib: 2.6.3
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -4692,11 +4692,11 @@ snapshots:
       write-file-atomic: 5.0.1
       write-yaml-file: 5.0.0
 
-  '@reduxjs/toolkit@2.0.0-rc.1':
+  '@reduxjs/toolkit@2.2.5':
     dependencies:
-      immer: 10.0.3
-      redux: 5.0.0-rc.1
-      redux-thunk: 3.0.0-rc.0(redux@5.0.0-rc.1)
+      immer: 10.1.1
+      redux: 5.0.1
+      redux-thunk: 3.1.0(redux@5.0.1)
       reselect: 5.1.1
 
   '@rollup/rollup-android-arm-eabi@4.18.0':
@@ -5336,15 +5336,15 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dprint@0.45.1:
+  dprint@0.46.3:
     optionalDependencies:
-      '@dprint/darwin-arm64': 0.45.1
-      '@dprint/darwin-x64': 0.45.1
-      '@dprint/linux-arm64-glibc': 0.45.1
-      '@dprint/linux-arm64-musl': 0.45.1
-      '@dprint/linux-x64-glibc': 0.45.1
-      '@dprint/linux-x64-musl': 0.45.1
-      '@dprint/win32-x64': 0.45.1
+      '@dprint/darwin-arm64': 0.46.3
+      '@dprint/darwin-x64': 0.46.3
+      '@dprint/linux-arm64-glibc': 0.46.3
+      '@dprint/linux-arm64-musl': 0.46.3
+      '@dprint/linux-x64-glibc': 0.46.3
+      '@dprint/linux-x64-musl': 0.46.3
+      '@dprint/win32-x64': 0.46.3
 
   eastasianwidth@0.2.0: {}
 
@@ -5908,7 +5908,7 @@ snapshots:
 
   ignore@5.3.0: {}
 
-  immer@10.0.3: {}
+  immer@10.1.1: {}
 
   import-fresh@3.3.0:
     dependencies:
@@ -6655,11 +6655,11 @@ snapshots:
       indent-string: 4.0.0
       strip-indent: 3.0.0
 
-  redux-thunk@3.0.0-rc.0(redux@5.0.0-rc.1):
+  redux-thunk@3.1.0(redux@5.0.1):
     dependencies:
-      redux: 5.0.0-rc.1
+      redux: 5.0.1
 
-  redux@5.0.0-rc.1: {}
+  redux@5.0.1: {}
 
   regenerator-runtime@0.13.11: {}
 
@@ -6741,7 +6741,7 @@ snapshots:
 
   rxjs@7.8.1:
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.6.3
 
   safe-array-concat@1.0.1:
     dependencies:
@@ -7028,7 +7028,7 @@ snapshots:
 
   tslib@2.3.1: {}
 
-  tslib@2.6.2: {}
+  tslib@2.6.3: {}
 
   tty-table@4.2.1:
     dependencies:
