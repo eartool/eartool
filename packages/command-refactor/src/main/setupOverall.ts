@@ -21,7 +21,7 @@ import type {
   Workspace,
 } from "@eartool/utils";
 import type { SetMultimap } from "@teppeis/multimaps";
-import Iterator from "core-js-pure/actual/iterator";
+import Iterator from "core-js-pure/actual/iterator/index.js";
 import * as Assert from "node:assert";
 import path from "node:path";
 import * as util from "node:util";

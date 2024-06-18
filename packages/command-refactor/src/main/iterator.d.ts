@@ -1,4 +1,4 @@
-declare module "core-js-pure/actual/iterator" {
+declare module "core-js-pure/actual/iterator/index.js" {
   class Iterator<T> implements IterableIterator<T> {
     // static from<X, Y>(iteratble: ReadonlyMap<X, Y>): Iterator<[X, Y]>;
     static from<T>(iterable: Iterable<T> | IterableIterator<T>): Iterator<T>;

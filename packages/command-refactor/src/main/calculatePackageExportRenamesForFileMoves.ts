@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="./iterator.d.ts" />
-import Iterator from "core-js-pure/actual/iterator";
+import Iterator from "core-js-pure/actual/iterator/index.js";
 
 import type {
   DependencyDirection,
