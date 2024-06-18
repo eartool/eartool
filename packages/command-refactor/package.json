@@ -30,7 +30,6 @@
     "@eartool/test-utils": "workspace:*",
     "@eartool/utils": "workspace:*",
     "@pnpm/filter-workspace-packages": "9.0.0",
-    "@pnpm/find-workspace-packages": "^6.0.9",
     "@pnpm/workspace.pkgs-graph": "^3.0.6",
     "@reduxjs/toolkit": "2.2.5",
     "@teppeis/multimaps": "^3.0.0",
