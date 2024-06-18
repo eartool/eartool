@@ -205,8 +205,8 @@ importers:
         specifier: ^3.2.5
         version: 3.2.5
       reselect:
-        specifier: ^5.0.0-beta.1
-        version: 5.0.0-beta.1
+        specifier: ^5.1.1
+        version: 5.1.1
       ts-morph:
         specifier: ^22.0.0
         version: 22.0.0
@@ -4230,6 +4230,9 @@ packages:
 
   reselect@5.0.0-beta.1:
     resolution: {integrity: sha512-DxH9DLLbaiuLI4gCM8kSfonXtqd9Lh1BsNQhZByr3pHb3c75eFfgxb4vNJxeTgHFn27aLlt3tX0Xh+IqvJsyuw==}
+
+  reselect@5.1.1:
+    resolution: {integrity: sha512-K/BG6eIky/SBpzfHZv/dd+9JBFiS4SWV7FIujVyJRux6e45+73RaUHXLmIR1f7WOMaQ0U1km6qwklRQxpJJY0w==}
 
   resolve-cwd@3.0.0:
     resolution: {integrity: sha512-OrZaX2Mb+rJCpH/6CpSqt9xFVpN++x01XnN2ie9g6P5/3xelLAkXWVADpdz1IHD/KFfEXyE6V0U01OQ3UO2rEg==}
@@ -9527,6 +9530,8 @@ snapshots:
   require-main-filename@2.0.0: {}
 
   reselect@5.0.0-beta.1: {}
+
+  reselect@5.1.1: {}
 
   resolve-cwd@3.0.0:
     dependencies:
