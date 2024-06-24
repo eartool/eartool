@@ -47,7 +47,7 @@
     "@types/yargs": "^17.0.32",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
-    "eslint": "^8.54.0",
+    "eslint": "^8.57.0",
     "prettier-2": "npm:prettier@^2",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
