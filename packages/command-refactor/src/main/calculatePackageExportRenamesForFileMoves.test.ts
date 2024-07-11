@@ -1,4 +1,3 @@
-import { createTestLogger, WorkspaceBuilder } from "@eartool/test-utils";
 import type { PackageName } from "@eartool/utils";
 import { describe, expect, it } from "vitest";
 import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";

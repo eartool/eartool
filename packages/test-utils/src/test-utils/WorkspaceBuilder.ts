@@ -26,6 +26,7 @@ export type PackageContextFactory<T extends PackageContext> = (args: {
 
 export class WorkspaceBuilder<T extends PackageContext> {
   #fs: InMemoryFileSystemHost;
+  // eslint-disable-next-line no-unused-private-class-members
   #logger: Logger;
   #packageNameToProject = new Map<PackageName, Project>();
   #packagePathToProject = new Map<FilePath, Project>();
