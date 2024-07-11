@@ -14,6 +14,7 @@ export class PackageInfo {
   readonly inverseDepsByName = new Map<PackageName, PackageInfo>();
   readonly inverseDepsByPath = new Map<FilePath, PackageInfo>();
 
+  // eslint-disable-next-line no-unused-private-class-members
   #workspace: Workspace;
 
   constructor(workspace: Workspace, name: PackageName, packagePath: FilePath) {

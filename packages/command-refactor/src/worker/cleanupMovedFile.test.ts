@@ -1,4 +1,3 @@
-import { WorkspaceBuilder } from "@eartool/test-utils";
 import { describe, expect, it } from "vitest";
 import { RefactorWorkspaceBuilder } from "../test-utils/RefactorWorkspaceBuilder.js";
 import { cleanupMovedFile } from "./cleanupMovedFile.js";
