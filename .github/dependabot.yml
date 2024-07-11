@@ -9,6 +9,17 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      typescript-eslint:
+        applies-to: version-updates
+        patterns:
+          - "typescript-eslint"
+          - "@typescript-eslint/*"
+      monorepolint:
+        applies-to: version-updates
+          patterns:
+            - "monorepolint"
+            - "@monorepolint/*"
   - package-ecosystem: "github-actions" 
     directory: "/"
     schedule:
