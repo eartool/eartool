@@ -17,9 +17,9 @@ updates:
           - "@typescript-eslint/*"
       monorepolint:
         applies-to: version-updates
-          patterns:
-            - "monorepolint"
-            - "@monorepolint/*"
+        patterns:
+          - "monorepolint"
+          - "@monorepolint/*"
   - package-ecosystem: "github-actions" 
     directory: "/"
     schedule:
