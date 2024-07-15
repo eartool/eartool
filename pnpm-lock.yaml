@@ -421,8 +421,8 @@ importers:
         specifier: ^3.12.0
         version: 3.12.0
       iter-ops:
-        specifier: ^3.1.1
-        version: 3.1.1
+        specifier: ^3.2.0
+        version: 3.2.0
       p-map:
         specifier: ^7.0.2
         version: 7.0.2
@@ -579,8 +579,8 @@ importers:
         specifier: ^3.12.0
         version: 3.12.0
       iter-ops:
-        specifier: ^3.1.1
-        version: 3.1.1
+        specifier: ^3.2.0
+        version: 3.2.0
       p-queue:
         specifier: ^8.0.1
         version: 8.0.1
@@ -2600,8 +2600,8 @@ packages:
     resolution: {integrity: sha512-LpB/54B+/2J5hqQ7imZHfdU31OlgQqx7ZicVlkm9kzg9/w8GKLEcFfJl/t7DCEDueOyBAD6zCCwTO6Fzs0NoEQ==}
     engines: {node: '>=16'}
 
-  iter-ops@3.1.1:
-    resolution: {integrity: sha512-PelZCVYx+R7MEY6DykEXBANPT2I+Hrdz/Xk9G1vQvZlf+ORdoakNUrSbnvdQGx6AlxojziOnFHRrNEU7QllxAQ==}
+  iter-ops@3.2.0:
+    resolution: {integrity: sha512-CK3AYKQOMIuo0mpFm5wthNBmWuVgaiwqPa56Efl7S7lvRWh8f7sgtanVVSq/QUO3SoSWNLXJU19NNn3F4RmI1g==}
     engines: {node: '>=16'}
 
   jackspeak@3.4.3:
@@ -6282,7 +6282,7 @@ snapshots:
 
   isexe@3.1.1: {}
 
-  iter-ops@3.1.1: {}
+  iter-ops@3.2.0: {}
 
   jackspeak@3.4.3:
     dependencies:
