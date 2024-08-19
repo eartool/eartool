@@ -27,7 +27,7 @@
   "dependencies": {
     "@eartool/test-utils": "workspace:*",
     "@eartool/utils": "workspace:*",
-    "@pnpm/filter-workspace-packages": "9.0.0",
+    "@pnpm/filter-workspace-packages": "10.0.7",
     "@pnpm/workspace.pkgs-graph": "^3.0.6",
     "@reduxjs/toolkit": "2.2.5",
     "@teppeis/multimaps": "^3.0.0",
