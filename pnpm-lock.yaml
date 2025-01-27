@@ -12,17 +12,17 @@ importers:
         specifier: ^2.27.7
         version: 2.27.7
       '@monorepolint/cli':
-        specifier: ^0.6.0-alpha.2
-        version: 0.6.0-alpha.2
+        specifier: ^0.6.0-alpha.3
+        version: 0.6.0-alpha.3
       '@monorepolint/config':
-        specifier: ^0.6.0-alpha.2
-        version: 0.6.0-alpha.2
+        specifier: ^0.6.0-alpha.3
+        version: 0.6.0-alpha.3
       '@monorepolint/core':
-        specifier: ^0.6.0-alpha.2
-        version: 0.6.0-alpha.2
+        specifier: ^0.6.0-alpha.3
+        version: 0.6.0-alpha.3
       '@monorepolint/rules':
-        specifier: ^0.6.0-alpha.2
-        version: 0.6.0-alpha.2
+        specifier: ^0.6.0-alpha.3
+        version: 0.6.0-alpha.3
       '@typescript-eslint/eslint-plugin':
         specifier: ^7.16.0
         version: 7.16.0(@typescript-eslint/parser@7.16.0(eslint@9.6.0)(typescript@5.4.5))(eslint@9.6.0)(typescript@5.4.5)
@@ -937,25 +937,25 @@ packages:
   '@manypkg/get-packages@1.1.3':
     resolution: {integrity: sha512-fo+QhuU3qE/2TQMQmbVMqaQ6EWbMhi4ABWP+O4AM1NqPBuy0OrApV5LO6BrrgnhtAHS2NH6RrVk9OL181tTi8A==}
 
-  '@monorepolint/cli@0.6.0-alpha.2':
-    resolution: {integrity: sha512-+DnymKo2dULsZYZYA3BI6aLXDxJLNcCF6EcB7hmm7JlcK02g6jW3ec6KuAN1qts2iBsZB5vv4rgDKO0IAxlTvQ==}
+  '@monorepolint/cli@0.6.0-alpha.3':
+    resolution: {integrity: sha512-qLO0seve/1/KT8QBl9i/Uy8AxaoIjZXxmNfizSKO3t/CgR2nzJcqmJU5IAcd4iJe60qDaKnmQMNwAL0wjFxUjQ==}
     engines: {node: '>=18'}
     hasBin: true
 
-  '@monorepolint/config@0.6.0-alpha.2':
-    resolution: {integrity: sha512-WemQT5bEBcC1LQqhgq+8+0K2b/SweE8gpGWHlW/EyW/NW0hAZ+yTpO21up0wderKdVvHsLdoT+MgegoFD3QQww==}
+  '@monorepolint/config@0.6.0-alpha.3':
+    resolution: {integrity: sha512-4AY++mzHJSDoT5R4LKCUUz/XBV90XHZAodTrYJjG18Vo0VGMktO3/I3k6wDZEMzTKlRNP75ySXEVOyykQaOwYQ==}
     engines: {node: '>=18'}
 
-  '@monorepolint/core@0.6.0-alpha.2':
-    resolution: {integrity: sha512-jXk43OM/c+GegqGMA/r/z9UgTCWJGcfIrclW16WnjgPeNTiwEZ3KHG/MdQRI/9XRcAmXbNZDTumaCfx1FN7WXA==}
+  '@monorepolint/core@0.6.0-alpha.3':
+    resolution: {integrity: sha512-H2SI/fFHYmZW5uzXj3DK+dJkKfOuqTxM39LMEhxBGh9qLUTZp8O29A10flPZlc1rxRiIIw4vw1qeASd9R6S3Vg==}
     engines: {node: '>=18'}
 
-  '@monorepolint/rules@0.6.0-alpha.2':
-    resolution: {integrity: sha512-rvAqLk/p2MzC07WUTw6hfopAVTDtVE8icQab2lAEZiUriQ0JcxZZs5uK3WPoEme+dIFqwqRNoLKV1JfmDz5NcA==}
+  '@monorepolint/rules@0.6.0-alpha.3':
+    resolution: {integrity: sha512-gjkBVSso9X8L+98gj9r0izAoBdYyq+C33dlLD+oCCY8f9RM/kfjY3qQKT2ruZ8EVcybm/kCrPDWcUYRhZ1okJA==}
     engines: {node: '>=18'}
 
-  '@monorepolint/utils@0.6.0-alpha.2':
-    resolution: {integrity: sha512-bWJcCtxi5E1zI3saj4rGM4qBOIQV+yxrZSDwevS6nlQ+oYujhESugwvxIKnZOKqt7WDI7XF+BaEHTN8JhE3TPw==}
+  '@monorepolint/utils@0.6.0-alpha.3':
+    resolution: {integrity: sha512-7qSDl7luLWRMDPWh7OuEuOSCUFQdkwozU2UMuHOt7FfjUIOXRPKAi2u5J3hQpe9j3qbwtZPa0xxfU1y190E/pA==}
     engines: {node: '>=18'}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -4203,33 +4203,33 @@ snapshots:
       globby: 11.1.0
       read-yaml-file: 1.1.0
 
-  '@monorepolint/cli@0.6.0-alpha.2':
+  '@monorepolint/cli@0.6.0-alpha.3':
     dependencies:
-      '@monorepolint/config': 0.6.0-alpha.2
-      '@monorepolint/core': 0.6.0-alpha.2
-      '@monorepolint/utils': 0.6.0-alpha.2
+      '@monorepolint/config': 0.6.0-alpha.3
+      '@monorepolint/core': 0.6.0-alpha.3
+      '@monorepolint/utils': 0.6.0-alpha.3
       chalk: 5.4.1
       tslib: 2.8.1
       yargs: 17.7.2
 
-  '@monorepolint/config@0.6.0-alpha.2':
+  '@monorepolint/config@0.6.0-alpha.3':
     dependencies:
-      '@monorepolint/utils': 0.6.0-alpha.2
+      '@monorepolint/utils': 0.6.0-alpha.3
       chalk: 5.4.1
       tslib: 2.8.1
 
-  '@monorepolint/core@0.6.0-alpha.2':
+  '@monorepolint/core@0.6.0-alpha.3':
     dependencies:
-      '@monorepolint/config': 0.6.0-alpha.2
-      '@monorepolint/utils': 0.6.0-alpha.2
+      '@monorepolint/config': 0.6.0-alpha.3
+      '@monorepolint/utils': 0.6.0-alpha.3
       chalk: 5.4.1
       tslib: 2.8.1
 
-  '@monorepolint/rules@0.6.0-alpha.2':
+  '@monorepolint/rules@0.6.0-alpha.3':
     dependencies:
-      '@monorepolint/config': 0.6.0-alpha.2
-      '@monorepolint/core': 0.6.0-alpha.2
-      '@monorepolint/utils': 0.6.0-alpha.2
+      '@monorepolint/config': 0.6.0-alpha.3
+      '@monorepolint/core': 0.6.0-alpha.3
+      '@monorepolint/utils': 0.6.0-alpha.3
       globby: 14.0.2
       jest-diff: 29.7.0
       resolve-package-path: 4.0.3
@@ -4237,7 +4237,7 @@ snapshots:
       semver: 7.6.3
       tslib: 2.8.1
 
-  '@monorepolint/utils@0.6.0-alpha.2':
+  '@monorepolint/utils@0.6.0-alpha.3':
     dependencies:
       find-packages: 10.0.4
       find-up: 7.0.0
@@ -4518,7 +4518,7 @@ snapshots:
       path-temp: 2.1.0
       ramda: '@pnpm/ramda@0.28.1'
       rename-overwrite: 6.0.0
-      semver: 7.6.2
+      semver: 7.6.3
       ssri: 10.0.5
       version-selector-type: 3.0.0
     transitivePeerDependencies:
@@ -4633,7 +4633,7 @@ snapshots:
 
   '@pnpm/resolve-workspace-range@1000.0.0':
     dependencies:
-      semver: 7.6.2
+      semver: 7.6.3
 
   '@pnpm/resolve-workspace-range@6.0.0':
     dependencies:
