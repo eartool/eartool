@@ -29,8 +29,8 @@
     "@monorepolint/config": "^0.6.0-alpha.2",
     "@monorepolint/core": "^0.6.0-alpha.2",
     "@monorepolint/rules": "^0.6.0-alpha.2",
-    "@typescript-eslint/eslint-plugin": "^7.16.0",
-    "@typescript-eslint/parser": "^7.16.0",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
     "dprint": "^0.47.2",
     "eslint": "^9.6.0",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -41,7 +41,7 @@
     "prettier": "^3.3.2",
     "tslib": "^2.6.3",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.16.0",
+    "typescript-eslint": "^8.25.0",
     "vitest": "^1.6.0"
   },
   "packageManager": "pnpm@9.4.0+sha512.f549b8a52c9d2b8536762f99c0722205efc5af913e77835dbccc3b0b0b2ca9e7dc8022b78062c17291c48e88749c70ce88eb5a74f1fa8c4bf5e18bb46c8bd83a"
