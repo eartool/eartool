@@ -12,17 +12,17 @@ importers:
         specifier: ^2.27.7
         version: 2.27.7
       '@monorepolint/cli':
-        specifier: ^0.6.0-alpha.2
-        version: 0.6.0-alpha.2
+        specifier: ^0.6.0-alpha.4
+        version: 0.6.0-alpha.4
       '@monorepolint/config':
-        specifier: ^0.6.0-alpha.2
-        version: 0.6.0-alpha.2
+        specifier: ^0.6.0-alpha.4
+        version: 0.6.0-alpha.4
       '@monorepolint/core':
-        specifier: ^0.6.0-alpha.2
-        version: 0.6.0-alpha.2
+        specifier: ^0.6.0-alpha.4
+        version: 0.6.0-alpha.4
       '@monorepolint/rules':
-        specifier: ^0.6.0-alpha.2
-        version: 0.6.0-alpha.2
+        specifier: ^0.6.0-alpha.4
+        version: 0.6.0-alpha.4
       '@typescript-eslint/eslint-plugin':
         specifier: ^7.16.0
         version: 7.16.0(@typescript-eslint/parser@7.16.0(eslint@9.6.0)(typescript@5.4.5))(eslint@9.6.0)(typescript@5.4.5)
@@ -949,25 +949,25 @@ packages:
   '@manypkg/get-packages@1.1.3':
     resolution: {integrity: sha512-fo+QhuU3qE/2TQMQmbVMqaQ6EWbMhi4ABWP+O4AM1NqPBuy0OrApV5LO6BrrgnhtAHS2NH6RrVk9OL181tTi8A==}
 
-  '@monorepolint/cli@0.6.0-alpha.2':
-    resolution: {integrity: sha512-+DnymKo2dULsZYZYA3BI6aLXDxJLNcCF6EcB7hmm7JlcK02g6jW3ec6KuAN1qts2iBsZB5vv4rgDKO0IAxlTvQ==}
+  '@monorepolint/cli@0.6.0-alpha.4':
+    resolution: {integrity: sha512-IbGpgp2yJtOUQ0H6f17ljh6HzIfI/+lEzRL2QcY0NX6JmF4s2tG432qEaASYUEKvfpbNpHpWVNMaJWQGlC+UPg==}
     engines: {node: '>=18'}
     hasBin: true
 
-  '@monorepolint/config@0.6.0-alpha.2':
-    resolution: {integrity: sha512-WemQT5bEBcC1LQqhgq+8+0K2b/SweE8gpGWHlW/EyW/NW0hAZ+yTpO21up0wderKdVvHsLdoT+MgegoFD3QQww==}
+  '@monorepolint/config@0.6.0-alpha.4':
+    resolution: {integrity: sha512-ttPMZxPb93blfOF9r+qVS+ippKytsuGdvexdGU3kF0EPXnkdF/zhtHST0DbiEvza333rh9qMq7A6G1gGpFJc6g==}
     engines: {node: '>=18'}
 
-  '@monorepolint/core@0.6.0-alpha.2':
-    resolution: {integrity: sha512-jXk43OM/c+GegqGMA/r/z9UgTCWJGcfIrclW16WnjgPeNTiwEZ3KHG/MdQRI/9XRcAmXbNZDTumaCfx1FN7WXA==}
+  '@monorepolint/core@0.6.0-alpha.4':
+    resolution: {integrity: sha512-ooSsw7z4ldNkY9d533ohSbzihRAWMwKYJf5aVqZYp2bxpDrCLiBI/wLz5QIVarNO6xbMZQZKMQtTwUVBCOw+JQ==}
     engines: {node: '>=18'}
 
-  '@monorepolint/rules@0.6.0-alpha.2':
-    resolution: {integrity: sha512-rvAqLk/p2MzC07WUTw6hfopAVTDtVE8icQab2lAEZiUriQ0JcxZZs5uK3WPoEme+dIFqwqRNoLKV1JfmDz5NcA==}
+  '@monorepolint/rules@0.6.0-alpha.4':
+    resolution: {integrity: sha512-+zclf2NJIDfIa6KMVrBoxccM3jsGHI0gmTzkk9fKxFSY683BGBdHQCrrshIHx0DKjK/I+YxtJL9zu95f7VjWQg==}
     engines: {node: '>=18'}
 
-  '@monorepolint/utils@0.6.0-alpha.2':
-    resolution: {integrity: sha512-bWJcCtxi5E1zI3saj4rGM4qBOIQV+yxrZSDwevS6nlQ+oYujhESugwvxIKnZOKqt7WDI7XF+BaEHTN8JhE3TPw==}
+  '@monorepolint/utils@0.6.0-alpha.4':
+    resolution: {integrity: sha512-/hEoDUK/lw9jUy3gqJVpJzYcs5XWS3xnc0VBb+1jOdsnqNCpM2rohfPLjaCofgMh7ulvBIdeXXvtM4tci4hLTA==}
     engines: {node: '>=18'}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -3362,8 +3362,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  semver@7.6.3:
-    resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
+  semver@7.7.0:
+    resolution: {integrity: sha512-DrfFnPzblFmNrIZzg5RzHegbiRWg7KMR7btwi2yjHwx06zsUbO5g613sVwEV7FTwmzJu+Io0lJe2GJ3LxqpvBQ==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -4253,41 +4253,41 @@ snapshots:
       globby: 11.1.0
       read-yaml-file: 1.1.0
 
-  '@monorepolint/cli@0.6.0-alpha.2':
+  '@monorepolint/cli@0.6.0-alpha.4':
     dependencies:
-      '@monorepolint/config': 0.6.0-alpha.2
-      '@monorepolint/core': 0.6.0-alpha.2
-      '@monorepolint/utils': 0.6.0-alpha.2
+      '@monorepolint/config': 0.6.0-alpha.4
+      '@monorepolint/core': 0.6.0-alpha.4
+      '@monorepolint/utils': 0.6.0-alpha.4
       chalk: 5.4.1
       tslib: 2.8.1
       yargs: 17.7.2
 
-  '@monorepolint/config@0.6.0-alpha.2':
+  '@monorepolint/config@0.6.0-alpha.4':
     dependencies:
-      '@monorepolint/utils': 0.6.0-alpha.2
+      '@monorepolint/utils': 0.6.0-alpha.4
       chalk: 5.4.1
       tslib: 2.8.1
 
-  '@monorepolint/core@0.6.0-alpha.2':
+  '@monorepolint/core@0.6.0-alpha.4':
     dependencies:
-      '@monorepolint/config': 0.6.0-alpha.2
-      '@monorepolint/utils': 0.6.0-alpha.2
+      '@monorepolint/config': 0.6.0-alpha.4
+      '@monorepolint/utils': 0.6.0-alpha.4
       chalk: 5.4.1
       tslib: 2.8.1
 
-  '@monorepolint/rules@0.6.0-alpha.2':
+  '@monorepolint/rules@0.6.0-alpha.4':
     dependencies:
-      '@monorepolint/config': 0.6.0-alpha.2
-      '@monorepolint/core': 0.6.0-alpha.2
-      '@monorepolint/utils': 0.6.0-alpha.2
+      '@monorepolint/config': 0.6.0-alpha.4
+      '@monorepolint/core': 0.6.0-alpha.4
+      '@monorepolint/utils': 0.6.0-alpha.4
       globby: 14.0.2
       jest-diff: 29.7.0
       resolve-package-path: 4.0.3
       runtypes: 6.7.0
-      semver: 7.6.3
+      semver: 7.7.0
       tslib: 2.8.1
 
-  '@monorepolint/utils@0.6.0-alpha.2':
+  '@monorepolint/utils@0.6.0-alpha.4':
     dependencies:
       find-packages: 10.0.4
       find-up: 7.0.0
@@ -4415,7 +4415,7 @@ snapshots:
       pretty-ms: 7.0.1
       ramda: '@pnpm/ramda@0.28.1'
       rxjs: 7.8.1
-      semver: 7.6.3
+      semver: 7.7.0
       stacktracey: 2.1.8
       string-length: 4.0.2
 
@@ -4541,7 +4541,7 @@ snapshots:
   '@pnpm/npm-package-arg@1.0.0':
     dependencies:
       hosted-git-info: 4.1.0
-      semver: 7.6.3
+      semver: 7.7.0
       validate-npm-package-name: 4.0.0
 
   '@pnpm/npm-resolver@1000.1.2(@pnpm/logger@5.0.0)':
@@ -4568,7 +4568,7 @@ snapshots:
       path-temp: 2.1.0
       ramda: '@pnpm/ramda@0.28.1'
       rename-overwrite: 6.0.0
-      semver: 7.6.2
+      semver: 7.7.0
       ssri: 10.0.5
       version-selector-type: 3.0.0
     transitivePeerDependencies:
@@ -4596,7 +4596,7 @@ snapshots:
       path-temp: 2.1.0
       ramda: '@pnpm/ramda@0.28.1'
       rename-overwrite: 5.0.0
-      semver: 7.6.3
+      semver: 7.7.0
       ssri: 10.0.5
       version-selector-type: 3.0.0
     transitivePeerDependencies:
@@ -4611,7 +4611,7 @@ snapshots:
       detect-libc: 2.0.3
       execa: safe-execa@0.1.2
       mem: 8.1.1
-      semver: 7.6.3
+      semver: 7.7.0
 
   '@pnpm/parse-overrides@5.0.1':
     dependencies:
@@ -4679,15 +4679,15 @@ snapshots:
       archy: 1.0.0
       chalk: 4.1.2
       cli-columns: 4.0.0
-      semver: 7.6.3
+      semver: 7.7.0
 
   '@pnpm/resolve-workspace-range@1000.0.0':
     dependencies:
-      semver: 7.6.2
+      semver: 7.7.0
 
   '@pnpm/resolve-workspace-range@6.0.0':
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.0
 
   '@pnpm/resolver-base@1000.1.1':
     dependencies:
@@ -4949,7 +4949,7 @@ snapshots:
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.0
       ts-api-utils: 1.3.0(typescript@5.4.5)
     optionalDependencies:
       typescript: 5.4.5
@@ -5208,7 +5208,7 @@ snapshots:
 
   builtins@5.1.0:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.0
 
   cac@6.7.14: {}
 
@@ -7017,7 +7017,7 @@ snapshots:
 
   semver@7.6.2: {}
 
-  semver@7.6.3: {}
+  semver@7.7.0: {}
 
   set-function-length@1.1.1:
     dependencies:
@@ -7408,7 +7408,7 @@ snapshots:
 
   version-selector-type@3.0.0:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.0
 
   vite-node@3.1.1(@types/node@20.14.10)(yaml@2.4.5):
     dependencies:
